@@ -1,4 +1,4 @@
-Kafka Connect Cassandra
+Kafka Connect JMS
 =======================
 
 Kafka Connect JMS is a Sink Connector for reading data from
