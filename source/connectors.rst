@@ -19,7 +19,7 @@ Connectors
 ----------
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
    kcql
    bloomberg
@@ -29,3 +29,4 @@ Connectors
    hbase
    kudu
    redis
+   jms
