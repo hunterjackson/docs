@@ -12,3 +12,4 @@ Helper tools and libraries for interacting with the components of the architectu
    :maxdepth: 3
 
    kafka-connect-cli
+   schema-registry-cli
