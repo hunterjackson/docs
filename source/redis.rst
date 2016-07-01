@@ -59,15 +59,6 @@ Confluent Setup
     #setup variables
     ➜  export CONFLUENT_HOME=~/confluent/confluent-2.0.1
 
-Enable topic deletion.
-
-In ``/etc/kafka/server.properties`` add the following to we can delete
-topics.
-
-.. sourcecode:: bash
-
-    delete.topic.enable=true
-
 Start the Confluent platform.
 
 .. sourcecode:: bash

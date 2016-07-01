@@ -61,15 +61,6 @@ Confluent Setup
     #setup variables
     export CONFLUENT_HOME=~/confluent/confluent-2.0.1
 
-Enable topic deletion.
-
-In ``/etc/kafka/server.properties`` add the following so we can delete
-topics.
-
-.. sourcecode:: bash
-
-    delete.topic.enable=true
-
 Start the Confluent platform.
 
 .. sourcecode:: bash
@@ -191,7 +182,6 @@ Since we are in standalone mode we'll create a file called ``cassandra-source-bu
     cassandra.key.space=demo
     connect.cassandra.import.route.query=INSERT INTO orders-topic SELECT * FROM orders
     cassandra.import.mode=bulk
-    cassandra.authentication.mode=username_password
     cassandra.contact.points=localhost
     cassandra.username=cassandra
     cassandra.password=cassandra
@@ -206,9 +196,8 @@ This configuration defines:
    will be routed to a topic matching the table name. In this example the orders table records are routed to the topic
    orders-topic. This property sets the tables to import!
 5. The import mode, either incremental or bulk.
-6. The authentication mode, this is either none or username\_password. We haven't enabled this on our Cassandra install but you should.
-7. The ip or host name of the nodes in the Cassandra cluster to connect to.
-8. Username and password, ignored unless you have set Cassandra to use the PasswordAuthenticator.
+6. The ip or host name of the nodes in the Cassandra cluster to connect to.
+7. Username and password, ignored unless you have set Cassandra to use the PasswordAuthenticator.
 
 Starting the Source Connector (Standalone)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -263,7 +252,6 @@ We can use the CLI to check if the connector is up but you should be able to see
     name=cassandra-source-orders
     connect.cassandra.import.mode=bulk
     connector.class=com.datamountaineer.streamreactor.connect.cassandra.source.CassandraSourceConnector
-    connect.cassandra.authentication.mode=username_password
     connect.cassandra.contact.points=localhost
     connect.cassandra.username=cassandra
     connect.cassandra.password=cassandra
@@ -323,7 +311,6 @@ Create a file called ``cassandra-source-incr-orders.properties`` and add the fol
     connect.cassandra.key.space=demo
     connect.cassandra.import.route.query=INSERT INTO orders-topic SELECT * FROM orders PK created
     connect.cassandra.import.mode=incremental
-    connect.cassandra.authentication.mode=username_password
     connect.cassandra.contact.points=localhost
     connect.cassandra.username=cassandra
     connect.cassandra.password=cassandra
@@ -384,7 +371,6 @@ Once the connector has started lets use the kafka-connect-tools cli to post in o
     name=cassandra-source-orders
     connect.cassandra.import.mode=incremental
     connector.class=com.datamountaineer.streamreactor.connect.cassandra.source.CassandraSourceConnector
-    connect.cassandra.authentication.mode=username_password
     connect.cassandra.contact.points=localhost
     connect.cassandra.username=cassandra
     connect.cassandra.password=cassandra
@@ -517,7 +503,6 @@ cassandra-sink-distributed-orders.properties with contents below.
     connect.cassandra.contact.points=localhost
     connect.cassandra.port=9042
     connect.cassandra.key.space=demo
-    connect.cassandra.authentication.mode=username_password
     connect.cassandra.username=cassandra
     connect.cassandra.password=cassandra
 
@@ -570,7 +555,6 @@ Once the connector has started lets use the kafka-connect-tools cli to post in o
     connect.cassandra.contact.points=localhost
     connect.cassandra.port=9042
     connect.cassandra.key.space=demo
-    connect.cassandra.authentication.mode=username_password
     connect.cassandra.contact.points=localhost
     connect.cassandra.username=cassandra
     connect.cassandra.password=cassandra
@@ -623,6 +607,13 @@ Bingo, our 4 rows!
 
 Features
 --------
+
+Kafka Connect Query Language
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Both connectors support **K** afka **C** onnect **Q** uery **L** anguage found here
+`GitHub repo <https://github.com/datamountaineer/kafka-connector-query-language>`_ allows for routing and mapping using
+a SQL like syntax, consolidating typically features in to one configuration option.
 
 Source Connector
 ~~~~~~~~~~~~~~~~
@@ -801,13 +792,6 @@ Port for the native Java driver.
 * Optional : yes
 * Default : 9042
 
-``connect.cassandra.authentication.mode``
-
-Mode to authenticate with. Either username_password or none.
-
-* Data type: string
-* Optional : yes
-* Default : none
 
 ``connect.cassandra.username``
 
@@ -940,7 +924,6 @@ Bulk Example
     connect.cassandra.key.space=demo
     connect.cassandra.import.route.query=INSERT INTO TABLE_X SELECT * FROM TOPIC_Y
     connect.cassandra.import.mode=bulk
-    connect.cassandra.authentication.mode=username_password
     connect.cassandra.contact.points=localhost
     connect.cassandra.username=cassandra
     connect.cassandra.password=cassandra
@@ -955,7 +938,6 @@ Incremental Example
     connect.cassandra.key.space=demo
     connect.cassandra.import.route.query=INSERT INTO TABLE_X SELECT * FROM TOPIC_Y PK created
     connect.cassandra.import.mode=incremental
-    connect.cassandra.authentication.mode=username_password
     connect.cassandra.contact.points=localhost
     connect.cassandra.username=cassandra
     connect.cassandra.password=cassandra
@@ -979,13 +961,13 @@ Examples:
 * Data Type: string
 * Optional : no
 
-``connect.kudu.sink.error.policy``
+``connect.cassandra.sink.error.policy``
 
 Specifies the action to be taken if an error occurs while inserting the data.
 
 There are three available options, **noop**, the error is swallowed, **throw**, the error is allowed to propagate and retry.
-For **retry** the Kafka message is redelivered up to a maximum number of times specified by the ``connect.kudu.sink.max.retries``
-option. The ``connect.kudu.sink.retry.interval`` option specifies the interval between retries.
+For **retry** the Kafka message is redelivered up to a maximum number of times specified by the ``connect.cassandra.sink.max.retries``
+option. The ``connect.cassandra.sink.retry.interval`` option specifies the interval between retries.
 
 The errors will be logged automatically.
 
@@ -1007,7 +989,6 @@ Example
     connect.cassandra.contact.points=localhost
     connect.cassandra.port=9042
     connect.cassandra.key.space=demo
-    connect.cassandra.authentication.mode=username_password
     connect.cassandra.contact.points=localhost
     connect.cassandra.username=cassandra
     connect.cassandra.password=cassandra
