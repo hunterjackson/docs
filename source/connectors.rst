@@ -30,3 +30,4 @@ Connectors
    kudu
    redis
    jms
+   rethink

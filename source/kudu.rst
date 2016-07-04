@@ -112,6 +112,7 @@ Since we are in standalone mode we'll create a file called ``kudu-sink.propertie
     name=kudu-sink
     connector.class=com.datamountaineer.streamreactor.connect.kudu.KuduSinkConnector
     tasks.max=1
+    connect.kudu.export.route.query = INSERT INTO kudu_test SELECT * FROM kudu_test
     connect.kudu.master=quickstart
     topics=kudu_test
 
@@ -132,7 +133,7 @@ Now we are ready to start the Kudu sink Connector in standalone mode.
 .. note::
 
     You need to add the connector to your classpath or you can create a folder in ``share/java`` of the Confluent
-    install location like, kafka-connect-myconnector and the start scripts provided by Confluent will pick it up.
+    install location like, ``kafka-connect-myconnector`` and the start scripts provided by Confluent will pick it up.
     The start script looks for folders beginning with kafka-connect.
 
 .. sourcecode:: bash
@@ -153,6 +154,7 @@ We can use the CLI to check if the connector is up but you should be able to see
     connector.class=com.datamountaineer.streamreactor.connect.kudu.KuduSinkConnector
     tasks.max=1
     connect.kudu.master=quickstart
+    connect.kudu.export.route.query = INSERT INTO kudu_test SELECT * FROM kudu_test
     topics=kudu_test
     #task ids: 0
 
@@ -299,11 +301,11 @@ Kafka Connect Query Language
 **K** afka **C** onnect **Q** uery **L** anguage found here `GitHub repo <https://github.com/datamountaineer/kafka-connector-query-language>`_
 allows for routing and mapping using a SQL like syntax, consolidating typically features in to one configuration option.
 
-The JDBC sink supports the following:
+The Kudu sink supports the following:
 
 .. sourcecode:: bash
 
-    <write mode> INTO <target table> SELECT <fields> FROM <source topic> <AUTOCREATE> <PK> <PK_FIELDS> <AUTOEVOLVE>
+    <write mode> INTO <target table> SELECT <fields> FROM <source topic> <AUTOCREATE> <DISTRIBUTEBY> <PK_FIELDS> INTO <NBR_OF_BUCKETS> BUCKETS <AUTOEVOLVE>
 
 Example:
 
@@ -315,17 +317,45 @@ Example:
     #Insert mode, select 3 fields and rename from topicB and write to tableB
     INSERT INTO tableB SELECT x AS a, y AS b and z AS c FROM topicB
 
-    #Insert mode, select all fields from topicC, auto create tableC and auto evolve, default pks will be created
-    INSERT INTO tableC SELECT * FROM topicC AUTOCREATE AUTOEVOLVE
-
     #Upsert mode, select all fields from topicC, auto create tableC and auto evolve, use field1 and field2 as the primary keys
-    UPSERT INTO tableC SELECT * FROM topicC AUTOCREATE PK field1, field2 AUTOEVOLVE
+    UPSERT INTO tableC SELECT * FROM topicC AUTOCREATE  DISTRIBUTEBY field1, field2 INTO 10 BUCKETS AUTOEVOLVE
 
+Error Polices
+~~~~~~~~~~~~~
+
+The sink has three error policies that determine how failed writes to the target database are handled. The error policies
+affect the behaviour of the schema evolution characteristics of the sink. See the schema evolution section for more
+information.
+
+**Throw**
+
+Any error on write to the target database will be propagated up and processing is stopped. This is the default
+behaviour.
+
+**Noop**
+
+Any error on write to the target database is ignored and processing continues.
+
+.. warning::
+
+    This can lead to missed errors if you don't have adequate monitoring. Data is not lost as it's still in Kafka
+    subject to Kafka's retention policy. The sink currently does **not** distinguish between integrity constraint
+    violations and or other expections thrown by the driver,
+
+**Retry**
+
+Any error on write to the target database causes the RetryIterable exception to be thrown. This causes the
+Kafka connect framework to pause and replay the message. Offsets are not committed. For example, if the table is offline
+it will cause a write failure, the message can be replayed. With the Retry policy the issue can be fixed without stopping
+the sink.
+
+The length of time the sink will retry can be controlled by using the ``connect.jdbc.sink.max.retries`` and the
+``connect.kudu.sink.retry.interval``.
 
 Auto conversion of Connect records to Kudu
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The sink automatically converts incoming Connect records to Kudu inserts.
+The sink automatically converts incoming Connect records to Kudu inserts or upserts.
 
 Topic Routing
 ~~~~~~~~~~~~~
@@ -349,7 +379,7 @@ Example:
 Field Selection
 ~~~~~~~~~~~~~~~
 
-The JDBC sink supports field selection and mapping. This mapping is set in the ``connect.kudu.export.route.query`` option.
+The Kudu sink supports field selection and mapping. This mapping is set in the ``connect.kudu.export.route.query`` option.
 
 
 Examples:
@@ -373,38 +403,86 @@ Examples:
 
     If you chose field selection you must include the primary key fields otherwise the insert will fail.
 
+Write Modes
+~~~~~~~~~~~
+
+The sink supports both **insert** and **upsert** modes.  This mapping is set in the ``connect.kudu.sink.export.mappings`` option.
+
+**Insert**
+
+Insert is the default write mode of the sink.
+
+**Update**
+
+The sink support Kudu upserts which replaces the existing row if a match is found on the primary keys.
+
+**Insert Idempotency**
+
+Kafka currently provides at least once delivery semantics. Therefore, this mode may produce errors if unique constraints
+have been implemented on the target tables. If the error policy has been set to NOOP then the sink will discard the error
+and continue to process, however, it currently makes no attempt to distinguish violation of integrity constraints from other
+exceptions such as casting issues.
+
+**Upsert Idempotency**
+
+Kafka currently provides at least once delivery semantics and order is a guaranteed within partitions.
+
+This mode will, if the same record is delivered twice to the sink, result in an idempotent write. The existing record
+will be updated with the values of the second which are the same.
+
+If records are delivered with the same field or group of fields that are used as the primary key on the target table,
+but different values, the existing record in the target table will be updated.
+
+Since records are delivered in the order they were written per partition the write is idempotent on failure or restart.
+Redelivery produces the same result.
+
 Auto Create Tables
 ~~~~~~~~~~~~~~~~~~
 
-The sink supports auto creation of tables for each topic.
+The sink supports auto creation of tables for each topic. This mapping is set in the ``connect.kudu.export.route.query`` option.
 
-Any table auto created will have primary keys added. These can either be user specified fields from the topic schema or 3 default
-columns set by the sink. If the defaults are requested the sink creates 3 columns, **__connect_topic**,
-**__connect_partition** and **__connect_offset**. These columns are set as primary keys. They are filled with the
-topic name, partition and offset of the record they came from.
+Primary keys are set in the ``DISTRIBUTEBY`` clause of the ``connect.kudu.export.route.query``.
 
-This mapping is set in the ``connect.kudu.export.route.query`` option.
-
-Examples
+Tables are created with the Kudu hash partition strategy. The number of buckets must be specified in the ``kcql``
+statement.
 
 .. sourcecode:: sql
 
-    //AutoCreate the target table
-    INSERT INTO table SELECT * FROM topic AUTOCREATE
-
-    //AuoCreate the target table with USER defined PKS from the record
-    INSERT INTO table SELECT * FROM topic AUTOCREATE PK field1, field2
+    #AutoCreate the target table
+    INSERT INTO table1 SELECT * FROM topic AUTOCREATE DISTRIBUTEBY field1, field2 INTO 10 BUCKETS
 
 ..	note::
 
-    The fields specified as the primary keys must be in the SELECT clause or all fields (*) must be selected
+    The fields specified as the primary keys (distributeby) must be in the SELECT clause or all fields must be selected
 
 The sink will try and create the table at start up if a schema for the topic is found in the Schema Registry. If no
 schema is found the table is created when the first record is received for the topic.
 
-.. tip::
+Auto Evolve Tables
+~~~~~~~~~~~~~~~~~~
 
-    Pre-create you topics with more than 1 partition so catch as DDL errors such as permission issues beforehand.
+The sink supports auto evolution of tables for each topic. This mapping is set in the ``connect.kudu.export.route.query`` option.
+When set the sink will identify new schemas for each topic based on the schema version from the Schema registry. New columns
+will be identified and an alter table DDL statement issued against Kudu.
+
+Schema evolution can occur upstream, for example any new fields or change in data type in the schema of the topic, or
+downstream DDLs on the database.
+
+Upstream changes must follow the schema evolution rules laid out in the Schema Registry. This sink only supports BACKWARD
+and FULLY compatible schemas. If new fields are added the sink will attempt to perform a ALTER table DDL statement against
+the target table to add columns. All columns added to the target table are set as nullable.
+
+Fields cannot be deleted upstream. Fields should be of Avro union type [null, <dataType>] with a default set. This allows
+the sink to either retrieve the default value or null. The sink is not be aware that the field has been deleted
+as a value is always supplied to it.
+
+.. warning::
+
+    If a upstream field is removed and the topic is not following the Schema Registry's  evolution rules, i.e. not full
+    or backwards compatible, any errors will default to the error policy.
+
+Downstream changes are handled by the sink. If columns are removed, the mapped fields from the topic are ignored. If
+columns are added, we attempt to find a matching field by name in the topic.
 
 
 Data Type Mappings
@@ -510,15 +588,9 @@ Example
     connector.class=com.datamountaineer.streamreactor.connect.kudu.KuduSinkConnector
     tasks.max=1
     connect.kudu.master=quickstart
-    connect.kudu.export.route.query=INSERT INTO kudu_test SELECT * FROM kudu_test AUTOCREATE PK id
+    connect.kudu.export.route.query=INSERT INTO kudu_test SELECT * FROM kudu_test AUTOCREATE DISTRIBUTEBY id INTO 5 BUCKETS
     topics=kudu_test
     connect.kudu.sink.schema.registry.url=http://myhost:8081
-
-
-Schema Evolution
-----------------
-
-TODO
 
 Deployment Guidelines
 ---------------------
