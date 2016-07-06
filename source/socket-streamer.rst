@@ -95,7 +95,7 @@ To start the socket streamer:
 
 .. sourcecode:: bash
 
-    ➜   java -jar build/libs/kafka-socket-streamer-0.1-all.jar -Dconfig.file=path_to_file/application.conf
+    ➜   java -Dconfig.file=path_to_file/application.conf -jar build/libs/kafka-socket-streamer-0.1-all.jar
 
     2016-05-12 15:57:39,712 INFO  [main] [c.d.s.s.Main$] [delayedEndpoint$com$datamountaineer$streamreactor$socketstreamer$Main$1:32]
 
