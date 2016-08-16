@@ -33,4 +33,5 @@ Connectors
    redis
    rethink
    yahoo
+   voltdb
 
