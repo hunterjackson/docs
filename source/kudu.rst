@@ -8,7 +8,7 @@ The connector takes the value from the Kafka Connect SinkRecords and inserts a n
 Prerequisites
 -------------
 
-- Confluent 2.0
+- Confluent 3.0.0
 - Kudu 0.7
 - Java 1.8
 - Scala 2.11
@@ -31,16 +31,16 @@ Confluent Setup
 .. sourcecode:: bash
 
     #make confluent home folder
-    mkdir confluent
+    ➜  mkdir confluent
 
     #download confluent
-    wget http://packages.confluent.io/archive/2.0/confluent-2.0.1-2.11.7.tar.gz
+    ➜  wget http://packages.confluent.io/archive/3.0/confluent-3.0.0-2.11.tar.gz
 
     #extract archive to confluent folder
-    tar -xvf confluent-2.0.1-2.11.7.tar.gz -C confluent
+    ➜  tar -xvf confluent-3.0.0-2.11.tar.gz -C confluent
 
     #setup variables
-    export CONFLUENT_HOME=~/confluent/confluent-2.0.1
+    ➜  export CONFLUENT_HOME=~/confluent/confluent-3.0.0
 
 Start the Confluent platform.
 
@@ -96,9 +96,8 @@ The sink currently expects precreated tables in Kudu.
 Sink Connector Configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Next we start the connector in standalone mode. This useful for testing
-and one of jobs, usually you'd run in distributed mode to get fault
-tolerance and better performance.
+Next we start the connector in standalone mode. This useful for testing and one of jobs, usually you'd run in distributed
+mode to get fault tolerance and better performance.
 
 Before we can start the connector we need to setup it's configuration. In standalone mode this is done by creating a
 properties file and passing this to the connector at startup. In distributed mode you can post in the configuration as
@@ -122,7 +121,9 @@ This configuration defines:
 2.  The sink class.
 3.  The max number of tasks the connector is allowed to created. Should not be greater than the number of partitions in
     the source topics otherwise tasks will be idle.
-4.  The source kafka topics to take events from.
+4.  The KCQL statement to route topics to tables and any mappings. See KCQL for details.
+5.  The Kudu master host
+6.  The source kafka topics to take events from.
 
 
 Starting the Sink Connector (Standalone)
@@ -234,11 +235,8 @@ Now check the logs of the connector you should see this:
     [2016-05-08 22:09:22,116] INFO Initialising Kudu writer (com.datamountaineer.streamreactor.connect.kudu.KuduWriter:40)
     [2016-05-08 22:09:22,134] INFO Assigned topics kudu_test (com.datamountaineer.streamreactor.connect.kudu.KuduWriter:42)
     [2016-05-08 22:09:22,148] INFO Sink task org.apache.kafka.connect.runtime.WorkerSinkTask@68496440 finished initialization and start (org.apache.kafka.connect.runtime.WorkerSinkTask:155)
-    [2016-05-08 22:09:22,276] WARN Slow DNS lookup!  Resolved IP of `quickstart' to 192.168.56.101 in 6704556ns (org.kududb.client.AsyncKuduClient:1711)
-    [2016-05-08 22:09:22,432] INFO Discovered tablet Kudu Master for table Kudu Master with partition ["", "") (org.kududb.client.AsyncKuduClient:1230)
     [2016-05-08 22:09:22,476] INFO Written 2 for kudu_test (com.datamountaineer.streamreactor.connect.kudu.KuduWriter:90)
-    [2016-05-08 22:09:22,476] INFO Discovered tablet 8340243e03ea4381b680d497be9a6c5e for table kudu_test with partition ["", "") (org.kududb.client.AsyncKuduClient:1230)
-    [2016-05-08 22:09:23,555] WARN Slow DNS lookup!  Resolved IP of `quickstart.cloudera' to 192.168.56.101 in 1078859124ns (org.kududb.client.AsyncKuduClient:1711)
+
 
 In Kudu:
 
@@ -279,7 +277,7 @@ schema registry configurations.
 
 .. sourcecode:: bash
 
-    ➜  confluent-2.0.1/bin/connect-distributed confluent-2.0.1/etc/schema-registry/connect-avro-distributed.properties
+    ➜  confluent-3.0.0/bin/connect-distributed confluent-3.0.0/etc/schema-registry/connect-avro-distributed.properties
 
 Once the connector has started lets use the kafka-connect-tools cli to post in our distributed properties file.
 
@@ -294,6 +292,17 @@ Insert the records as before to have them written to Kudu.
 
 Features
 --------
+
+The Kudu sink writes records from Kafka to Kudu.
+
+The sink supports:
+
+1. Field selection - Kafka topic payload field selection is supported, allowing you to have choose selection of fields
+   or all fields written to Kudu.
+2. Topic to table routing.
+3. Auto table create with DISTRIBUTE BY partition strategy.
+4. Auto evolution of tables.
+5. Error policies for handling failures.
 
 Kafka Connect Query Language
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -349,7 +358,7 @@ Kafka connect framework to pause and replay the message. Offsets are not committ
 it will cause a write failure, the message can be replayed. With the Retry policy the issue can be fixed without stopping
 the sink.
 
-The length of time the sink will retry can be controlled by using the ``connect.jdbc.sink.max.retries`` and the
+The length of time the sink will retry can be controlled by using the ``connect.kudu.sink.max.retries`` and the
 ``connect.kudu.sink.retry.interval``.
 
 Auto conversion of Connect records to Kudu
@@ -412,16 +421,16 @@ The sink supports both **insert** and **upsert** modes.  This mapping is set in 
 
 Insert is the default write mode of the sink.
 
-**Update**
-
-The sink support Kudu upserts which replaces the existing row if a match is found on the primary keys.
-
 **Insert Idempotency**
 
 Kafka currently provides at least once delivery semantics. Therefore, this mode may produce errors if unique constraints
 have been implemented on the target tables. If the error policy has been set to NOOP then the sink will discard the error
 and continue to process, however, it currently makes no attempt to distinguish violation of integrity constraints from other
 exceptions such as casting issues.
+
+**Update**
+
+The sink support Kudu upserts which replaces the existing row if a match is found on the primary keys.
 
 **Upsert Idempotency**
 
@@ -478,7 +487,7 @@ as a value is always supplied to it.
 
 .. warning::
 
-    If a upstream field is removed and the topic is not following the Schema Registry's  evolution rules, i.e. not full
+    If a upstream field is removed and the topic is not following the Schema Registry's evolution rules, i.e. not full
     or backwards compatible, any errors will default to the error policy.
 
 Downstream changes are handled by the sink. If columns are removed, the mapped fields from the topic are ignored. If

@@ -22,25 +22,16 @@ Confluent Setup
 .. sourcecode:: bash
 
     #make confluent home folder
-    mkdir confluent
+    ➜  mkdir confluent
 
     #download confluent
-    wget http://packages.confluent.io/archive/2.0/confluent-2.0.1-2.11.7.tar.gz
+    ➜  wget http://packages.confluent.io/archive/3.0/confluent-3.0.0-2.11.tar.gz
 
     #extract archive to confluent folder
-    tar -xvf confluent-2.0.1-2.11.7.tar.gz -C confluent
+    ➜  tar -xvf confluent-3.0.0-2.11.tar.gz -C confluent
 
     #setup variables
-    export CONFLUENT_HOME=~/confluent/confluent-2.0.1
-
-Enable topic deletion.
-
-In ``/etc/kafka/server.properties`` add the following to we can delete
-topics.
-
-.. sourcecode:: bash
-
-    delete.topic.enable=true
+    ➜  export CONFLUENT_HOME=~/confluent/confluent-3.0.0
 
 Start the Confluent platform.
 
@@ -183,7 +174,7 @@ configurations.
 
 .. sourcecode:: bash
 
-    ➜  confluent-2.0.1/bin/connect-distributed confluent-2.0.1/etc/schema-registry/connect-avro-distributed.properties
+    ➜  confluent-3.0.0/bin/connect-distributed confluent-3.0.0/etc/schema-registry/connect-avro-distributed.properties
 
 Once the connector has started lets use the kafka-connect-tools cli to
 post in our distributed properties file.

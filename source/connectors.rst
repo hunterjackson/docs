@@ -21,13 +21,16 @@ Connectors
 .. toctree::
    :maxdepth: 2
 
-   kcql
    bloomberg
    cassandra
    druid
    elastic
+   hazelcast
    hbase
+   influx
+   jms
    kudu
    redis
-   jms
    rethink
+   yahoo
+

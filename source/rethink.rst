@@ -7,7 +7,7 @@ SinkRecords and inserts a new entry to RethinkDb.
 Prerequisites
 -------------
 
-- Confluent 2.0
+- Confluent 3.0.0
 - RethinkDb 2.3.0
 - Java 1.8
 - Scala 2.11
@@ -165,7 +165,7 @@ Test Records
 Now we need to put some records it to the test_table topics. We can use the ``kafka-avro-console-producer`` to do this.
 
 Start the producer and pass in a schema to register in the Schema Registry. The schema has a ``firstname`` field of type
-string a ``lastnamme`` field of type string, an ``age`` field of type int and a ``salary`` field of type double.
+string a ``lastname`` field of type string, an ``age`` field of type int and a ``salary`` field of type double.
 
 .. sourcecode:: bash
 
@@ -214,7 +214,7 @@ schema registry configurations.
 
 .. sourcecode:: bash
 
-    ➜  confluent-2.0.1/bin/connect-distributed confluent-2.0.1/etc/schema-registry/connect-avro-distributed.properties
+    ➜  confluent-3.0.0/bin/connect-distributed confluent-3.0.0/etc/schema-registry/connect-avro-distributed.properties
 
 Once the connector has started lets use the kafka-connect-tools cli to
 post in our distributed properties file.
@@ -226,9 +226,20 @@ post in our distributed properties file.
 If you switch back to the terminal you started the Connector in you should see the rethink sink being accepted and the
 task starting.
 
-
 Features
 --------
+
+The ReThinkDb sink writes records from Kafka to RethinkDb.
+
+The sink supports:
+
+1. Field selection - Kafka topic payload field selection is supported, allowing you to have choose selection of fields
+   or all fields written to RethinkDb.
+2. Topic to table routing.
+3. RowKey selection - Selection of fields to use as the row key, if none specified the topic name, partition and offset is
+   used.
+4. RethinkDB write modes.
+5. Error policies for handling failures.
 
 Kafka Connect Query Language
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -253,7 +264,7 @@ Example:
     INSERT INTO tableB SELECT x AS a, y AS b and z AS c FROM topicB
 
     #Upsert mode, select all fields from topicC, auto create tableC and auto evolve, use field1 as the primary key
-    UPSERT INTO tableC SELECT * FROM topicC AUTOCREATE field1
+    UPSERT INTO tableC SELECT * FROM topicC AUTOCREATE PK field1
 
 Write Modes
 ~~~~~~~~~~~
@@ -290,7 +301,7 @@ Kafka connect framework to pause and replay the message. Offsets are not committ
 it will cause a write failure, the message can be replayed. With the Retry policy the issue can be fixed without stopping
 the sink.
 
-The length of time the sink will retry can be controlled by using the ``connect.jdbc.sink.max.retries`` and the
+The length of time the sink will retry can be controlled by using the ``connect.rethink.sink.max.retries`` and the
 ``connect.rethink.sink.retry.interval``.
 
 Topic Routing
@@ -397,14 +408,6 @@ The interval, in milliseconds between retries if the sink is using ``connect.ret
 * Type: int
 * Importance: medium
 * Default : 60000 (1 minute)
-
-``connect.rethink.sink.schema.registry.url``
-
-The url for the Schema registry. This is used to retrieve the latest schema for table creation.
-
-* Type : string
-* Importance : high
-* Default : http://localhost:8081
 
 ``connect.rethink.sink.batch.size``
 

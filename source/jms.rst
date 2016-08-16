@@ -6,7 +6,7 @@ a Kafka topic and writing the payload to a JMS queue/topic.
 
 Prerequisites
 -------------
--  Confluent 2.0
+-  Confluent 3.0.0
 -  Java 1.8
 -  Scala 2.11
 -  A JMS framework (ActiveMQ for example)
@@ -25,16 +25,16 @@ Confluent Setup
 .. sourcecode:: bash
 
     #make confluent home folder
-    mkdir confluent
+    ➜  mkdir confluent
 
     #download confluent
-    wget http://packages.confluent.io/archive/2.0/confluent-2.0.1-2.11.7.tar.gz
+    ➜  wget http://packages.confluent.io/archive/3.0/confluent-3.0.0-2.11.tar.gz
 
     #extract archive to confluent folder
-    tar -xvf confluent-2.0.1-2.11.7.tar.gz -C confluent
+    ➜  tar -xvf confluent-3.0.0-2.11.tar.gz -C confluent
 
     #setup variables
-    export CONFLUENT_HOME=~/confluent/confluent-2.0.1
+    ➜  export CONFLUENT_HOME=~/confluent/confluent-3.0.0
 
 Start the Confluent platform.
 
@@ -161,7 +161,8 @@ Now the producer is waiting for input. Paste in the following:
     {"firstName": "John", "lastName": "Smith", "age":30, "salary": 4830}
     {"firstName": "Anna", "lastName": "Jones", "age":28, "salary": 5430}
 
-Now check for records in ActiveMQ
+Now check for records in ActiveMQ.
+
 Now stop the connector.
 
 
@@ -184,7 +185,7 @@ schema registry configurations.
 
 .. sourcecode:: bash
 
-    ➜  confluent-2.0.1/bin/connect-distributed confluent-2.0.1/etc/schema-registry/connect-avro-distributed.properties
+    ➜  confluent-3.0.0/bin/connect-distributed confluent-3.0.0/etc/schema-registry/connect-avro-distributed.properties
 
 Once the connector has started lets use the kafka-connect-tools cli to post in our distributed properties file.
 
@@ -199,6 +200,18 @@ Insert the records as before to have them written to JMS.
 
 Features
 --------
+
+The JMS sink writes records from Kafka to a JMS queue.
+
+The sink supports:
+
+The sink supports:
+
+1. Field selection - Kafka topic payload field selection is supported, allowing you to have choose selection of fields
+   or all fields written to Kudu.
+2. Topic to topic routing.
+3. Payload format selection.
+4. Error policies for handling failures.
 
 Kafka Connect Query Language
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -223,8 +236,8 @@ Example:
     INSERT INTO jmsB SELECT x AS a, y AS b and z AS c FROM topicB
 
 
-JMS payload
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+JMS Payload
+~~~~~~~~~~~
 
 When a message is sent to a JMS target it can be one of the following:
 
@@ -245,12 +258,107 @@ Example:
 .. sourcecode:: sql
 
     //Select all
-    INSERT INTO jms1 SELECT * FROM topic1; INSERT INTO jms3 SELECT * FROM topicC
+    INSERT INTO jms1 SELECT * FROM topic1; INSERT INTO jms3 SELECT * FROM topicCConfigurations
+
+Configurations
+--------------
+
+``connect.jms.sink.url``
+
+Provides the JMS broker url
+
+* Data Type: string
+* Optional : no
+
+``connect.jms.sink.user``
+
+Provides the user for the JMS connection.
+
+* Data Type: string
+* Optional : no
+
+``connect.jms.sink.password``
+
+Provides the password for the JMS connection.
+
+* Data Type: string
+* Optional : no
+
+``connect.jms.sink.connection.factory``
+
+Provides the full class name for the ConnectionFactory implementation to use.
+
+* Data Type: string
+* Optional : no
+
+``connect.jms.sink.export.route.query``
+
+KCQL expression describing field selection and routes.
+
+* Data Type: string
+* Optional : no
+
+``connect.jms.sink.export.route.topics``
+
+Lists all the jms target topics.
+
+* Data Type: list (comma separated strings)
+* Optional : yes
+
+``connect.jms.sink.export.route.queue``
+
+Lists all the jms target queues.
+
+* Data Type: list (comma separated strings)
+* Optional : yes
+
+``connect.jms.sink.message.type``
+
+Specifies the JMS payload. If JSON is chosen it will send a TextMessage.
+- AVRO is chosen it will send a BytesMessage.
+- MAP is chosen it will send a MapMessage.
+- OBJECT is chosen it will send an ObjectMessage.
+
+* Data Type: string
+* Optional : yes
+* Default : AVRO
+
+
+``connect.jms.sink.error.policy``
+
+Specifies the action to be taken if an error occurs while inserting the data.
+
+There are three available options, **noop**, the error is swallowed, **throw**, the error is allowed to propagate and retry.
+For **retry** the Kafka message is redelivered up to a maximum number of times specified by the ``connect.jms.sink.max.retries``
+option. The ``connect.jms.sink.retry.interval`` option specifies the interval between retries.
+
+The errors will be logged automatically.
+
+* Type: string
+* Importance: high
+
+``connect.jms.sink.max.retries``
+
+The maximum number of times a message is retried. Only valid when the ``connect.jms.sink.error.policy`` is set to ``retry``.
+
+* Type: string
+* Importance: high
+* Default: 10
+
+
+``connect.jms.sink.retry.interval``
+
+The interval, in milliseconds between retries if the sink is using ``connect.jms.sink.error.policy`` set to **RETRY**.
+
+* Type: int
+* Importance: medium
+* Default : 60000 (1 minute)
+
 
 Schema Evolution
 ----------------
 
-TODO
+Not applicable.
 
 Deployment Guidelines
 ---------------------

@@ -7,7 +7,7 @@ and inserts a new entry to HBase.
 Prerequisites
 -------------
 
-- Confluent 2.0
+- Confluent 3.0.0
 - HBase 1.2.0
 - Java 1.8
 - Scala 2.11
@@ -21,16 +21,16 @@ Confluent Setup
 .. sourcecode:: bash
 
     #make confluent home folder
-    mkdir confluent
+    ➜  mkdir confluent
 
     #download confluent
-    wget http://packages.confluent.io/archive/2.0/confluent-2.0.1-2.11.7.tar.gz
+    ➜  wget http://packages.confluent.io/archive/3.0/confluent-3.0.0-2.11.tar.gz
 
     #extract archive to confluent folder
-    tar -xvf confluent-2.0.1-2.11.7.tar.gz -C confluent
+    ➜  tar -xvf confluent-3.0.0-2.11.tar.gz -C confluent
 
     #setup variables
-    export CONFLUENT_HOME=~/confluent/confluent-2.0.1
+    ➜  export CONFLUENT_HOME=~/confluent/confluent-3.0.0
 
 Start the Confluent platform.
 
@@ -205,7 +205,7 @@ Test Records
 Now we need to put some records it to the test_table topics. We can use the ``kafka-avro-console-producer`` to do this.
 
 Start the producer and pass in a schema to register in the Schema Registry. The schema has a ``firstname`` field of type string
-a ``lastnamme`` field of type string, an ``age`` field of type int and a ``salary`` field of type double.
+a ``lastname`` field of type string, an ``age`` field of type int and a ``salary`` field of type double.
 
 .. sourcecode:: bash
 
@@ -269,7 +269,7 @@ schema registry configurations.
 
 .. sourcecode:: bash
 
-    ➜  confluent-2.0.1/bin/connect-distributed confluent-2.0.1/etc/schema-registry/connect-avro-distributed.properties
+    ➜  confluent-3.0.0/bin/connect-distributed confluent-3.0.0/etc/schema-registry/connect-avro-distributed.properties
 
 Once the connector has started lets use the kafka-connect-tools cli to post in our distributed properties file.
 
@@ -293,16 +293,71 @@ The sink supports:
 2. Topic to table routing.
 3. RowKey selection - Selection of fields to use as the row key, if none specified the topic name, partition and offset is
    used.
+4. Error policies.
+
+Kafka Connect Query Language
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**K** afka **C** onnect **Q** uery **L** anguage found here `GitHub repo <https://github.com/datamountaineer/kafka-connector-query-language>`_
+allows for routing and mapping using a SQL like syntax, consolidating typically features in to one configuration option.
+
+The HBase sink supports the following:
+
+.. sourcecode:: bash
+
+    INSERT INTO <table> SELECT <fields> FROM <source topic> <PK> primary_key_cols
+
+Example:
+
+.. sourcecode:: sql
+
+    #Insert mode, select all fields from topicA and write to tableA and use the default rowkey (topic name, partition, offset)
+    INSERT INTO tableA SELECT * FROM topicA
+
+    #Insert mode, select 3 fields and rename from topicB and write to tableB, use field y from the topic as the row key
+    INSERT INTO tableB SELECT x AS a, y AS b and z AS c FROM topicB PK y
+
+This is set in the ``connect.hbase.export.route.query`` option.
+
+Error Polices
+~~~~~~~~~~~~~
+
+The sink has three error policies that determine how failed writes to the target database are handled. The error policies
+affect the behaviour of the schema evolution characteristics of the sink. See the schema evolution section for more
+information.
+
+**Throw**
+
+Any error on write to the target database will be propagated up and processing is stopped. This is the default
+behaviour.
+
+**Noop**
+
+Any error on write to the target database is ignored and processing continues.
+
+.. warning::
+
+    This can lead to missed errors if you don't have adequate monitoring. Data is not lost as it's still in Kafka
+    subject to Kafka's retention policy. The sink currently does **not** distinguish between integrity constraint
+    violations and or other expections thrown by the driver,
+
+**Retry**
+
+Any error on write to the target database causes the RetryIterable exception to be thrown. This causes the
+Kafka connect framework to pause and replay the message. Offsets are not committed. For example, if the table is offline
+it will cause a write failure, the message can be replayed. With the Retry policy the issue can be fixed without stopping
+the sink.
+
+The length of time the sink will retry can be controlled by using the ``connect.hbase.sink.max.retries`` and the
+``connect.hbase.sink.retry.interval``.
+
 
 Configurations
 --------------
 
 ``connect.hbase.sink.column.family``
 
-Specifies the table column family to use when inserting the new entry columns.
-
-* Data type : string
-* Optional  : no
+The hbase column family.
 
 ``connect.hbase.export.route.query``
 
@@ -314,6 +369,39 @@ Examples:
 .. sourcecode:: sql
 
     INSERT INTO TABLE1 SELECT * FROM TOPIC1;INSERT INTO TABLE2 SELECT * FROM TOPIC2 PK field1, field2
+
+If no primary keys are specified the topic name, partition and offset converted to bytes are used as the HBase rowkey.
+
+``connect.hbase.sink.error.policy``
+
+Specifies the action to be taken if an error occurs while inserting the data.
+
+There are three available options, **noop**, the error is swallowed, **throw**, the error is allowed to propagate and retry.
+For **retry** the Kafka message is redelivered up to a maximum number of times specified by the ``connect.hbase.sink.max.retries``
+option. The ``connect.hbase.sink.retry.interval`` option specifies the interval between retries.
+
+The errors will be logged automatically.
+
+* Type: string
+* Importance: high
+
+``connect.hbase.sink.max.retries``
+
+The maximum number of times a message is retried. Only valid when the ``connect.habse.sink.error.policy`` is set to ``retry``.
+
+* Type: string
+* Importance: high
+* Default: 10
+
+
+``connect.hbase.sink.retry.interval``
+
+The interval, in milliseconds between retries if the sink is using ``connect.hbase.sink.error.policy`` set to **RETRY**.
+
+* Type: int
+* Importance: medium
+* Default : 60000 (1 minute)
+
 
 Example
 ~~~~~~~

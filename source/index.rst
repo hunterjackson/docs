@@ -21,5 +21,6 @@ Kafka Connectors
    :maxdepth: 3
 
    connectors
+   kcql
    tools
    socket-streamer

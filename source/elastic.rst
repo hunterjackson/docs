@@ -1,7 +1,7 @@
 Kafka Connect Elastic
 =====================
 
-A Connector and Sink to write events from Kafka to Elastic Search using `Elastic4s <https://github.com/sksamuel/elastic4s>`_ client.
+A Connector and Sink to write events from Kafka to Elastic Search using `Elastic4s <https://github.com/sksamuel/elastic4s>`__ client.
 The connector converts the value from the Kafka Connect SinkRecords to Json and uses Elastic4s's JSON insert functionality to index.
 
 The Sink creates an Index and Type corresponding to the topic name and uses the JSON insert functionality from Elastic4s
@@ -9,7 +9,7 @@ The Sink creates an Index and Type corresponding to the topic name and uses the 
 Prerequisites
 -------------
 
-- Confluent 2.0
+- Confluent 3.0.0
 - Elastic Search 2.2
 - Java 1.8
 - Scala 2.11
@@ -35,16 +35,16 @@ Confluent Setup
 .. sourcecode:: bash
 
     #make confluent home folder
-    mkdir confluent
+    ➜  mkdir confluent
 
     #download confluent
-    wget http://packages.confluent.io/archive/2.0/confluent-2.0.1-2.11.7.tar.gz
+    ➜  wget http://packages.confluent.io/archive/3.0/confluent-3.0.0-2.11.tar.gz
 
     #extract archive to confluent folder
-    tar -xvf confluent-2.0.1-2.11.7.tar.gz -C confluent
+    ➜  tar -xvf confluent-3.0.0-2.11.tar.gz -C confluent
 
     #setup variables
-    export CONFLUENT_HOME=~/confluent/confluent-2.0.1
+    ➜  export CONFLUENT_HOME=~/confluent/confluent-3.0.0
 
 Start the Confluent platform.
 
@@ -256,7 +256,7 @@ schema registry configurations.
 
 .. sourcecode:: bash
 
-    ➜  confluent-2.0.1/bin/connect-distributed confluent-2.0.1/etc/schema-registry/connect-avro-distributed.properties
+    ➜  confluent-3.0.0/bin/connect-distributed confluent-3.0.0/etc/schema-registry/connect-avro-distributed.properties
 
 Once the connector has started lets use the kafka-connect-tools cli to post in our distributed properties file.
 
@@ -276,6 +276,36 @@ Features
 2. Topic to index mapping.
 3. Auto mapping of the Kafka topic schema to the index.
 4. Field selection
+
+Kafka Connect Query Language
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**K** afka **C** onnect **Q** uery **L** anguage found here `GitHub repo <https://github.com/datamountaineer/kafka-connector-query-language>`__
+allows for routing and mapping using a SQL like syntax, consolidating typically features in to one configuration option.
+
+The Elastic sink supports the following:
+
+.. sourcecode:: bash
+
+    INSERT INTO <index> SELECT <fields> FROM <source topic>
+
+Example:
+
+.. sourcecode:: sql
+
+    #Insert mode, select all fields from topicA and write to indexA
+    INSERT INTO indexA SELECT * FROM topicA
+
+    #Insert mode, select 3 fields and rename from topicB and write to indexB
+    INSERT INTO indexB SELECT x AS a, y AS b and z AS c FROM topicB PK y
+
+This is set in the ``connect.elastic.export.route.query`` option.
+
+Auto Index Creation
+~~~~~~~~~~~~~~~~~~~
+
+The Sink will automatically create missing indexes at startup. The sink use elastic4s, more details can be found
+`here <https://github.com/sksamuel/elastic4s>`__
 
 Configurations
 --------------

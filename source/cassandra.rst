@@ -10,7 +10,7 @@ Prerequisites
 -------------
 
 -  Cassandra 2.2.4
--  Confluent 2.0
+-  Confluent 3.0.0
 -  Java 1.8
 -  Scala 2.11
 
@@ -50,16 +50,16 @@ Confluent Setup
 .. sourcecode:: bash
 
     #make confluent home folder
-    mkdir confluent
+    ➜  mkdir confluent
 
     #download confluent
-    wget http://packages.confluent.io/archive/2.0/confluent-2.0.1-2.11.7.tar.gz
+    ➜  wget http://packages.confluent.io/archive/3.0/confluent-3.0.0-2.11.tar.gz
 
     #extract archive to confluent folder
-    tar -xvf confluent-2.0.1-2.11.7.tar.gz -C confluent
+    ➜  tar -xvf confluent-3.0.0-2.11.tar.gz -C confluent
 
     #setup variables
-    export CONFLUENT_HOME=~/confluent/confluent-2.0.1
+    ➜  export CONFLUENT_HOME=~/confluent/confluent-3.0.0
 
 Start the Confluent platform.
 
@@ -278,7 +278,7 @@ We can then use the kafka-avro-console-consumer to see what's in the kafka topic
 
 .. sourcecode:: bash
 
-    ➜  confluent-2.0.1/bin/kafka-avro-console-consumer \
+    ➜  confluent-3.0.0/bin/kafka-avro-console-consumer \
     --zookeeper localhost:2181 \
     --topic orders-topic \
     --from-beginning
@@ -337,7 +337,7 @@ We can reuse the 3 records inserted into Cassandra earlier but lets clean out th
 .. sourcecode:: bash
 
     #Delete the topic
-    ➜  confluent-2.0.1/bin/kafka-topics --zookeeper localhost:2181 --topic orders-topic --delete
+    ➜  confluent-3.0.0/bin/kafka-topics --zookeeper localhost:2181 --topic orders-topic --delete
 
 Starting the Connector (Distributed)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -358,7 +358,7 @@ and schema registry configurations.
 
 .. sourcecode:: bash
 
-    ➜  confluent-2.0.1/bin/connect-distributed confluent-2.0.1/etc/schema-registry/connect-avro-distributed.properties
+    ➜  confluent-3.0.0/bin/connect-distributed confluent-3.0.0/etc/schema-registry/connect-avro-distributed.properties
 
 Once the connector has started lets use the kafka-connect-tools cli to post in our incremental properties file.
 
@@ -394,7 +394,7 @@ Check Kafka, 3 rows as before.
 
 .. sourcecode:: bash
 
-    ➜  confluent-2.0.1/bin/kafka-avro-console-consumer \
+    ➜  confluent-3.0.0/bin/kafka-avro-console-consumer \
     --zookeeper localhost:2181 \
     --topic orders-topic \
     --from-beginning
@@ -455,7 +455,7 @@ Check Kafka.
 
 .. sourcecode:: bash
 
-    ➜  confluent confluent-2.0.1/bin/kafka-avro-console-consumer \
+    ➜  confluent confluent-3.0.0/bin/kafka-avro-console-consumer \
     --zookeeper localhost:2181 \
     --topic orders-topic \
     --from-beginning
@@ -538,7 +538,7 @@ Again will start in distributed mode.
 
 .. sourcecode:: bash
 
-    ➜  confluent-2.0.1/bin/connect-distributed etc/schema-registry/connect-avro-distributed.properties
+    ➜  confluent-3.0.0/bin/connect-distributed etc/schema-registry/connect-avro-distributed.properties
 
 Once the connector has started lets use the kafka-connect-tools cli to post in our distributed properties file.
 
