@@ -1,6 +1,5 @@
-.. kafka-connect-cli:
+.. tools:
 
-.. image:: https://travis-ci.org/datamountaineer/kafka-connect-tools.svg?branch=master 
 .. image:: https://img.shields.io/badge/latest%20release-v0.2-blue.svg?label=maven%20latest%20release
     :target: http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22kafka-connect-cli%22
 .. image:: ../images/git.png

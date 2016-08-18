@@ -1,7 +1,7 @@
-**DOCS ARE WORKING IN PROGRESS**
-
 Kafka Connect Bloomberg
 =======================
+
+**DOCS ARE WORKING IN PROGRESS**
 
 Kafka Connect Bloomberg is a source connector to subscribe to Bloomberg feeds via the Bloomberg labs open API and write to Kafka.
 

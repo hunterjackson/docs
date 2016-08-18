@@ -1,3 +1,5 @@
+.. connectors:
+
 Kafka Connect Query Language
 ============================
 
@@ -8,8 +10,8 @@ Why ?
 
 A Kafka Connect KCQL (Kafka Connect Query Languages) makes a lot of sense when you need to define mappings between Kafka topics (with Avro records) and external systems as sinks or sources.
 
-Kafka Connect Query Language
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Examples
+~~~~~~~~
 
 .. code-block:: sql
 

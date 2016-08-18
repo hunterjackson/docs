@@ -1,6 +1,3 @@
-.. image:: https://travis-ci.org/datamountaineer/stream-reactor-gradle.svg?branch=master
-
-
 Kafka Connect
 =============
 
@@ -19,19 +16,9 @@ Connectors
 ----------
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
-   bloomberg
-   cassandra
-   druid
-   elastic
-   hazelcast
-   hbase
-   influx
-   jms
-   kudu
-   redis
-   rethink
-   yahoo
-   voltdb
+   kcql
+   source-connectors
+   sink-connectors
 

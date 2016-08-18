@@ -15,12 +15,11 @@ Confluent Platform.
 .. figure:: ../images/stream-reactor-1.jpg
    :alt: 
 
-Kafka Connectors
+Components:
 
 .. toctree::
    :maxdepth: 3
 
    connectors
-   kcql
    tools
    socket-streamer

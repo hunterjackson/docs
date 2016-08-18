@@ -1,10 +1,7 @@
-.. kafka-connectors:
+Kafka Connect Cassandra Source
+==============================
 
-Kafka Connect Cassandra
-=======================
-
-Kafka Connect Cassandra is a Source Connector for reading data from
-Cassandra and a Sink Connector for writing data to Cassandra.
+Kafka Connect Cassandra is a Source Connector for reading data from Cassandra and writing to Kafka.
 
 Prerequisites
 -------------
@@ -17,8 +14,7 @@ Prerequisites
 Setup
 -----
 
-Before we can do anything, including the QuickStart we need to install
-Cassandra and the Confluent platform.
+Before we can do anything, including the QuickStart we need to install Cassandra and the Confluent platform.
 
 Cassandra Setup
 ~~~~~~~~~~~~~~~
@@ -467,143 +463,6 @@ Check Kafka.
 
 Bingo, we have our extra row.
 
-Sink Connector
---------------
-
-The Cassandra Sink allows you to write events from Kafka to Cassandra.
-
-The connector converts the value from the Kafka Connect SinkRecords to Json and uses Cassandra's JSON insert
-functionality to insert the rows.
-
-The task expects pre-created tables in Cassandra. Like the source connector the sink allows mapping of topics to tables.
-
-.. note:: The table and keyspace must be created before hand!
-.. note:: If the target table has TimeUUID fields the payload string for the corresponding field in Kafka must be a UUID.
-
-
-Sink Connector QuickStart
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-For the quick-start we will reuse the order-topic we created for the
-source.
-
-Sink Connector Configuration
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The sink configuration is similar to the source, they share most of the same configuration options. Create a file called
-cassandra-sink-distributed-orders.properties with contents below.
-
-.. sourcecode:: bash
-
-    name=cassandra-sink-orders
-    connector.class=com.datamountaineer.streamreactor.connect.cassandra.sink.CassandraSinkConnector
-    tasks.max=1
-    topics=orders-topic
-    connect.cassandra.export.route.query=INSERT INTO orders_write_back SELECT * FROM orders-topic
-    connect.cassandra.contact.points=localhost
-    connect.cassandra.port=9042
-    connect.cassandra.key.space=demo
-    connect.cassandra.username=cassandra
-    connect.cassandra.password=cassandra
-
-.. note:: All tables must be in the same keyspace.
-
-.. note::
-
-    If a topic specified in the topics configuration option is not present in the ``connect.cassandra.export.route.query``
-    the the topic name will be used.
-
-Cassandra Tables
-^^^^^^^^^^^^^^^^
-
-The sink expects the tables it's configured to write to are already present in Cassandra. Lets create our table for the sink.
-
-.. sourcecode:: bash
-
-    use demo;
-    create table orders_write_back (id int, created timeuuid, product text, qty int, price float, PRIMARY KEY \
-    (id, created)) WITH CLUSTERING ORDER BY (created asc);
-    SELECT * FROM orders_write_back;
-
-     id | created | price | product | qty
-    ----+---------+-------+---------+-----
-
-    (0 rows)
-    cqlsh:demo>
-
-Starting the Sink Connector (Distributed)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Again will start in distributed mode.
-
-.. sourcecode:: bash
-
-    ➜  confluent-3.0.0/bin/connect-distributed etc/schema-registry/connect-avro-distributed.properties
-
-Once the connector has started lets use the kafka-connect-tools cli to post in our distributed properties file.
-
-.. sourcecode:: bash
-
-    ➜  java -jar build/libs/kafka-connect-cli-0.3-all.jar create cassandra-sink-orders < cassandra-sink-distributed-orders.properties
-
-    #Connector `cassandra-sink-orders`:
-    name=cassandra-sink-orders
-    connector.class=com.datamountaineer.streamreactor.connect.cassandra.sink.CassandraSinkConnector
-    tasks.max=1
-    topics=orders-topic
-    connect.cassandra.export.route.query=INSERT INTO orders_write_back SELECT * FROM orders-topic
-    connect.cassandra.contact.points=localhost
-    connect.cassandra.port=9042
-    connect.cassandra.key.space=demo
-    connect.cassandra.contact.points=localhost
-    connect.cassandra.username=cassandra
-    connect.cassandra.password=cassandra
-    #task ids: 0
-
-Now check the logs to see if we started the sink.
-
-.. sourcecode:: bash
-
-    [2016-05-06 13:52:28,178] INFO
-        ____        __        __  ___                  __        _
-       / __ \____ _/ /_____ _/  |/  /___  __  ______  / /_____ _(_)___  ___  ___  _____
-      / / / / __ `/ __/ __ `/ /|_/ / __ \/ / / / __ \/ __/ __ `/ / __ \/ _ \/ _ \/ ___/
-     / /_/ / /_/ / /_/ /_/ / /  / / /_/ / /_/ / / / / /_/ /_/ / / / / /  __/  __/ /
-    /_____/\__,_/\__/\__,_/_/  /_/\____/\__,_/_/ /_/\__/\__,_/_/_/ /_/\___/\___/_/
-           ______                                __           _____ _       __
-          / ____/___ _______________ _____  ____/ /________ _/ ___/(_)___  / /__
-         / /   / __ `/ ___/ ___/ __ `/ __ \/ __  / ___/ __ `/\__ \/ / __ \/ //_/
-        / /___/ /_/ (__  |__  ) /_/ / / / / /_/ / /  / /_/ /___/ / / / / / ,<
-        \____/\__,_/____/____/\__,_/_/ /_/\__,_/_/   \__,_//____/_/_/ /_/_/|_|
-
-     By Andrew Stevenson. (com.datamountaineer.streamreactor.connect.cassandra.sink.CassandraSinkTask:50)
-    [2016-05-06 13:52:28,179] INFO Attempting to connect to Cassandra cluster at localhost and create keyspace demo. (com.datamountaineer.streamreactor.connect.cassandra.CassandraConnection$:49)
-    [2016-05-06 13:52:28,179] INFO Using username_password. (com.datamountaineer.streamreactor.connect.cassandra.CassandraConnection$:83)
-    [2016-05-06 13:52:28,187] WARN You listed localhost/0:0:0:0:0:0:0:1:9042 in your contact points, but it wasn't found in the control host's system.peers at startup (com.datastax.driver.core.Cluster:2105)
-    [2016-05-06 13:52:28,211] INFO Using data-center name 'datacenter1' for DCAwareRoundRobinPolicy (if this is incorrect, please provide the correct datacenter name with DCAwareRoundRobinPolicy constructor) (com.datastax.driver.core.policies.DCAwareRoundRobinPolicy:95)
-    [2016-05-06 13:52:28,211] INFO New Cassandra host localhost/127.0.0.1:9042 added (com.datastax.driver.core.Cluster:1475)
-    [2016-05-06 13:52:28,290] INFO Initialising Cassandra writer. (com.datamountaineer.streamreactor.connect.cassandra.sink.CassandraJsonWriter:40)
-    [2016-05-06 13:52:28,295] INFO Preparing statements for orders-topic. (com.datamountaineer.streamreactor.connect.cassandra.sink.CassandraJsonWriter:62)
-    [2016-05-06 13:52:28,305] INFO Sink task org.apache.kafka.connect.runtime.WorkerSinkTask@37e65d57 finished initialization and start (org.apache.kafka.connect.runtime.WorkerSinkTask:155)
-    [2016-05-06 13:52:28,331] INFO Source task Thread[WorkerSourceTask-cassandra-source-orders-0,5,main] finished initialization and start (org.apache.kafka.connect.runtime.WorkerSourceTask:342)
-
-Now check Cassandra
-
-.. sourcecode:: bash
-
-    use demo;
-    SELECT * FROM orders_write_back;
-
-     id | created                              | price | product                           | qty
-    ----+--------------------------------------+-------+-----------------------------------+-----
-      1 | 17fa1050-137e-11e6-ab60-c9fbe0223a8f |  94.2 |            OP-DAX-P-20150201-95.7 | 100
-      2 | 17fb6fe0-137e-11e6-ab60-c9fbe0223a8f |  99.5 |             OP-DAX-C-20150201-100 | 100
-      4 | 02acf5d0-1380-11e6-ab60-c9fbe0223a8f | 10000 | FU-DATAMOUNTAINEER-C-20150201-100 | 500
-      3 | 17fbbe00-137e-11e6-ab60-c9fbe0223a8f |   150 |           FU-KOSPI-C-20150201-100 | 200
-
-    (4 rows)
-
-Bingo, our 4 rows!
 
 Features
 --------
@@ -724,51 +583,47 @@ Topic Routing
 
 The sink supports topic routing that allows mapping the messages from topics to a specific table. For example map
 a topic called "bloomberg_prices" to a table called "prices". This mapping is set in the
-``connect.cassandra.import.route.query`` and ``connect.cassandra.export.route.query`` option.
+``connect.cassandra.import.route.query`` option.
 
 .. tip::
 
     Explicit mapping of topics to tables is required. If not present the sink will not start and fail validation checks.
 
 
-Sink Connector
-~~~~~~~~~~~~~~
+Error Polices
+~~~~~~~~~~~~~
 
-The sink connector uses Cassandra's `JSON <http://www.datastax.com/dev/blog/whats-new-in-cassandra-2-2-json-support>`__
-insert functionality.
+The sink has three error policies that determine how failed writes to the target database are handled. The error policies
+affect the behaviour of the schema evolution characteristics of the sink. See the schema evolution section for more
+information.
 
-The SinkRecord from Kafka connect is converted to JSON and feed into the prepared statements for inserting into Cassandra.
+**Throw**
 
-See DataStax's `documentation <http://cassandra.apache.org/doc/cql3/CQL-2.2.html#insertJson>`__ for type mapping.
+Any error on write to the target database will be propagated up and processing is stopped. This is the default
+behaviour.
 
-Topic Routing
-^^^^^^^^^^^^^
+**Noop**
 
-The sink supports topic routing that allows mapping the messages from topics to a specific table. For example map
-a topic called "bloomberg_prices" to a table called "prices". This mapping is set in the
-``connect.cassandra.export.route.query`` option.
+Any error on write to the target database is ignored and processing continues.
 
+.. warning::
 
-.. tip::
+    This can lead to missed errors if you don't have adequate monitoring. Data is not lost as it's still in Kafka
+    subject to Kafka's retention policy. The sink currently does **not** distinguish between integrity constraint
+    violations and or other expections thrown by drivers..
 
-    Explicit mapping of topics to tables is required. If not present the sink will not start and fail validation checks.
+**Retry**
 
-Field Selection
-^^^^^^^^^^^^^^^
+Any error on write to the target database causes the RetryIterable exception to be thrown. This causes the
+Kafka connect framework to pause and replay the message. Offsets are not committed. For example, if the table is offline
+it will cause a write failure, the message can be replayed. With the Retry policy the issue can be fixed without stopping
+the sink.
 
-The sink supports selecting fields from the source topic or selecting all fields and mapping of these fields to columns
-in the target table. For example, map a field called "qty"  in a topic to a column called "quantity" in the target
-table.
-
-All fields can be selected by using "*" in the field part of ``connect.cassandra.import.route.query``.
-
-Leaving the column name empty means trying to map to a column in the target table with the same name as the field in the
-source topic.
+The length of time the sink will retry can be controlled by using the ``connect.cassandra.source.max.retries`` and the
+``connect.cassandra.source.retry.interval``.
 
 Configurations
 --------------
-
-Configurations common to both sink and source are:
 
 ``connect.cassandra.contact.points``
 
@@ -843,10 +698,6 @@ Path to keystore.
 * Data type: string
 * Optional : yes
 
-Source Connector Configurations
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Configurations options specific to the source connector are:
 
 ``connect.cassandra.import.poll.interval``
 
@@ -913,9 +764,40 @@ The number of records the source  task should drain from the reader queue.
 * Optional  : yes
 * Default   : 1000
 
+``connect.cassandra.source.error.policy``
+
+Specifies the action to be taken if an error occurs while inserting the data.
+
+There are three available options, **noop**, the error is swallowed, **throw**, the error is allowed to propagate and retry.
+For **retry** the Kafka message is redelivered up to a maximum number of times specified by the ``connect.cassandra.source.max.retries``
+option. The ``connect.cassandra.sink.retry.interval`` option specifies the interval between retries.
+
+The errors will be logged automatically.
+
+* Type: string
+* Importance: high
+* Default: ``throw``
+
+``connect.cassandra.source.max.retries``
+
+The maximum number of times a message is retried. Only valid when the ``connect.cassandra.source.error.policy`` is set to ``retry``.
+
+* Type: string
+* Importance: high
+* Default: 10
+
+``connect.cassandra.source.retry.interval``
+
+The interval, in milliseconds between retries if the sink is using ``connect.cassandra.source.error.policy`` set to **RETRY**.
+
+* Type: int
+* Importance: medium
+* Default : 60000 (1 minute)
+
+
 
 Bulk Example
-^^^^^^^^^^^^
+~~~~~~~~~~~~
 
 .. sourcecode:: bash
 
@@ -929,7 +811,7 @@ Bulk Example
     connect.cassandra.password=cassandra
 
 Incremental Example
-^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~
 
 .. sourcecode:: bash
 
@@ -942,56 +824,6 @@ Incremental Example
     connect.cassandra.username=cassandra
     connect.cassandra.password=cassandra
 
-Sink Connector Configurations
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Configurations options specific to the sink connector are:
-
-``connect.cassandra.export.route.query``
-
-Kafka connect query language expression. Allows for expressive topic to table routing, field selection and renaming.
-
-Examples:
-
-.. sourcecode:: sql
-
-    INSERT INTO TABLE1 SELECT * FROM TOPIC1;INSERT INTO TABLE2 SELECT field1, field2, field3 as renamedField FROM TOPIC2
-
-
-* Data Type: string
-* Optional : no
-
-``connect.cassandra.sink.error.policy``
-
-Specifies the action to be taken if an error occurs while inserting the data.
-
-There are three available options, **noop**, the error is swallowed, **throw**, the error is allowed to propagate and retry.
-For **retry** the Kafka message is redelivered up to a maximum number of times specified by the ``connect.cassandra.sink.max.retries``
-option. The ``connect.cassandra.sink.retry.interval`` option specifies the interval between retries.
-
-The errors will be logged automatically.
-
-* Type: string
-* Importance: high
-* Default: ``throw``
-
-Example
-^^^^^^^
-
-.. sourcecode:: bash
-
-    name=cassandra-sink-orders
-    connector.class=com.datamountaineer.streamreactor.connect.cassandra.sink.CassandraSinkConnector
-    tasks.max=1
-    topics=orders-topic
-    connect.cassandra.export.route.query= INSERT INTO TABLE1 SELECT * FROM TOPIC1;INSERT INTO TABLE2 SELECT field1,
-    field2, field3 as renamedField FROM TOPIC2
-    connect.cassandra.contact.points=localhost
-    connect.cassandra.port=9042
-    connect.cassandra.key.space=demo
-    connect.cassandra.contact.points=localhost
-    connect.cassandra.username=cassandra
-    connect.cassandra.password=cassandra
 
 Schema Evolution
 ----------------

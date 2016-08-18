@@ -320,7 +320,7 @@ Any error on write to the target database is ignored and processing continues.
 
     This can lead to missed errors if you don't have adequate monitoring. Data is not lost as it's still in Kafka
     subject to Kafka's retention policy. The sink currently does **not** distinguish between integrity constraint
-    violations and or other expections thrown by the driver,
+    violations and or other expections thrown by drivers.
 
 **Retry**
 
