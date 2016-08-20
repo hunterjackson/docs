@@ -120,6 +120,7 @@ Since we are in standalone mode we'll create a file called ``HazelCast-sink.prop
     name=hazelcast-sink
     connector.class=com.datamountaineer.streamreactor.connect.hazelcast.sink.HazelCastSinkConnector
     max.tasks=1
+    topics = sink-test
     connect.hazelcast.sink.cluster.members=locallhost
     connect.hazelcast.sink.group.name=dev
     connect.hazelcast.sink.group.password=dev-pass
@@ -130,10 +131,11 @@ This configuration defines:
 1.  The name of the sink.
 2.  The sink class.
 3.  The max number of tasks the connector is allowed to created.
-4.  The name of the HazelCast host to connect to.
-5.  The name of the group to connect to.
-6.  The password for the group.
-7.  The KCQL statement to route and map a topic to the Hazelcast reliable topic.
+4.  The topics to read from (Required by framework)
+5.  The name of the HazelCast host to connect to.
+6.  The name of the group to connect to.
+7.  The password for the group.
+8.  The KCQL statement to route and map a topic to the Hazelcast reliable topic.
 
 Starting the Sink Connector (Standalone)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -161,10 +163,60 @@ We can use the CLI to check if the connector is up but you should be able to see
     ➜ java -jar build/libs/kafka-connect-cli-0.2-all.jar get HazelCast-sink
 
 
-
 .. sourcecode:: bash
 
-    [2016-05-08 22:37:05,616] INFO
+
+    (org.apache.kafka.clients.consumer.ConsumerConfig:178)
+    [2016-08-20 16:45:39,518] INFO Kafka version : 0.10.0.0 (org.apache.kafka.common.utils.AppInfoParser:83)
+    [2016-08-20 16:45:39,518] INFO Kafka commitId : b8642491e78c5a13 (org.apache.kafka.common.utils.AppInfoParser:84)
+    [2016-08-20 16:45:39,520] INFO Created connector hazelcast-sink (org.apache.kafka.connect.cli.ConnectStandalone:91)
+    [2016-08-20 16:45:39,520] INFO
+
+        ____        __        __  ___                  __        _
+       / __ \____ _/ /_____ _/  |/  /___  __  ______  / /_____ _(_)___  ___  ___  _____
+      / / / / __ `/ __/ __ `/ /|_/ / __ \/ / / / __ \/ __/ __ `/ / __ \/ _ \/ _ \/ ___/
+     / /_/ / /_/ / /_/ /_/ / /  / / /_/ / /_/ / / / / /_/ /_/ / / / / /  __/  __/ /
+    /_____/\__,_/\__/\__,_/_/  /_/\____/\__,_/_/ /_/\__/\__,_/_/_/ /_/\___/\___/_/
+        __  __                 ________           __  _____ _       __
+       / / / /___ _____  ___  / / ____/___ ______/ /_/ ___/(_)___  / /__
+      / /_/ / __ `/_  / / _ \/ / /   / __ `/ ___/ __/\__ \/ / __ \/ //_/
+     / __  / /_/ / / /_/  __/ / /___/ /_/ (__  ) /_ ___/ / / / / / ,<
+    /_/ /_/\__,_/ /___/\___/_/\____/\__,_/____/\__//____/_/_/ /_/_/|_|
+
+
+    by Andrew Stevenson
+           (com.datamountaineer.streamreactor.connect.hazelcast.sink.HazelCastSinkTask:41)
+    [2016-08-20 16:45:39,521] INFO HazelCastSinkConfig values:
+        connect.hazelcast.connection.buffer.size = 32
+        connect.hazelcast.connection.keep.alive = true
+        connect.hazelcast.connection.tcp.no.delay = true
+        connect.hazelcast.sink.group.password = [hidden]
+        connect.hazelcast.connection.retries = 2
+        connect.hazelcast.connection.linger.seconds = 3
+        connect.hazelcast.sink.retry.interval = 60000
+        connect.hazelcast.max.retires = 20
+        connect.hazelcast.sink.batch.size = 1000
+        connect.hazelcast.connection.reuse.address = true
+        connect.hazelcast.sink.group.name = dev
+        connect.hazelcast.sink.cluster.members = [192.168.99.100]
+        connect.hazelcast.sink.error.policy = THROW
+        connect.hazelcast.export.route.query = INSERT INTO sink-test SELECT * FROM sink-test STOREDAS JSON BATCH 100
+        connect.hazelcast.connection.timeout = 5000
+     (com.datamountaineer.streamreactor.connect.hazelcast.config.HazelCastSinkConfig:178)
+    Aug 20, 2016 4:45:39 PM com.hazelcast.core.LifecycleService
+    INFO: HazelcastClient[dev-kafka-connect-05e64989-41d9-433e-ad21-b54894486384][3.6.4] is STARTING
+    Aug 20, 2016 4:45:39 PM com.hazelcast.core.LifecycleService
+    INFO: HazelcastClient[dev-kafka-connect-05e64989-41d9-433e-ad21-b54894486384][3.6.4] is STARTED
+    Aug 20, 2016 4:45:39 PM com.hazelcast.client.spi.impl.ClientMembershipListener
+    INFO:
+
+    Members [1] {
+        Member [172.17.0.2]:5701
+    }
+
+    Aug 20, 2016 4:45:39 PM com.hazelcast.core.LifecycleService
+    INFO: HazelcastClient[dev-kafka-connect-05e64989-41d9-433e-ad21-b54894486384][3.6.4] is CLIENT_CONNECTED
+
 
 
 Test Records
@@ -179,7 +231,7 @@ string a ``lastname`` field of type string, an ``age`` field of type int and a `
 
     bin/kafka-avro-console-producer \
       --broker-list localhost:9092 --topic sink-test \
-      --property value.schema='{"type":"record","name":"User","namespace":"com.datamountaineer.streamreactor.connect.HazelCast" \
+      --property value.schema='{"type":"record","name":"User","namespace":"com.datamountaineer.streamreactor.connect.HazelCast"
       ,"fields":[{"name":"firstName","type":"string"},{"name":"lastName","type":"string"},{"name":"age","type":"int"},{"name":"salary","type":"double"}]}'
 
 Now the producer is waiting for input. Paste in the following:
@@ -195,9 +247,10 @@ Now check the logs of the connector you should see this:
 
 .. sourcecode:: bash
 
+    [2016-08-20 16:53:58,608] INFO Received 1 records. (com.datamountaineer.streamreactor.connect.hazelcast.sink.HazelCastWriter:62)
+    [2016-08-20 16:53:58,644] INFO Written 1 (com.datamountaineer.streamreactor.connect.hazelcast.sink.HazelCastWriter:71)
 
-
-Check the HazelCast.
+Check the HazelCast. HazelCast doesn't have a client so run the following.
 
 .. sourcecode:: bash
 

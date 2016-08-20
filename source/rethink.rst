@@ -171,7 +171,7 @@ string a ``lastname`` field of type string, an ``age`` field of type int and a `
 
     bin/kafka-avro-console-producer \
       --broker-list localhost:9092 --topic person_rethink \
-      --property value.schema='{"type":"record","name":"User","namespace":"com.datamountaineer.streamreactor.connect.rethink" \
+      --property value.schema='{"type":"record","name":"User","namespace":"com.datamountaineer.streamreactor.connect.rethink"
       ,"fields":[{"name":"firstName","type":"string"},{"name":"lastName","type":"string"},{"name":"age","type":"int"},{"name":"salary","type":"double"}]}'
 
 Now the producer is waiting for input. Paste in the following:

@@ -86,9 +86,9 @@ The sink currently expects precreated tables in Kudu.
     ssh demo@quickstart -t impala-shell
 
     CREATE TABLE default.kudu_test (id INT,random_field STRING  )
-    > TBLPROPERTIES ('kudu.master_addresses'='127.0.0.1', 'kudu.key_columns'='id',
-    > 'kudu.table_name'='kudu_test', 'transient_lastDdlTime'='1456744118',
-    > 'storage_handler'='com.cloudera.kudu.hive.KuduStorageHandler')
+    TBLPROPERTIES ('kudu.master_addresses'='127.0.0.1', 'kudu.key_columns'='id',
+    'kudu.table_name'='kudu_test', 'transient_lastDdlTime'='1456744118',
+    'storage_handler'='com.cloudera.kudu.hive.KuduStorageHandler')
     exit;
 
 .. note:: The sink will fail to start if the tables matching the topics do not already exist.
@@ -195,8 +195,8 @@ and a ``random_field`` of type string.
 .. sourcecode:: bash
 
     bin/kafka-avro-console-producer \
-    > --broker-list localhost:9092 --topic kudu_test \
-    > --property value.schema='{"type":"record","name":"myrecord","fields":[{"name":"id","type":"int"},
+     --broker-list localhost:9092 --topic kudu_test \
+     --property value.schema='{"type":"record","name":"myrecord","fields":[{"name":"id","type":"int"},
     {"name":"random_field", "type": "string"}]}'
 
 Now the producer is waiting for input. Paste in the following:

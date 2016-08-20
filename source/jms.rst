@@ -151,8 +151,9 @@ and a ``random_field`` of type string.
 .. sourcecode:: bash
 
     bin/kafka-avro-console-producer \
-    > --broker-list localhost:9092 --topic jms_test \
-    > --property value.schema='{"type":"record","name":"User","namespace":"com.datamountaineer.streamreactor.connect.jms","fields":[{"name":"firstName","type":"string"},{"name":"lastName","type":"string"},{"name":"age","type":"int"},{"name":"salary","type":"double"}]}'
+     --broker-list localhost:9092 --topic jms_test \
+     --property value.schema='{"type":"record","name":"User","namespace":"com.datamountaineer.streamreactor.connect.jms",
+    "fields":[{"name":"firstName","type":"string"},{"name":"lastName","type":"string"},{"name":"age","type":"int"},{"name":"salary","type":"double"}]}'
 
 Now the producer is waiting for input. Paste in the following:
 
