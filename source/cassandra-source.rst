@@ -3,8 +3,6 @@ Kafka Connect Cassandra Source
 
 Kafka Connect Cassandra is a Source Connector for reading data from Cassandra and writing to Kafka.
 
-WORK IN PROGRESS!!!!
-
 Prerequisites
 -------------
 
@@ -116,7 +114,15 @@ ALLOW\_FILTERING can also be supplied as an configuration.
 Source Connector QuickStart
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To see the basic functionality of the Source connector we will start with the Bulk import mode.
+Next we will start the connector in distributed mode. Connect has two modes, standalone where the tasks run on only one host
+and distributed mode. Usually you'd run in distributed mode to get fault tolerance and better performance. In distributed mode
+you start Connect on multiple hosts and they join together to form a cluster. Connectors which are then submitted are
+distributed across the cluster.
+
+Before we can start the connector we need to setup it's configuration. In standalone mode this is done by creating a
+properties file and passing this to the connector at startup. In distributed mode you can post in the configuration as
+json to the Connectors HTTP endpoint. Each connector exposes a rest endpoint for stopping, starting and updating the
+configuration.
 
 Test data
 ^^^^^^^^^
@@ -160,18 +166,10 @@ Execute the following:
 
     (3 rows)
 
-Source Connector Configuration (Bulk)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Source Connector Configuration
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Next we start the connector in standalone mode. This useful for testing and one of jobs, usually you'd run in
-distributed mode to get fault tolerance and better performance.
-
-Before we can start the connector we need to setup it's configuration. In standalone mode this is done by creating a
-properties file and passing this to the connector at startup. In distributed mode you can post in the configuration as
-json to the Connectors HTTP endpoint. Each connector exposes a rest endpoint for stoping, starting and updating the
-configuration.
-
-Since we are in standalone mode we'll create a file called ``cassandra-source-bulk-orders.properties`` with the contents below:
+Create a file called ``cassandra-source-bulk-orders.properties`` with the contents below:
 
 .. sourcecode:: bash
 
@@ -179,7 +177,7 @@ Since we are in standalone mode we'll create a file called ``cassandra-source-bu
     connector.class=com.datamountaineer.streamreactor.connect.cassandra.source.CassandraSourceConnector
     cassandra.key.space=demo
     connect.cassandra.import.route.query=INSERT INTO orders-topic SELECT * FROM orders
-    cassandra.import.mode=bulk
+    cassandra.import.mode=incremental
     cassandra.contact.points=localhost
     cassandra.username=cassandra
     cassandra.password=cassandra
@@ -197,144 +195,6 @@ This configuration defines:
 6. The ip or host name of the nodes in the Cassandra cluster to connect to.
 7. Username and password, ignored unless you have set Cassandra to use the PasswordAuthenticator.
 
-Starting the Source Connector (Standalone)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Now we are ready to start the Cassandra Source Connector in standalone mode.
-
-.. note::
-
-    You need to add the connector to your classpath or you can create a folder in ``share/java`` of the Confluent
-    install location like, kafka-connect-myconnector and the start scripts provided by Confluent will pick it up.
-    The start script looks for folders beginning with kafka-connect.
-
-.. sourcecode:: bash
-
-    #Add the Connector to the class path
-    ➜  export CLASSPATH=kafka-connect-cassandra-0.1-cp-3.0-all.jar
-    #Start the connector in standalone mode, passing in two properties files, the first for the schema registry, kafka
-    #and zookeeper and the second with the connector properties.
-    ➜  bin/connect-standalone etc/schema-registry/connect-avro-standalone.properties cassandra-source-bulk-orders.properties
-
-We can use the CLI to check if the connector is up but you should be able to see this in logs.
-
-.. sourcecode:: bash
-
-    [2016-05-06 13:52:28,178] INFO
-        ____        __        __  ___                  __        _
-       / __ \____ _/ /_____ _/  |/  /___  __  ______  / /_____ _(_)___  ___  ___  _____
-      / / / / __ `/ __/ __ `/ /|_/ / __ \/ / / / __ \/ __/ __ `/ / __ \/ _ \/ _ \/ ___/
-     / /_/ / /_/ / /_/ /_/ / /  / / /_/ / /_/ / / / / /_/ /_/ / / / / /  __/  __/ /
-    /_____/\__,_/\__/\__,_/_/  /_/\____/\__,_/_/ /_/\__/\__,_/_/_/ /_/\___/\___/_/
-       ______                                __           _____
-      / ____/___ _______________ _____  ____/ /________ _/ ___/____  __  _______________
-     / /   / __ `/ ___/ ___/ __ `/ __ \/ __  / ___/ __ `/\__ \/ __ \/ / / / ___/ ___/ _ \
-    / /___/ /_/ (__  |__  ) /_/ / / / / /_/ / /  / /_/ /___/ / /_/ / /_/ / /  / /__/  __/
-    \____/\__,_/____/____/\__,_/_/ /_/\__,_/_/   \__,_//____/\____/\__,_/_/   \___/\___/
-
-    By Andrew Stevenson. (com.datamountaineer.streamreactor.connect.cassandra.source.CassandraSourceTask:64)
-    [2016-05-06 13:34:41,193] INFO Attempting to connect to Cassandra cluster at localhost and create keyspace demo. (com.datamountaineer.streamreactor.connect.cassandra.CassandraConnection$:49)
-    [2016-05-06 13:34:41,263] INFO Using username_password. (com.datamountaineer.streamreactor.connect.cassandra.CassandraConnection$:83)
-    [2016-05-06 13:34:41,459] INFO Did not find Netty's native epoll transport in the classpath, defaulting to NIO. (com.datastax.driver.core.NettyUtil:83)
-    [2016-05-06 13:34:41,823] INFO Using data-center name 'datacenter1' for DCAwareRoundRobinPolicy (if this is incorrect, please provide the correct datacenter name with DCAwareRoundRobinPolicy constructor) (com.datastax.driver.core.policies.DCAwareRoundRobinPolicy:95)
-    [2016-05-06 13:34:41,824] INFO New Cassandra host localhost/127.0.0.1:9042 added (com.datastax.driver.core.Cluster:1475)
-    [2016-05-06 13:34:41,868] INFO Connection to Cassandra established. (com.datamountaineer.streamreactor.connect.cassandra.source.CassandraSourceTask:87)
-    ....
-
-
-.. sourcecode:: bash
-
-    ➜ java -jar build/libs/kafka-connect-cli-0.2-all.jar get cassandra-source-orders
-    #Connector `cassandra-source-orders`:
-    connect.cassandra.key.space=demo
-    name=cassandra-source-orders
-    connect.cassandra.import.mode=bulk
-    connector.class=com.datamountaineer.streamreactor.connect.cassandra.source.CassandraSourceConnector
-    connect.cassandra.contact.points=localhost
-    connect.cassandra.username=cassandra
-    connect.cassandra.password=cassandra
-    connect.cassandra.import.route.query=INSERT INTO orders-topic SELECT * FROM orders
-    #task ids: 0
-
-
-Check for Source Records in Kafka
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Now check the logs of the connector you should see this:
-
-.. sourcecode:: bash
-
-    [2016-05-06 13:34:41,923] INFO Source task Thread[WorkerSourceTask-cassandra-source-orders-0,5,main] finished initialization and start (org.apache.kafka.connect.runtime.WorkerSourceTask:342)
-    [2016-05-06 13:34:41,927] INFO Query SELECT * FROM demo.orders WHERE created > maxTimeuuid(?) AND created <= minTimeuuid(?)  ALLOW FILTERING executing with bindings (1900-01-01 00:19:32+0019, 2016-05-06 13:34:41+0200). (com.datamountaineer.streamreactor.connect.cassandra.source.CassandraTableReader:156)
-    [2016-05-06 13:34:41,948] INFO Querying returning results for demo.orders. (com.datamountaineer.streamreactor.connect.cassandra.source.CassandraTableReader:185)
-    [2016-05-06 13:34:41,958] INFO Found 3. Draining entries to batchSize 100. (com.datamountaineer.streamreactor.connect.queues.QueueHelpers$:45)
-    [2016-05-06 13:34:41,958] INFO Processed 3 rows for table orders-topic.orders (com.datamountaineer.streamreactor.connect.cassandra.source.CassandraTableReader:206)
-
-We can then use the kafka-avro-console-consumer to see what's in the kafka topic we have routed the order table to.
-
-.. sourcecode:: bash
-
-    ➜  confluent-3.0.0/bin/kafka-avro-console-consumer \
-    --zookeeper localhost:2181 \
-    --topic orders-topic \
-    --from-beginning
-    {"id":{"int":1},"created":{"string":"17fa1050-137e-11e6-ab60-c9fbe0223a8f"},"price":{"float":94.2},"product":{"string":"OP-DAX-P-20150201-95.7"},"qty":{"int":100}}
-    {"id":{"int":2},"created":{"string":"17fb6fe0-137e-11e6-ab60-c9fbe0223a8f"},"price":{"float":99.5},"product":{"string":"OP-DAX-C-20150201-100"},"qty":{"int":100}}
-    {"id":{"int":3},"created":{"string":"17fbbe00-137e-11e6-ab60-c9fbe0223a8f"},"price":{"float":150.0},"product":{"string":"FU-KOSPI-C-20150201-100"},"qty":{"int":200}}
-
-3 row as expected.
-
-Now stop the connector.
-
-.. note::
-
-    Next time the Connector polls another 3 would be pulled in. In our example the default poll interval is set to
-    1 minute. So in 1 minute we'd get rows again.
-
-.. note:: The created field in a TimeUUID is Cassandra, this represented as a string in the Kafka Connect schema.
-
-
-Source Connector Configuration (Incremental)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The configuration is similar to before but this time we will perform an incremental load. Below is the configuration.
-Create a file called ``cassandra-source-incr-orders.properties`` and add the following content:
-
-.. sourcecode:: bash
-
-    name=cassandra-source-orders
-    connector.class=com.datamountaineer.streamreactor.connect.cassandra.source.CassandraSourceConnector
-    connect.cassandra.key.space=demo
-    connect.cassandra.import.route.query=INSERT INTO orders-topic SELECT * FROM orders PK created
-    connect.cassandra.import.mode=incremental
-    connect.cassandra.contact.points=localhost
-    connect.cassandra.username=cassandra
-    connect.cassandra.password=cassandra
-
-There are two changes from the previous configuration:
-
-1. We have added the timestamp column ``created`` to the ``connect.cassandra.import.route.query``. This identifies the
-   column used in the where clause with the lower and upper bounds.
-2. The ``connect.cassandra.import.mode`` has been set to ``incremental``.
-
-.. note::
-
-    Only Cassandra columns with data type Timeuuid are supported for incremental mode. The column must also be either
-    the primary key or part of the compound key. If it's part of the compound key this will introduce a full scan with
-    ALLOW\_FILTERING added to the query.
-
-We can reuse the 3 records inserted into Cassandra earlier but lets clean out the target Kafka topic.
-
-.. note::
-
-    You must delete.topics.enable in etc/kafka/server.properties and shutdown any consumers of this topic for this to
-    take effect.
-
-.. sourcecode:: bash
-
-    #Delete the topic
-    ➜  confluent-3.0.0/bin/kafka-topics --zookeeper localhost:2181 --topic orders-topic --delete
-
 Starting the Connector (Distributed)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -346,8 +206,6 @@ hosts with the same cluster id. The cluster id can be found in ``etc/schema-regi
     # The group ID is a unique identifier for the set of workers that form a single Kafka Connect
     # cluster
     group.id=connect-cluster
-
-For this quick-start we will just use one host.
 
 Now start the connector in distributed mode, this time we only give it one properties file for the kafka, zookeeper
 and schema registry configurations.
@@ -372,6 +230,38 @@ Once the connector has started lets use the kafka-connect-tools cli to post in o
     connect.cassandra.password=cassandra
     connect.cassandra.import.route.query=INSERT INTO orders-topic SELECT * FROM orders PK created
     #task ids: 0
+
+We can use the CLI to check if the connector is up but you should be able to see this in logs as-well.
+
+.. sourcecode:: bash
+
+    #check for running connectors with the CLI
+    ➜ java -jar build/libs/kafka-connect-cli-0.2-all.jar ps
+    cassandra-sink
+
+.. sourcecode:: bash
+
+    [2016-05-06 13:52:28,178] INFO
+         ____        __        __  ___                  __        _
+        / __ \____ _/ /_____ _/  |/  /___  __  ______  / /_____ _(_)___  ___  ___  _____
+       / / / / __ `/ __/ __ `/ /|_/ / __ \/ / / / __ \/ __/ __ `/ / __ \/ _ \/ _ \/ ___/
+      / /_/ / /_/ / /_/ /_/ / /  / / /_/ / /_/ / / / / /_/ /_/ / / / / /  __/  __/ /
+     /_____/\__,_/\__/\__,_/_/  /_/\____/\__,_/_/ /_/\__/\__,_/_/_/ /_/\___/\___/_/
+        ______                                __           _____
+       / ____/___ _______________ _____  ____/ /________ _/ ___/____  __  _______________
+      / /   / __ `/ ___/ ___/ __ `/ __ \/ __  / ___/ __ `/\__ \/ __ \/ / / / ___/ ___/ _ \
+     / /___/ /_/ (__  |__  ) /_/ / / / / /_/ / /  / /_/ /___/ / /_/ / /_/ / /  / /__/  __/
+     \____/\__,_/____/____/\__,_/_/ /_/\__,_/_/   \__,_//____/\____/\__,_/_/   \___/\___/
+
+    By Andrew Stevenson. (com.datamountaineer.streamreactor.connect.cassandra.source.CassandraSourceTask:64)
+    [2016-05-06 13:34:41,193] INFO Attempting to connect to Cassandra cluster at localhost and create keyspace demo. (com.datamountaineer.streamreactor.connect.cassandra.CassandraConnection$:49)
+    [2016-05-06 13:34:41,263] INFO Using username_password. (com.datamountaineer.streamreactor.connect.cassandra.CassandraConnection$:83)
+    [2016-05-06 13:34:41,459] INFO Did not find Netty's native epoll transport in the classpath, defaulting to NIO. (com.datastax.driver.core.NettyUtil:83)
+    [2016-05-06 13:34:41,823] INFO Using data-center name 'datacenter1' for DCAwareRoundRobinPolicy (if this is incorrect, please provide the correct datacenter name with DCAwareRoundRobinPolicy constructor) (com.datastax.driver.core.policies.DCAwareRoundRobinPolicy:95)
+    [2016-05-06 13:34:41,824] INFO New Cassandra host localhost/127.0.0.1:9042 added (com.datastax.driver.core.Cluster:1475)
+    [2016-05-06 13:34:41,868] INFO Connection to Cassandra established. (com.datamountaineer.streamreactor.connect.cassandra.source.CassandraSourceTask:87)
+    ....
+
 
 If you switch back to the terminal you started the Connector in you should see the Cassandra Source being accepted and
 the task starting and processing the 3 existing rows.
@@ -584,11 +474,6 @@ Topic Routing
 The sink supports topic routing that allows mapping the messages from topics to a specific table. For example map
 a topic called "bloomberg_prices" to a table called "prices". This mapping is set in the
 ``connect.cassandra.import.route.query`` option.
-
-.. tip::
-
-    Explicit mapping of topics to tables is required. If not present the sink will not start and fail validation checks.
-
 
 Error Polices
 ~~~~~~~~~~~~~
@@ -831,11 +716,6 @@ Schema Evolution
 Upstream changes to schemas are handled by Schema registry which will validate the addition and removal or fields,
 data type changes and if defaults are set. The Schema Registry enforces Avro schema evolution rules. More information
 can be found `here <http://docs.confluent.io/2.0.1/schema-registry/docs/api.html#compatibility>`_.
-
-For the Sink connector, if columns are add to the target Cassandra table and not present in the source topic they will be
-set to null by Cassandras Json insert functionality. Columns which are omitted from the JSON value map are treated as a
-null insert (which results in an existing value being deleted, if one is present), if a record with the same key is
-inserted again.
 
 For the Source connector, at present no column selection is handled, every column from the table is queried to column
 additions and deletions are handled in accordance with the compatibility mode of the Schema Registry.

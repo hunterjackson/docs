@@ -97,13 +97,23 @@ If you want to build the connector, clone the repo and build the jar.
 Sink Connector QuickStart
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The sink currently expects precreated tables and keyspaces. So lets create a keyspace and table in Cassandra via the CQL
-shell first.
+Next we will start the connector in distributed mode. Connect has two modes, standalone where the tasks run on only one host
+and distributed mode. Usually you'd run in distributed mode to get fault tolerance and better performance. In distributed mode
+you start Connect on multiple hosts and they join together to form a cluster. Connectors which are then submitted are
+distributed across the cluster.
+
+Before we can start the connector we need to setup it's configuration. In standalone mode this is done by creating a
+properties file and passing this to the connector at startup. In distributed mode you can post in the configuration as
+json to the Connectors HTTP endpoint. Each connector exposes a rest endpoint for stopping, starting and updating the
+configuration.
 
 Test data
 ^^^^^^^^^
 
-Once you have installed and started Cassandra create a table to extract records from. This snippet creates a table called
+The sink currently expects precreated tables and keyspaces. So lets create a keyspace and table in Cassandra via the CQL
+shell first.
+
+Once you have installed and started Cassandra create a table to write records to. This snippet creates a table called
 orders to hold fictional orders on a trading platform.
 
 Start the Cassandra cql shell
@@ -181,7 +191,17 @@ download the CLI from `here <http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22k
     connect.cassandra.password=cassandra
     #task ids: 0
 
-Now check the logs to see if we started the sink.
+If you switch back to the terminal you started the Connector in you should see the Cassandra sink being accepted and the
+task starting.
+
+We can use the CLI to check if the connector is up but you should be able to see this in logs as-well.
+
+.. sourcecode:: bash
+
+    #check for running connectors with the CLI
+    ➜ java -jar build/libs/kafka-connect-cli-0.2-all.jar ps
+    cassandra-sink
+
 
 .. sourcecode:: bash
 
@@ -258,9 +278,8 @@ Features
 --------
 
 The sink connector uses Cassandra's `JSON <http://www.datastax.com/dev/blog/whats-new-in-cassandra-2-2-json-support>`__
-insert functionality.
-
-The SinkRecord from Kafka Connect is converted to JSON and feed into the prepared statements for inserting into Cassandra.
+insert functionality. The SinkRecord from Kafka Connect is converted to JSON and feed into the prepared statements for
+inserting into Cassandra.
 
 See Cassandra's `documentation <http://cassandra.apache.org/doc/cql3/CQL-2.2.html#insertJson>`__ for type mapping.
 
@@ -332,11 +351,6 @@ Topic Routing
 The sink supports topic routing that allows mapping the messages from topics to a specific table. For example map
 a topic called "bloomberg_prices" to a table called "prices". This mapping is set in the
 ``connect.cassandra.export.route.query`` option.
-
-
-.. tip::
-
-    Explicit mapping of topics to tables is required. If not present the sink will not start and fail validation checks.
 
 Field Selection
 ^^^^^^^^^^^^^^^
@@ -502,9 +516,6 @@ For the Sink connector, if columns are add to the target Cassandra table and not
 set to null by Cassandras Json insert functionality. Columns which are omitted from the JSON value map are treated as a
 null insert (which results in an existing value being deleted, if one is present), if a record with the same key is
 inserted again.
-
-For the Source connector, at present no column selection is handled, every column from the table is queried to column
-additions and deletions are handled in accordance with the compatibility mode of the Schema Registry.
 
 Future releases will support auto creation of tables and adding columns on changes to the topic schema.
 
