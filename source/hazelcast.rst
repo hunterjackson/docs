@@ -114,7 +114,7 @@ Create a file called ``HazelCast-sink.properties`` with the contents below:
     connect.hazelcast.sink.cluster.members=locallhost
     connect.hazelcast.sink.group.name=dev
     connect.hazelcast.sink.group.password=dev-pass
-    connect.hazelcast.export.route.query=INSERT INTO sink-test SELECT * FROM sink-test STOREDAS JSON BATCH 100
+    connect.hazelcast.export.route.query=INSERT INTO sink-test SELECT * FROM sink-test WITHFORMAT JSON BATCH 100
 
 This configuration defines:
 
@@ -173,7 +173,7 @@ Once the connector has started lets use the kafka-connect-tools cli to post in o
     connect.hazelcast.sink.cluster.members=locallhost
     connect.hazelcast.sink.group.name=dev
     connect.hazelcast.sink.group.password=dev-pass
-    connect.hazelcast.export.route.query=INSERT INTO sink-test SELECT * FROM sink-test STOREDAS JSON BATCH 100
+    connect.hazelcast.export.route.query=INSERT INTO sink-test SELECT * FROM sink-test WITHFORMAT JSON BATCH 100
     #task ids: 0
 
 
@@ -226,7 +226,7 @@ We can use the CLI to check if the connector is up but you should be able to see
         connect.hazelcast.sink.group.name = dev
         connect.hazelcast.sink.cluster.members = [192.168.99.100]
         connect.hazelcast.sink.error.policy = THROW
-        connect.hazelcast.export.route.query = INSERT INTO sink-test SELECT * FROM sink-test STOREDAS JSON BATCH 100
+        connect.hazelcast.export.route.query = INSERT INTO sink-test SELECT * FROM sink-test WITHFORMAT JSON BATCH 100
         connect.hazelcast.connection.timeout = 5000
      (com.datamountaineer.streamreactor.connect.hazelcast.config.HazelCastSinkConfig:178)
     Aug 20, 2016 4:45:39 PM com.hazelcast.core.LifecycleService
@@ -299,7 +299,7 @@ Example:
     INSERT INTO tableA SELECT * FROM topicA
 
     #Insert mode, select 3 fields and rename from topicB and write to tableB, store as serialized avro encoded byte arrays, write in batches of 100
-    INSERT INTO tableB SELECT x AS a, y AS b and z AS c FROM topicB STOREDAS avro BATCH 100
+    INSERT INTO tableB SELECT x AS a, y AS b and z AS c FROM topicB WITHFORMAT avro BATCH 100
 
 This is set in the ``connect.hazelcast.export.route.query`` option.
 
@@ -335,15 +335,16 @@ the sink.
 The length of time the sink will retry can be controlled by using the ``connect.hazelcast.sink.max.retries`` and the
 ``connect.hazelcast.sink.retry.interval``.
 
-Stored As
-~~~~~~~~~
+With Format
+~~~~~~~~~~~
 
 Hazelcast requires that data stored in collections and topics is serializable. The sink offers two modes to store data.
 
 *Avro* In this mode the sink converts the SinkRecords from Kafka to Avro encoded byte arrays.
 *Json* In this mode the sink converts the SinkRecords from Kafka to Json strings and stores the resulting bytes.
 
-This behaviour is controlled by the KCQL statement in the ``connect.hazelcast.export.route.query`` option.
+This behaviour is controlled by the KCQL statement in the ``connect.hazelcast.export.route.query`` option. The default
+is JSON.
 
 Configurations
 --------------
