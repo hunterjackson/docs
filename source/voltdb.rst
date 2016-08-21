@@ -1,9 +1,8 @@
 Kafka Connect VoltDB
 =======================
 
-A Connector and Sink to write events from Kafka to VoltDB.
-
-WIP!!!
+A Connector and Sink to write events from Kafka to VoltDB. The connector used the built in stored procedures
+for inserts and upserts but requires the tables to be pre-created.
 
 Prerequisites
 -------------
@@ -489,8 +488,7 @@ Upstream changes to schemas are handled by Schema registry which will validate t
 or fields, data type changes and if defaults are set. The Schema Registry enforces Avro schema evolution rules.
 More information can be found `here <http://docs.confluent.io/2.0.1/schema-registry/docs/api.html#compatibility>`_.
 
-No schema evolution is handled by the sink yet on changes in the upstream topics. If fields are missing in the
-topic which are expected in the store procedures a null value is inserted.
+No schema evolution is handled by the sink yet on changes in the upstream topics.
 
 
 Deployment Guidelines
