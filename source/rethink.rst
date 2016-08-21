@@ -145,16 +145,6 @@ Once the connector has started lets use the kafka-connect-tools cli to post in o
 .. sourcecode:: bash
 
     ➜  java -jar build/libs/kafka-connect-cli-0.2-all.jar create rethink-sink < rethink-sink.properties
-
-If you switch back to the terminal you started the Connector in you should see the Redis sink being accepted and the
-task starting.
-
-We can use the CLI to check if the connector is up but you should be able to see this in logs as-well.
-
-.. sourcecode:: bash
-
-    ➜ java -jar build/libs/kafka-connect-cli-0.2-all.jar get rethink-sink
-
     #Connector name=`rethink-sink`
     name=rethink-sink
     connect.rethink.sink.db=localhost
@@ -165,10 +155,18 @@ We can use the CLI to check if the connector is up but you should be able to see
     connect.rethink.export.route.query=INSERT INTO TABLE1 SELECT * FROM person_rethink
     #task ids: 0
 
+If you switch back to the terminal you started the Connector in you should see the Redis sink being accepted and the
+task starting.
+
+We can use the CLI to check if the connector is up but you should be able to see this in logs as-well.
+
+.. sourcecode:: bash
+
     #check for running connectors with the CLI
     ➜ java -jar build/libs/kafka-connect-cli-0.2-all.jar ps
     rethink-sink
 
+    ➜ java -jar build/libs/kafka-connect-cli-0.2-all.jar get rethink-sink
 
 .. sourcecode:: bash
 

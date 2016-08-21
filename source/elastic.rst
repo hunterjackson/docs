@@ -160,10 +160,6 @@ Once the connector has started lets use the kafka-connect-tools cli to post in o
     connect.cassandra.export.route.query=INSERT INTO INDEX_1 SELECT field1, field2 FROM TOPIC1
     #task ids: 0
 
-    #check for running connectors with the CLI
-    ➜ java -jar build/libs/kafka-connect-cli-0.2-all.jar ps
-    elastic-sink
-
 If you switch back to the terminal you started the Connector in you should see the Elastic sink being accepted and the
 task starting.
 
@@ -171,16 +167,9 @@ We can use the CLI to check if the connector is up but you should be able to see
 
 .. sourcecode:: bash
 
-    ➜ java -jar build/libs/kafka-connect-cli-0.2-all.jar get elastic-sink
-    #Connector `elastic-sink`:
-    topics=TOPIC1
-    name=elastic-sink
-    connect.elastic.cluster.name=elasticsearch
-    tasks.max=1
-    connector.class=com.datamountaineer.streamreactor.connect.elastic.ElasticSinkConnector
-    connect.elastic.url=127.0.0.1:9300
-    connect.cassandra.export.route.query=INSERT INTO INDEX_1 SELECT field1, field2 FROM TOPIC1
-    #task ids: 0
+    #check for running connectors with the CLI
+    ➜ java -jar build/libs/kafka-connect-cli-0.2-all.jar ps
+    elastic-sink
 
 .. sourcecode:: bash
 

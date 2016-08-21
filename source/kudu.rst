@@ -164,16 +164,6 @@ Once the connector has started lets use the kafka-connect-tools cli to post in o
 .. sourcecode:: bash
 
     ➜  java -jar build/libs/kafka-connect-cli-0.2-all.jar create kudu-sink < kudu-sink.properties
-
-If you switch back to the terminal you started the Connector in you should see the Kudu sink being accepted and the
-task starting.
-
-We can use the CLI to check if the connector is up but you should be able to see this in logs as-well.
-
-.. sourcecode:: bash
-
-    ➜ java -jar build/libs/kafka-connect-cli-0.2-all.jar get kudu-sink
-
     #Connector name=kudu-sink
     connector.class=com.datamountaineer.streamreactor.connect.kudu.KuduSinkConnector
     tasks.max=1
@@ -181,6 +171,13 @@ We can use the CLI to check if the connector is up but you should be able to see
     connect.kudu.export.route.query = INSERT INTO kudu_test SELECT * FROM kudu_test
     topics=kudu_test
     #task ids: 0
+
+If you switch back to the terminal you started the Connector in you should see the Kudu sink being accepted and the
+task starting.
+
+We can use the CLI to check if the connector is up but you should be able to see this in logs as-well.
+
+.. sourcecode:: bash
 
     #check for running connectors with the CLI
     ➜ java -jar build/libs/kafka-connect-cli-0.2-all.jar ps

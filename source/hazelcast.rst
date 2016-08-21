@@ -114,7 +114,7 @@ Create a file called ``HazelCast-sink.properties`` with the contents below:
     connect.hazelcast.sink.cluster.members=locallhost
     connect.hazelcast.sink.group.name=dev
     connect.hazelcast.sink.group.password=dev-pass
-    connect.hazelcast.export.route.query=INSERT INTO sink-test FROM sink-test STOREDAS JSON BATCH 100
+    connect.hazelcast.export.route.query=INSERT INTO sink-test SELECT * FROM sink-test STOREDAS JSON BATCH 100
 
 This configuration defines:
 
@@ -173,12 +173,9 @@ Once the connector has started lets use the kafka-connect-tools cli to post in o
     connect.hazelcast.sink.cluster.members=locallhost
     connect.hazelcast.sink.group.name=dev
     connect.hazelcast.sink.group.password=dev-pass
-    connect.hazelcast.export.route.query=INSERT INTO sink-test FROM sink-test STOREDAS JSON BATCH 100
+    connect.hazelcast.export.route.query=INSERT INTO sink-test SELECT * FROM sink-test STOREDAS JSON BATCH 100
     #task ids: 0
 
-    #check for running connectors with the CLI
-    ➜ java -jar build/libs/kafka-connect-cli-0.2-all.jar ps
-    hazelcast-sink
 
 If you switch back to the terminal you started the Connector in you should see the Hazelcast sink being accepted and the
 task starting.
@@ -187,7 +184,9 @@ We can use the CLI to check if the connector is up but you should be able to see
 
 .. sourcecode:: bash
 
-    ➜ java -jar build/libs/kafka-connect-cli-0.2-all.jar get HazelCast-sink
+    #check for running connectors with the CLI
+    ➜ java -jar build/libs/kafka-connect-cli-0.2-all.jar ps
+    hazelcast-sink
 
 
 .. sourcecode:: bash

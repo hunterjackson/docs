@@ -34,6 +34,23 @@ Start VoltDB:
     ➜  cd voltdb-ent-*
     ➜  bin/voltdb create
 
+    Build: 6.5 voltdb-6.5-0-gd1fe3fa-local Enterprise Edition
+    Initializing VoltDB...
+
+     _    __      ____  ____  ____
+    | |  / /___  / / /_/ __ \/ __ )
+    | | / / __ \/ / __/ / / / __  |
+    | |/ / /_/ / / /_/ /_/ / /_/ /
+    |___/\____/_/\__/_____/_____/
+
+    --------------------------------
+
+    Connecting to VoltDB cluster as the leader...
+    Host id of this node is: 0
+    Starting VoltDB with trial license. License expires on Sep 11, 2016.
+    Initializing the database and command logs. This may take a moment...
+    WARN: This is not a highly available cluster. K-Safety is set to 0.
+
 Confluent Setup
 ~~~~~~~~~~~~~~~
 
@@ -94,6 +111,23 @@ properties file and passing this to the connector at startup. In distributed mod
 json to the Connectors HTTP endpoint. Each connector exposes a rest endpoint for stopping, starting and updating the
 configuration.
 
+Create Voltdb Table
+~~~~~~~~~~~~~~~~~~~
+
+At present the sink doesn't support auto creation of tables so we need to login to VoltDb to create one. In the directory
+you extracted Voltdb start the ``sqlcmd`` shell and enter the following DDL statement. This creates a table called person.
+
+.. sourcecode:: sql
+
+   create table person(firstname varchar(128), lastname varchar(128), age int, salary float, primary key (firstname, lastname));
+
+.. sourcecode:: bash
+    ➜  bin ./sqlcmd
+    SQL Command :: localhost:21212
+    1> create table person(firstname varchar(128), lastname varchar(128), age int, salary float, primary key (firstname, lastname));
+    Command succeeded.
+    2>
+
 Sink Connector Configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -108,7 +142,7 @@ Create a file called ``voltdb-sink.properties`` with the contents below:
     connect.volt.connection.servers=localhost:9999
     connect.volt.connection.user=
     connect.volt.connection.password=
-    connect.volt.export.route.query=INSERT INTO sink-test FROM sink-test
+    connect.volt.export.route.query=INSERT INTO person SELECT * FROM sink-test
 
 This configuration defines:
 
@@ -154,6 +188,17 @@ Once the connector has started lets use the kafka-connect-tools cli to post in o
 
     ➜  java -jar build/libs/kafka-connect-cli-0.2-all.jar create voltdb-sink < voltdb-sink.properties
 
+    #Connector `voltdb-sink`:
+    connect.volt.connection.password=
+    connect.volt.connection.user=
+    topics=sink-test
+    name=voltdb-sink
+    connect.volt.connection.servers=localhost:21212
+    connect.volt.export.route.query=INSERT INTO person SELECT * FROM sink-test
+    connector.class=com.datamountaineer.streamreactor.connect.voltdb.VoltSinkConnector
+    max.tasks=1
+    #task ids:
+
 If you switch back to the terminal you started the Connector in you should see the VoltDb sink being accepted and the
 task starting.
 
@@ -161,18 +206,40 @@ We can use the CLI to check if the connector is up but you should be able to see
 
 .. sourcecode:: bash
 
-    ➜ java -jar build/libs/kafka-connect-cli-0.2-all.jar get voltdb-sink
-
-
-
-
-
     #check for running connectors with the CLI
     ➜ java -jar build/libs/kafka-connect-cli-0.2-all.jar ps
     rethink-sink
 
 .. sourcecode:: bash
 
+    [2016-08-21 20:31:36,398] INFO Finished starting connectors and tasks (org.apache.kafka.connect.runtime.distributed.DistributedHerder:769)
+    [2016-08-21 20:31:36,406] INFO
+     _____                                                    _
+    (____ \       _                                 _        (_)
+     _   \ \ ____| |_  ____ ____   ___  _   _ ____ | |_  ____ _ ____   ____ ____  ____
+    | |   | / _  |  _)/ _  |    \ / _ \| | | |  _ \|  _)/ _  | |  _ \ / _  ) _  )/ ___)
+    | |__/ ( ( | | |_( ( | | | | | |_| | |_| | | | | |_( ( | | | | | ( (/ ( (/ /| |
+    |_____/ \_||_|\___)_||_|_|_|_|\___/ \____|_| |_|\___)_||_|_|_| |_|\____)____)_|
+                                        by Stefan Bocutiu
+     _    _     _      _____   _           _    _       _
+    | |  | |   | |_   (____ \ | |         | |  (_)     | |
+    | |  | |__ | | |_  _   \ \| | _        \ \  _ ____ | |  _
+     \ \/ / _ \| |  _)| |   | | || \        \ \| |  _ \| | / )
+      \  / |_| | | |__| |__/ /| |_) )   _____) ) | | | | |< (
+    \/ \___/|_|\___)_____/ |____/   (______/|_|_| |_|_| \_)
+      (com.datamountaineer.streamreactor.connect.voltdb.VoltSinkTask:44)
+    [2016-08-21 20:31:36,407] INFO VoltSinkConfig values:
+        connect.volt.error.policy = THROW
+        connect.volt.retry.interval = 60000
+        connect.volt.export.route.query = INSERT INTO person SELECT * FROM sink-test
+        connect.volt.max.retires = 20
+        connect.volt.connection.servers = localhost:21212
+        connect.volt.connection.user =
+        connect.volt.connection.password =
+     (com.datamountaineer.streamreactor.connect.voltdb.config.VoltSinkConfig:178)
+    [2016-08-21 20:31:36,501] INFO Settings:com.datamountaineer.streamreactor.connect.voltdb.config.VoltSettings$@34c34c3e (com.datamountaineer.streamreactor.connect.voltdb.VoltSinkTask:71)
+    [2016-08-21 20:31:36,565] INFO Connecting to VoltDB... (com.datamountaineer.streamreactor.connect.voltdb.writers.VoltConnectionConnectFn$:28)
+    [2016-08-21 20:31:36,636] INFO Connected to VoltDB node at: localhost:21212 (com.datamountaineer.streamreactor.connect.voltdb.writers.VoltConnectionConnectFn$:46)
 
 
 Test Records
@@ -203,6 +270,20 @@ Now check the logs of the connector you should see this:
 
 .. sourcecode:: bash
 
+    [2016-08-21 20:41:25,361] INFO Writing complete (com.datamountaineer.streamreactor.connect.voltdb.writers.VoltDbWriter:61)
+    [2016-08-21 20:41:25,362] INFO Records handled (com.datamountaineer.streamreactor.connect.voltdb.VoltSinkTask:86)
+
+In Voltdb sqlcmd terminal
+
+.. sourcecode:: sql
+
+    SELECT * FROM PERSON;
+
+    FIRSTNAME  LASTNAME  AGE  SALARY
+    ---------- --------- ---- -------
+    John       Smith       30  4830.0
+
+    (Returned 1 rows in 0.01s)
 
 Now stop the connector.
 
@@ -228,6 +309,7 @@ The Voltdb sink supports the following:
 .. sourcecode:: bash
 
     INSERT INTO <table> SELECT <fields> FROM <source topic>
+    UPSERT INTO <table> SELECT <fields> FROM <source topic>
 
 Example:
 
