@@ -1,8 +1,14 @@
 Kafka Connect JMS
 =======================
 
-Kafka Connect JMS is a Sink Connector for reading data from
-a Kafka topic and writing the payload to a JMS queue/topic.
+The JMS sink connector allows you to extract entries from a Kafka topic with the CQL driver and pass them to a JMS topic/queue.
+The connector allows you to specify the payload type sent to the JMS target:
+
+1. JSON
+2. AVRO
+3. MAP
+4. OBJECT
+
 
 Prerequisites
 -------------
@@ -66,58 +72,67 @@ If you want to build the connector, clone the repo and build the jar.
     cd kafka-connect-tools
     gradle fatJar
 
-Sink Connector
-----------------
+Sink Connector QuickStart
+-------------------------
 
-The JMS sink connector allows you to extract entries from a Kafka topic with the CQL driver and pass them to a JMS topic/queue.
-The connector allows you to specify the payload type sent to the JMS target:
-
-1. JSON
-2. AVRO
-3. MAP
-4. OBJECT
-
-Sink Connector Configuration
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Next we start the connector in standalone mode. This is useful for testing
-one of jobs, usually you'd run in distributed mode to get fault tolerance and better performance.
+Next we will start the connector in distributed mode. Connect has two modes, standalone where the tasks run on only one host
+and distributed mode. Usually you'd run in distributed mode to get fault tolerance and better performance. In distributed mode
+you start Connect on multiple hosts and they join together to form a cluster. Connectors which are then submitted are
+distributed across the cluster.
 
 Before we can start the connector we need to setup it's configuration. In standalone mode this is done by creating a
 properties file and passing this to the connector at startup. In distributed mode you can post in the configuration as
 json to the Connectors HTTP endpoint. Each connector exposes a rest endpoint for stopping, starting and updating the
 configuration.
 
-Since we are in standalone mode we'll create a file called ``jms-sink.properties`` with the contents below:
+Sink Connector Configuration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Create a file called ``jms-sink.properties`` with the contents below:
 
 .. sourcecode:: bash
 
+    name=jms-sink
     connector.class=com.datamountaineer.streamreactor.connect.jms.sink.JMSSinkConnector
     tasks.max=1
     topics=person_jms
-    name=person-jms-test
 
     connect.jms.sink.url=tcp://somehost:61616
     connect.jms.sink.connection.factory=org.apache.activemq.ActiveMQConnectionFactory
     connect.jms.sink.export.route.query=INSERT INTO topic_1 SELECT * FROM person_jms
     connect.jms.sink.message.type=AVRO
-    connect.jms.sink.export.route.topics=person_jms
-    connect.jms.sink.export.route.queues=
     connect.jms.error.policy=THROW
+    connect.jms.sink.export.route.topics=topic_1
 
 This configuration defines:
 
 1.  The name of the sink.
 2.  The sink class.
-3.  The max number of tasks the connector is allowed to created. Should not be greater than the number of partitions in
-    the source topics otherwise tasks will be idle.
-4.  The source kafka topics to take events from.
+3.  The max number of tasks the connector is allowed to created.
+4.  The Kafka topics to take events from.
+5.  The JMS url.
+6.  The factory class for the JSM endpoint.
+7.  The KCQL statement to route topics and fields.
+8.  The message type storage format.
+9.  The error policy.
+10. The list of target topics (must match the targets set in ``connect.jms.sink.export.route.query``
 
+Starting the Connector (Distributed)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Starting the Sink Connector (Standalone)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Connectors can be deployed distributed mode. In this mode one or many connectors are started on the same or different
+hosts with the same cluster id. The cluster id can be found in ``etc/schema-registry/connect-avro-distributed.properties.``
 
-Now we are ready to start the JMS sink Connector in standalone mode.
+.. sourcecode:: bash
+
+    # The group ID is a unique identifier for the set of workers that form a single Kafka Connect
+    # cluster
+    group.id=connect-cluster
+
+Now start the connector in distributed mode. We only give it one properties file for the kafka, zookeeper and
+schema registry configurations.
+
+First add the connector jar to the CLASSPATH and then start Connect.
 
 .. note::
 
@@ -128,10 +143,37 @@ Now we are ready to start the JMS sink Connector in standalone mode.
 .. sourcecode:: bash
 
     #Add the Connector to the class path
-    ➜  export CLASSPATH=kafka-connect-jms-0.1-all.jar
-    #Start the connector in standalone mode, passing in two properties files, the first for the schema registry, kafka
-    #and zookeeper and the second with the connector properties.
-    ➜  bin/connect-standalone etc/schema-registry/connect-avro-standalone.properties jms-sink.properties
+    ➜  export CLASSPATH=kafka-connect-jms-0.1-cp-3.0.all.jar
+
+.. sourcecode:: bash
+
+    ➜  confluent-3.0.0/bin/connect-distributed confluent-3.0.0/etc/schema-registry/connect-avro-distributed.properties
+
+Once the connector has started lets use the kafka-connect-tools cli to post in our distributed properties file.
+
+.. sourcecode:: bash
+
+    ➜  java -jar build/libs/kafka-connect-cli-0.2-all.jar create jms-sink < jms-sink.properties
+    #Connector name=`jms-sink`
+    name=jms-sink
+    connector.class=com.datamountaineer.streamreactor.connect.jms.sink.JMSSinkConnector
+    tasks.max=1
+    topics=person_jms
+
+    connect.jms.sink.url=tcp://somehost:61616
+    connect.jms.sink.connection.factory=org.apache.activemq.ActiveMQConnectionFactory
+    connect.jms.sink.export.route.query=INSERT INTO topic_1 SELECT * FROM person_jms
+    connect.jms.sink.message.type=AVRO
+    connect.jms.error.policy=THROW
+    connect.jms.sink.export.route.topics=topic_1
+    #task ids: 0
+
+    #check for running connectors with the CLI
+    ➜ java -jar build/libs/kafka-connect-cli-0.2-all.jar ps
+    jms-sink
+
+If you switch back to the terminal you started the Connector in you should see the JMS sink being accepted and the
+task starting.
 
 We can use the CLI to check if the connector is up but you should be able to see this in logs as-well.
 
@@ -167,49 +209,12 @@ Now check for records in ActiveMQ.
 Now stop the connector.
 
 
-Starting the Connector (Distributed)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Connectors can be deployed distributed mode. In this mode one or many connectors are started on the same or different
-hosts with the same cluster id. The cluster id can be found in ``etc/schema-registry/connect-avro-distributed.properties.``
-
-.. sourcecode:: bash
-
-    # The group ID is a unique identifier for the set of workers that form a single Kafka Connect
-    # cluster
-    group.id=connect-cluster
-
-For this quick-start we will just use one host.
-
-Now start the connector in distributed mode, this time we only give it one properties file for the kafka, zookeeper and
-schema registry configurations.
-
-.. sourcecode:: bash
-
-    ➜  confluent-3.0.0/bin/connect-distributed confluent-3.0.0/etc/schema-registry/connect-avro-distributed.properties
-
-Once the connector has started lets use the kafka-connect-tools cli to post in our distributed properties file.
-
-.. sourcecode:: bash
-
-    ➜  java -jar build/libs/kafka-connect-cli-0.2-all.jar create jms-sink < jms-sink.properties
-
-If you switch back to the terminal you started the Connector in you should see the JMS sink being accepted and the task
-starting.
-
-Insert the records as before to have them written to JMS.
-
 Features
 --------
 
-The JMS sink writes records from Kafka to a JMS queue.
-
 The sink supports:
 
-The sink supports:
-
-1. Field selection - Kafka topic payload field selection is supported, allowing you to have choose selection of fields
-   or all fields written to Kudu.
+1. Field selection - Kafka topic payload field selection is supported, allowing you to select fields written to the queue or topic in JMS.
 2. Topic to topic routing.
 3. Payload format selection.
 4. Error policies for handling failures.
@@ -242,10 +247,10 @@ JMS Payload
 
 When a message is sent to a JMS target it can be one of the following:
 
-1.JSON - it will send a TextMessage;
-2.AVRO -send a BytesMessage;
-3.MAP - it will send a MapMessage;
-4.OBJECT - it will send an ObjectMessage
+1.  JSON -   Send a TextMessage;
+2.  AVRO -   Send a BytesMessage;
+3.  MAP -    Send a MapMessage;
+4.  OBJECT - Send an ObjectMessage
 
 Topic Routing
 ~~~~~~~~~~~~~
@@ -269,6 +274,7 @@ Configurations
 Provides the JMS broker url
 
 * Data Type: string
+* Importance: high
 * Optional : no
 
 ``connect.jms.sink.user``
@@ -276,6 +282,7 @@ Provides the JMS broker url
 Provides the user for the JMS connection.
 
 * Data Type: string
+* Importance: high
 * Optional : no
 
 ``connect.jms.sink.password``
@@ -283,6 +290,7 @@ Provides the user for the JMS connection.
 Provides the password for the JMS connection.
 
 * Data Type: string
+* Importance: high
 * Optional : no
 
 ``connect.jms.sink.connection.factory``
@@ -290,6 +298,7 @@ Provides the password for the JMS connection.
 Provides the full class name for the ConnectionFactory implementation to use.
 
 * Data Type: string
+* Importance: high
 * Optional : no
 
 ``connect.jms.sink.export.route.query``
@@ -297,6 +306,7 @@ Provides the full class name for the ConnectionFactory implementation to use.
 KCQL expression describing field selection and routes.
 
 * Data Type: string
+* Importance: high
 * Optional : no
 
 ``connect.jms.sink.export.route.topics``
@@ -304,6 +314,7 @@ KCQL expression describing field selection and routes.
 Lists all the jms target topics.
 
 * Data Type: list (comma separated strings)
+* Importance: medium
 * Optional : yes
 
 ``connect.jms.sink.export.route.queue``
@@ -311,19 +322,17 @@ Lists all the jms target topics.
 Lists all the jms target queues.
 
 * Data Type: list (comma separated strings)
+* Importance: medium
 * Optional : yes
 
 ``connect.jms.sink.message.type``
 
 Specifies the JMS payload. If JSON is chosen it will send a TextMessage.
-- AVRO is chosen it will send a BytesMessage.
-- MAP is chosen it will send a MapMessage.
-- OBJECT is chosen it will send an ObjectMessage.
 
 * Data Type: string
+* Importance: medium
 * Optional : yes
 * Default : AVRO
-
 
 ``connect.jms.sink.error.policy``
 
@@ -336,16 +345,18 @@ option. The ``connect.jms.sink.retry.interval`` option specifies the interval be
 The errors will be logged automatically.
 
 * Type: string
-* Importance: high
+* Importance: medium
+* Optional: yes
+* Default: RETRY
 
 ``connect.jms.sink.max.retries``
 
 The maximum number of times a message is retried. Only valid when the ``connect.jms.sink.error.policy`` is set to ``retry``.
 
 * Type: string
-* Importance: high
+* Importance: medium
+* Optional: yes
 * Default: 10
-
 
 ``connect.jms.sink.retry.interval``
 
@@ -353,6 +364,7 @@ The interval, in milliseconds between retries if the sink is using ``connect.jms
 
 * Type: int
 * Importance: medium
+* Optional: yes
 * Default : 60000 (1 minute)
 
 

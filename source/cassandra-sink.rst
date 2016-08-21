@@ -153,6 +153,11 @@ We will start Kafka Connect in distributed mode.
 
 .. sourcecode:: bash
 
+    #Add the Connector to the class path
+    ➜  export CLASSPATH=kafka-connect-cassandra-0.1-cp-3.0-all.jar
+
+.. sourcecode:: bash
+
     ➜  confluent-3.0.0/bin/connect-distributed etc/schema-registry/connect-avro-distributed.properties
 
 Once the connector has started lets use the kafka-connect-tools cli to post in our distributed properties file. You can

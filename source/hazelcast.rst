@@ -4,9 +4,6 @@ Kafka Connect HazelCast
 A Connector and Sink to write events from Kafka to HazelCast. The connector takes the value from the Kafka Connect
 SinkRecords and inserts a new entry to a HazelCast reliable topic. The sink only supports writing to reliable topics.
 
-DOCS WIP!
-
-
 Prerequisites
 -------------
 
@@ -23,12 +20,13 @@ HazelCast Setup
 
 Download and install HazelCast from `here <https://hazelcast.org/staging-dl/>`__
 
-When you download and extract the Hazelcast ZIP or TAR.GZ package, you will see 3 scripts under the /bin folder which provide basic functionalities for member and cluster management.
+When you download and extract the Hazelcast ZIP or TAR.GZ package, you will see 3 scripts under the ``/bin`` folder which
+provide basic functionality for member and cluster management.
 
 The following are the names and descriptions of each script:
 
-- start.sh  : Starts a Hazelcast member with default configuration in the working directory.
-- stop.sh   : Stops the Hazelcast member that was started in the current working directory.
+- start.sh  - Starts a Hazelcast member with default configuration in the working directory.
+- stop.sh   - Stops the Hazelcast member that was started in the current working directory.
 
 Start HazelCast:
 
@@ -105,15 +103,7 @@ Sink Connector QuickStart
 Sink Connector Configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Next we start the connector in standalone mode. This useful for testing and one of jobs, usually you'd run in
-distributed mode to get fault tolerance and better performance.
-
-Before we can start the connector we need to setup it's configuration. In standalone mode this is done by creating a
-properties file and passing this to the connector at startup. In distributed mode you can post in the configuration as
-json to the Connectors HTTP endpoint. Each connector exposes a rest endpoint for stopping, starting and updating the
-configuration.
-
-Since we are in standalone mode we'll create a file called ``HazelCast-sink.properties`` with the contents below:
+Create a file called ``HazelCast-sink.properties`` with the contents below:
 
 .. sourcecode:: bash
 
@@ -137,10 +127,22 @@ This configuration defines:
 7.  The password for the group.
 8.  The KCQL statement to route and map a topic to the Hazelcast reliable topic.
 
-Starting the Sink Connector (Standalone)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Starting the Connector (Distributed)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Now we are ready to start the HazelCast sink Connector in standalone mode.
+Connectors can be deployed distributed mode. In this mode one or many connectors are started on the same or different
+hosts with the same cluster id. The cluster id can be found in ``etc/schema-registry/connect-avro-distributed.properties.``
+
+.. sourcecode:: bash
+
+    # The group ID is a unique identifier for the set of workers that form a single Kafka Connect
+    # cluster
+    group.id=connect-cluster
+
+Now start the connector in distributed mode. We only give it one properties file for the kafka, zookeeper and
+schema registry configurations.
+
+First add the connector jar to the CLASSPATH and then start Connect.
 
 .. note::
 
@@ -151,10 +153,35 @@ Now we are ready to start the HazelCast sink Connector in standalone mode.
 .. sourcecode:: bash
 
     #Add the Connector to the class path
-    ➜  export CLASSPATH=kafka-connect-HazelCast-0.1-all.jar
-    #Start the connector in standalone mode, passing in two properties files, the first for the schema registry, kafka
-    #and zookeeper and the second with the connector properties.
-    ➜  bin/connect-standalone etc/schema-registry/connect-avro-standalone.properties HazelCast-sink.properties
+    ➜  export CLASSPATH=kafka-connect-hazelcast-0.1-cp-3.0.all.jar
+
+.. sourcecode:: bash
+
+    ➜  confluent-3.0.0/bin/connect-distributed confluent-3.0.0/etc/schema-registry/connect-avro-distributed.properties
+
+Once the connector has started lets use the kafka-connect-tools cli to post in our distributed properties file.
+
+.. sourcecode:: bash
+
+    ➜  java -jar build/libs/kafka-connect-cli-0.2-all.jar create hazelcast-sink < hazelcast-sink.properties
+
+    #Connector name=`hazelcast-sink`
+    name=hazelcast-sink
+    connector.class=com.datamountaineer.streamreactor.connect.hazelcast.sink.HazelCastSinkConnector
+    max.tasks=1
+    topics = sink-test
+    connect.hazelcast.sink.cluster.members=locallhost
+    connect.hazelcast.sink.group.name=dev
+    connect.hazelcast.sink.group.password=dev-pass
+    connect.hazelcast.export.route.query=INSERT INTO sink-test FROM sink-test STOREDAS JSON BATCH 100
+    #task ids: 0
+
+    #check for running connectors with the CLI
+    ➜ java -jar build/libs/kafka-connect-cli-0.2-all.jar ps
+    hazelcast-sink
+
+If you switch back to the terminal you started the Connector in you should see the Hazelcast sink being accepted and the
+task starting.
 
 We can use the CLI to check if the connector is up but you should be able to see this in logs as-well.
 
@@ -217,8 +244,6 @@ We can use the CLI to check if the connector is up but you should be able to see
     Aug 20, 2016 4:45:39 PM com.hazelcast.core.LifecycleService
     INFO: HazelcastClient[dev-kafka-connect-05e64989-41d9-433e-ad21-b54894486384][3.6.4] is CLIENT_CONNECTED
 
-
-
 Test Records
 ^^^^^^^^^^^^
 
@@ -250,45 +275,7 @@ Now check the logs of the connector you should see this:
     [2016-08-20 16:53:58,608] INFO Received 1 records. (com.datamountaineer.streamreactor.connect.hazelcast.sink.HazelCastWriter:62)
     [2016-08-20 16:53:58,644] INFO Written 1 (com.datamountaineer.streamreactor.connect.hazelcast.sink.HazelCastWriter:71)
 
-Check the HazelCast. HazelCast doesn't have a client so run the following.
-
-.. sourcecode:: bash
-
-
-
 Now stop the connector.
-
-Starting the Connector (Distributed)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Connectors can be deployed distributed mode. In this mode one or many connectors are started on the same or different
-hosts with the same cluster id. The cluster id can be found in ``etc/schema-registry/connect-avro-distributed.properties.``
-
-.. sourcecode:: bash
-
-    # The group ID is a unique identifier for the set of workers that form a single Kafka Connect
-    # cluster
-    group.id=connect-cluster
-
-For this quick-start we will just use one host.
-
-Now start the connector in distributed mode, this time we only give it one properties file for the kafka, zookeeper and
-schema registry configurations.
-
-.. sourcecode:: bash
-
-    ➜  confluent-3.0.0/bin/connect-distributed confluent-3.0.0/etc/schema-registry/connect-avro-distributed.properties
-
-Once the connector has started lets use the kafka-connect-tools cli to
-post in our distributed properties file.
-
-.. sourcecode:: bash
-
-    ➜  java -jar build/libs/kafka-connect-cli-0.2-all.jar create HazelCast-sink < HazelCast-sink.properties
-
-If you switch back to the terminal you started the Connector in you should see the HazelCast sink being accepted and the
-task starting.
-
 
 Features
 --------
@@ -299,7 +286,7 @@ Kafka Connect Query Language
 **K** afka **C** onnect **Q** uery **L** anguage found here `GitHub repo <https://github.com/datamountaineer/kafka-connector-query-language>`_
 allows for routing and mapping using a SQL like syntax, consolidating typically features in to one configuration option.
 
-The Kudu sink supports the following:
+The HazelCast sink supports the following:
 
 .. sourcecode:: bash
 
@@ -367,6 +354,7 @@ Configurations
 KCQL expression describing field selection and routes.
 
 * Data type : string
+* Importance: high
 * Optional  : no
 
 ``connect.hazelcast.sink.error.policy``
@@ -381,6 +369,7 @@ The errors will be logged automatically.
 
 * Type: string
 * Importance: high
+* Optional: yes
 * Default: ``throw``
 
 ``connect.hazelcast.sink.max.retries``
@@ -388,9 +377,9 @@ The errors will be logged automatically.
 The maximum number of times a message is retried. Only valid when the ``connect.hazelcast.sink.error.policy`` is set to ``retry``.
 
 * Type: string
-* Importance: high
+* Importance: medium
+* Optional: yes
 * Default: 10
-
 
 ``connect.hazelcast.sink.retry.interval``
 
@@ -398,6 +387,7 @@ The interval, in milliseconds between retries if the sink is using ``connect.haz
 
 * Type: int
 * Importance: medium
+* Optional: yes
 * Default : 60000 (1 minute)
 
 ``connect.hazelcast.sink.batch.size``
@@ -407,8 +397,8 @@ calling the sink it won't wait to fulfill this value but rather execute it.
 
 * Type : int
 * Importance : medium
+* Optional: yes
 * Defaults : 1000
-
 
 ``connect.hazelcast.sink.cluster.members``
 
@@ -417,20 +407,25 @@ find an alive node. Although it may be enough to give only oneaddress of a node 
 communicate with each other),it is recommended that you give the addresses for all the nodes.
 
 * Data type : string
-* Optional  : no
+* Importance : high
+* Optional: no
+* Default: localhost
 
 ``connect.hazelcast.sink.group.name``
 
 The group name of the connector in the target Hazelcast cluster.
 
 * Data type : string
-* Optional  : no
+* Importance : high
+* Optional: no
+* Default: dev
 
 ``connect.hazelcast.sink.group.password``
 
 The password for the group name.
 
 * Data type : string
+* Importance : high
 * Optional  : yes
 * Default	: dev-pass
 
@@ -439,6 +434,7 @@ The password for the group name.
 Connection timeout is the timeout value in milliseconds for nodes to accept client connection requests.
 
 * Data type : int
+* Importance : low
 * Optional  : yes
 * Default	: 5000
 
@@ -447,6 +443,7 @@ Connection timeout is the timeout value in milliseconds for nodes to accept clie
 Number of times a client will retry the connection at startup.
 
 * Data type : int
+* Importance : low
 * Optional  : yes
 * Default	: 2
 
@@ -455,6 +452,7 @@ Number of times a client will retry the connection at startup.
 Enables/disables the SO_KEEPALIVE socket option. The default value is true.
 
 * Data type : boolean
+* Importance : low
 * Optional  : yes
 * Default	: true
 
@@ -463,6 +461,7 @@ Enables/disables the SO_KEEPALIVE socket option. The default value is true.
 Enables/disables the SO_REUSEADDR socket option. The default value is true.
 
 * Data type : boolean
+* Importance : low
 * Optional  : yes
 * Default	: true
 
@@ -471,6 +470,7 @@ Enables/disables the SO_REUSEADDR socket option. The default value is true.
 Enables/disables SO_LINGER with the specified linger time in seconds. The default value is 3.
 
 * Data type : int
+* Importance : low
 * Optional  : yes
 * Default	: 3
 
@@ -479,6 +479,7 @@ Enables/disables SO_LINGER with the specified linger time in seconds. The defaul
 Sets the SO_SNDBUF and SO_RCVBUF options to the specified value in KB for this Socket. The default value is 32.
 
 * Data type : int
+* Importance : low
 * Optional  : yes
 * Default	: 32
 

@@ -9,7 +9,7 @@ Prerequisites
 -------------
 
 - Confluent 3.0.0
-- Kudu 0.7
+- Kudu 0.8
 - Java 1.8
 - Scala 2.11
 
@@ -74,11 +74,20 @@ If you want to build the connector, clone the repo and build the jar.
 Sink Connector QuickStart
 -------------------------
 
+Next we will start the connector in distributed mode. Connect has two modes, standalone where the tasks run on only one host
+and distributed mode. Usually you'd run in distributed mode to get fault tolerance and better performance. In distributed mode
+you start Connect on multiple hosts and they join together to form a cluster. Connectors which are then submitted are
+distributed across the cluster.
+
+Before we can start the connector we need to setup it's configuration. In standalone mode this is done by creating a
+properties file and passing this to the connector at startup. In distributed mode you can post in the configuration as
+json to the Connectors HTTP endpoint. Each connector exposes a rest endpoint for stopping, starting and updating the
+configuration.
+
 Kudu Table
 ~~~~~~~~~~
 
-The sink currently expects precreated tables in Kudu.
-
+Lets create a table in Kudu via Impala. The sink does support auto creation of tables but they are not sync'd yet with Impala.
 
 .. sourcecode:: bash
 
@@ -91,20 +100,12 @@ The sink currently expects precreated tables in Kudu.
     'storage_handler'='com.cloudera.kudu.hive.KuduStorageHandler')
     exit;
 
-.. note:: The sink will fail to start if the tables matching the topics do not already exist.
+.. note:: The sink will fail to start if the tables matching the topics do not already exist and the sink is not in auto create mode.
 
 Sink Connector Configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Next we start the connector in standalone mode. This useful for testing and one of jobs, usually you'd run in distributed
-mode to get fault tolerance and better performance.
-
-Before we can start the connector we need to setup it's configuration. In standalone mode this is done by creating a
-properties file and passing this to the connector at startup. In distributed mode you can post in the configuration as
-json to the Connectors HTTP endpoint. Each connector exposes a rest endpoint for stopping, starting and updating the
-configuration.
-
-Since we are in standalone mode we'll create a file called ``kudu-sink.properties`` with the contents below:
+Create a file called ``kudu-sink.properties`` with the contents below:
 
 .. sourcecode:: bash
 
@@ -126,24 +127,46 @@ This configuration defines:
 6.  The source kafka topics to take events from.
 
 
-Starting the Sink Connector (Standalone)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Starting the Connector (Distributed)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Now we are ready to start the Kudu sink Connector in standalone mode.
+Connectors can be deployed distributed mode. In this mode one or many connectors are started on the same or different
+hosts with the same cluster id. The cluster id can be found in ``etc/schema-registry/connect-avro-distributed.properties.``
+
+.. sourcecode:: bash
+
+    # The group ID is a unique identifier for the set of workers that form a single Kafka Connect
+    # cluster
+    group.id=connect-cluster
+
+Now start the connector in distributed mode. We only give it one properties file for the kafka, zookeeper and
+schema registry configurations.
+
+First add the connector jar to the CLASSPATH and then start Connect.
 
 .. note::
 
     You need to add the connector to your classpath or you can create a folder in ``share/java`` of the Confluent
-    install location like, ``kafka-connect-myconnector`` and the start scripts provided by Confluent will pick it up.
+    install location like, kafka-connect-myconnector and the start scripts provided by Confluent will pick it up.
     The start script looks for folders beginning with kafka-connect.
 
 .. sourcecode:: bash
 
     #Add the Connector to the class path
-    ➜  export CLASSPATH=kafka-connect-Kudu-0.1-all.jar
-    #Start the connector in standalone mode, passing in two properties files, the first for the schema registry, kafka
-    #and zookeeper and the second with the connector properties.
-    ➜  bin/connect-standalone etc/schema-registry/connect-avro-standalone.properties kudu-sink.properties
+    ➜  export CLASSPATH=kafka-connect-kudu-0.1-cp-3.0.all.jar
+
+.. sourcecode:: bash
+
+    ➜  confluent-3.0.0/bin/connect-distributed confluent-3.0.0/etc/schema-registry/connect-avro-distributed.properties
+
+Once the connector has started lets use the kafka-connect-tools cli to post in our distributed properties file.
+
+.. sourcecode:: bash
+
+    ➜  java -jar build/libs/kafka-connect-cli-0.2-all.jar create kudu-sink < kudu-sink.properties
+
+If you switch back to the terminal you started the Connector in you should see the Kudu sink being accepted and the
+task starting.
 
 We can use the CLI to check if the connector is up but you should be able to see this in logs as-well.
 
@@ -158,6 +181,10 @@ We can use the CLI to check if the connector is up but you should be able to see
     connect.kudu.export.route.query = INSERT INTO kudu_test SELECT * FROM kudu_test
     topics=kudu_test
     #task ids: 0
+
+    #check for running connectors with the CLI
+    ➜ java -jar build/libs/kafka-connect-cli-0.2-all.jar ps
+    kudu-sink
 
 .. sourcecode:: bash
 
@@ -258,38 +285,6 @@ In Kudu:
 
 Now stop the connector.
 
-Starting the Connector (Distributed)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Connectors can be deployed distributed mode. In this mode one or many connectors are started on the same or different
-hosts with the same cluster id. The cluster id can be found in ``etc/schema-registry/connect-avro-distributed.properties.``
-
-.. sourcecode:: bash
-
-    # The group ID is a unique identifier for the set of workers that form a single Kafka Connect
-    # cluster
-    group.id=connect-cluster
-
-For this quick-start we will just use one host.
-
-Now start the connector in distributed mode, this time we only give it one properties file for the kafka, zookeeper and
-schema registry configurations.
-
-.. sourcecode:: bash
-
-    ➜  confluent-3.0.0/bin/connect-distributed confluent-3.0.0/etc/schema-registry/connect-avro-distributed.properties
-
-Once the connector has started lets use the kafka-connect-tools cli to post in our distributed properties file.
-
-.. sourcecode:: bash
-
-    ➜  java -jar build/libs/kafka-connect-cli-0.2-all.jar create Kudu-sink < kudu-sink.properties
-
-If you switch back to the terminal you started the Connector in you should see the Kudu sink being accepted and the task
-starting.
-
-Insert the records as before to have them written to Kudu.
-
 Features
 --------
 
@@ -297,8 +292,7 @@ The Kudu sink writes records from Kafka to Kudu.
 
 The sink supports:
 
-1. Field selection - Kafka topic payload field selection is supported, allowing you to have choose selection of fields
-   or all fields written to Kudu.
+1. Field selection - Kafka topic payload field selection is supported, allowing you to select fields written to Kudu.
 2. Topic to table routing.
 3. Auto table create with DISTRIBUTE BY partition strategy.
 4. Auto evolution of tables.
@@ -380,16 +374,10 @@ Example:
     //Select all
     INSERT INTO table1 SELECT * FROM topic1; INSERT INTO tableA SELECT * FROM topicC
 
-.. tip::
-
-    Explicit mapping of topics to tables is required. If not present the sink will not start and fail validation checks.
-    Use AUTOCREATE to have the sink create tables for you based on the topic schema.
-
 Field Selection
 ~~~~~~~~~~~~~~~
 
 The Kudu sink supports field selection and mapping. This mapping is set in the ``connect.kudu.export.route.query`` option.
-
 
 Examples:
 
@@ -402,7 +390,6 @@ Examples:
     INSERT INTO table1 SELECT * FROM topic1
 
 .. tip:: Check you mappings to ensure the target columns exist.
-
 
 .. warning::
 
@@ -428,7 +415,7 @@ have been implemented on the target tables. If the error policy has been set to 
 and continue to process, however, it currently makes no attempt to distinguish violation of integrity constraints from other
 exceptions such as casting issues.
 
-**Update**
+**Upsert**
 
 The sink support Kudu upserts which replaces the existing row if a match is found on the primary keys.
 
@@ -482,7 +469,7 @@ and FULLY compatible schemas. If new fields are added the sink will attempt to p
 the target table to add columns. All columns added to the target table are set as nullable.
 
 Fields cannot be deleted upstream. Fields should be of Avro union type [null, <dataType>] with a default set. This allows
-the sink to either retrieve the default value or null. The sink is not be aware that the field has been deleted
+the sink to either retrieve the default value or null. The sink is not aware that the field has been deleted
 as a value is always supplied to it.
 
 .. warning::
@@ -492,7 +479,6 @@ as a value is always supplied to it.
 
 Downstream changes are handled by the sink. If columns are removed, the mapped fields from the topic are ignored. If
 columns are added, we attempt to find a matching field by name in the topic.
-
 
 Data Type Mappings
 ~~~~~~~~~~~~~~~~~~
@@ -525,6 +511,7 @@ Configurations
 Specifies a Kudu server.
 
 * Data type : string
+* Importance: high
 * Optional  : no
 
 ``connect.kudu.export.route.query``
@@ -539,6 +526,7 @@ Examples:
 
 
 * Data Type: string
+* Importance: high
 * Optional : no
 
 ``connect.kudu.sink.error.policy``
@@ -553,13 +541,16 @@ The errors will be logged automatically.
 
 * Type: string
 * Importance: high
+* Optional : yes
+* Default: RETRY
 
 ``connect.kudu.sink.max.retries``
 
 The maximum number of times a message is retried. Only valid when the ``connect.kudu.sink.error.policy`` is set to ``retry``.
 
 * Type: string
-* Importance: high
+* Importance: medium
+* Optional : yes
 * Default: 10
 
 
@@ -569,6 +560,7 @@ The interval, in milliseconds between retries if the sink is using ``connect.kud
 
 * Type: int
 * Importance: medium
+* Optional : yes
 * Default : 60000 (1 minute)
 
 ``connect.kudu.sink.schema.registry.url``
@@ -577,6 +569,7 @@ The url for the Schema registry. This is used to retrieve the latest schema for 
 
 * Type : string
 * Importance : high
+* Optional : yes
 * Default : http://localhost:8081
 
 ``connect.kudu.sink.batch.size``
@@ -586,6 +579,7 @@ calling the sink it won't wait to fulfill this value but rather execute it.
 
 * Type : int
 * Importance : medium
+* Optional : yes
 * Defaults : 3000
 
 Example

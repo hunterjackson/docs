@@ -112,10 +112,22 @@ This configuration defines:
 6. The source topic to get records from.
 7. The field mapping and topic to index routing.
 
-Starting the Sink Connector (Standalone)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Starting the Connector (Distributed)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Now we are ready to start the Elastic sink Connector in standalone mode.
+Connectors can be deployed distributed mode. In this mode one or many connectors are started on the same or different
+hosts with the same cluster id. The cluster id can be found in ``etc/schema-registry/connect-avro-distributed.properties.``
+
+.. sourcecode:: bash
+
+    # The group ID is a unique identifier for the set of workers that form a single Kafka Connect
+    # cluster
+    group.id=connect-cluster
+
+Now start the connector in distributed mode. We only give it one properties file for the kafka, zookeeper and
+schema registry configurations.
+
+First add the connector jar to the CLASSPATH and then start Connect.
 
 .. note::
 
@@ -126,10 +138,34 @@ Now we are ready to start the Elastic sink Connector in standalone mode.
 .. sourcecode:: bash
 
     #Add the Connector to the class path
-    ➜  export CLASSPATH=kafka-connect-elastic-0.1-all.jar
-    #Start the connector in standalone mode, passing in two properties files, the first for the schema registry,
-    #kafka and zookeeper and the second with the connector properties.
-    ➜  bin/connect-standalone etc/schema-registry/connect-avro-standalone.properties elastic-sink.properties
+    ➜  export CLASSPATH=kafka-connect-elastic-0.1-cp-3.0.all.jar
+
+.. sourcecode:: bash
+
+    ➜  confluent-3.0.0/bin/connect-distributed confluent-3.0.0/etc/schema-registry/connect-avro-distributed.properties
+
+Once the connector has started lets use the kafka-connect-tools cli to post in our distributed properties file.
+
+.. sourcecode:: bash
+
+    ➜  java -jar build/libs/kafka-connect-cli-0.2-all.jar create elastic-sink < elastic-sink.properties
+
+    #Connector name=`elastic-sink`
+    name=elastic-sink
+    connector.class=com.datamountaineer.streamreactor.connect.elastic.ElasticSinkConnector
+    connect.elastic.url=localhost:9300
+    connect.elastic.cluster.name=elasticsearch
+    tasks.max=1
+    topics=TOPIC1
+    connect.cassandra.export.route.query=INSERT INTO INDEX_1 SELECT field1, field2 FROM TOPIC1
+    #task ids: 0
+
+    #check for running connectors with the CLI
+    ➜ java -jar build/libs/kafka-connect-cli-0.2-all.jar ps
+    elastic-sink
+
+If you switch back to the terminal you started the Connector in you should see the Elastic sink being accepted and the
+task starting.
 
 We can use the CLI to check if the connector is up but you should be able to see this in logs as-well.
 
@@ -236,39 +272,6 @@ If we query Elastic Search for ``id`` 999:
         }
     }
 
-
-Starting the Connector (Distributed)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Connectors can be deployed distributed mode. In this mode one or many connectors are started on the same or different
-hosts with the same cluster id. The cluster id can be found in ``etc/schema-registry/connect-avro-distributed.properties.``
-
-.. sourcecode:: bash
-
-    # The group ID is a unique identifier for the set of workers that form a single Kafka Connect
-    # cluster
-    group.id=connect-cluster
-
-For this quick-start we will just use one host.
-
-Now start the connector in distributed mode, this time we only give it one properties file for the kafka, zookeeper and
-schema registry configurations.
-
-.. sourcecode:: bash
-
-    ➜  confluent-3.0.0/bin/connect-distributed confluent-3.0.0/etc/schema-registry/connect-avro-distributed.properties
-
-Once the connector has started lets use the kafka-connect-tools cli to post in our distributed properties file.
-
-.. sourcecode:: bash
-
-    ➜  java -jar build/libs/kafka-connect-cli-0.2-all.jar create elastic-sink < elastic-sink.properties
-
-If you switch back to the terminal you started the Connector in you should see the Elastic sink being accepted and the
-task starting.
-
-Insert the records as before to have them written to Elastic Search.
-
 Features
 --------
 
@@ -315,6 +318,7 @@ Configurations
 Url of the Elastic cluster.
 
 * Data Type : string
+* Importance: high
 * Optional  : no
 
 ``connect.elastic.port``
@@ -322,6 +326,7 @@ Url of the Elastic cluster.
 Port of the Elastic cluster.
 
 * Data Type : string
+* Importance: high
 * Optional  : no
 
 ``connect.cassandra.export.route.query``
@@ -335,6 +340,7 @@ Examples:
     INSERT INTO INDEX_1 SELECT field1, field2 FROM TOPIC1
 
 * Data type : string
+* Importance: high
 * Optional  : no
 
 Example

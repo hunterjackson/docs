@@ -106,6 +106,16 @@ If you want to build the connector, clone the repo and build the jar.
 Sink Connector QuickStart
 -------------------------
 
+Next we will start the connector in distributed mode. Connect has two modes, standalone where the tasks run on only one host
+and distributed mode. Usually you'd run in distributed mode to get fault tolerance and better performance. In distributed mode
+you start Connect on multiple hosts and they join together to form a cluster. Connectors which are then submitted are
+distributed across the cluster.
+
+Before we can start the connector we need to setup it's configuration. In standalone mode this is done by creating a
+properties file and passing this to the connector at startup. In distributed mode you can post in the configuration as
+json to the Connectors HTTP endpoint. Each connector exposes a rest endpoint for stopping, starting and updating the
+configuration.
+
 HBase Table
 ~~~~~~~~~~~
 
@@ -131,15 +141,7 @@ The sink expects a precreated table in HBase. In the HBase shell create the test
 Sink Connector Configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Next we start the connector in standalone mode. This useful for testing and one of jobs, usually you'd run in distributed
-mode to get fault tolerance and better performance.
-
-Before we can start the connector we need to setup it's configuration. In standalone mode this is done by creating a
-properties file and passing this to the connector at startup. In distributed mode you can post in the configuration as
-json to the Connectors HTTP endpoint. Each connector exposes a rest endpoint for stopping, starting and updating the
-configuration.
-
-Since we are in standalone mode we'll create a file called ``hbase-sink.properties`` with the contents below:
+Create a file called ``hbase-sink.properties`` with the contents below:
 
 .. sourcecode:: bash
 
@@ -160,10 +162,22 @@ This configuration defines:
 5.  The HBase column family to write to.
 6.  The field mappings, topic mappings and fields to use a the row key.
 
-Starting the Sink Connector (Standalone)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Starting the Connector (Distributed)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Now we are ready to start the hbase sink Connector in standalone mode.
+Connectors can be deployed distributed mode. In this mode one or many connectors are started on the same or different
+hosts with the same cluster id. The cluster id can be found in ``etc/schema-registry/connect-avro-distributed.properties.``
+
+.. sourcecode:: bash
+
+    # The group ID is a unique identifier for the set of workers that form a single Kafka Connect
+    # cluster
+    group.id=connect-cluster
+
+Now start the connector in distributed mode. We only give it one properties file for the kafka, zookeeper and
+schema registry configurations.
+
+First add the connector jar to the CLASSPATH and then start Connect.
 
 .. note::
 
@@ -174,10 +188,33 @@ Now we are ready to start the hbase sink Connector in standalone mode.
 .. sourcecode:: bash
 
     #Add the Connector to the class path
-    ➜  export CLASSPATH=kafka-connect-hbase-0.1-all.jar
-    #Start the connector in standalone mode, passing in two properties files, the first for the schema registry, kafka
-    #and zookeeper and the second with the connector properties.
-    ➜  bin/connect-standalone etc/schema-registry/connect-avro-standalone.properties hbase-sink.properties
+    ➜  export CLASSPATH=kafka-connect-hbase-0.1-cp-3.0.all.jar
+
+.. sourcecode:: bash
+
+    ➜  confluent-3.0.0/bin/connect-distributed confluent-3.0.0/etc/schema-registry/connect-avro-distributed.properties
+
+Once the connector has started lets use the kafka-connect-tools cli to post in our distributed properties file.
+
+.. sourcecode:: bash
+
+    ➜  java -jar build/libs/kafka-connect-cli-0.2-all.jar create hbase-sink < hbase-sink.properties
+
+    #Connector name=`hbase-sink`
+    name=person-hbase-test
+    connector.class=com.datamountaineer.streamreactor.connect.hbase.HbaseSinkConnector
+    tasks.max=1
+    topics=TOPIC1
+    connect.hbase.sink.column.family=d
+    connect.hbase.export.route.query=INSERT INTO person_hbase SELECT * FROM TOPIC1
+    #task ids: 0
+
+    #check for running connectors with the CLI
+    ➜ java -jar build/libs/kafka-connect-cli-0.2-all.jar ps
+    hbase-sink
+
+If you switch back to the terminal you started the Connector in you should see the HBase sink being accepted and the
+task starting.
 
 We can use the CLI to check if the connector is up but you should be able to see this in logs as-well.
 
@@ -250,37 +287,6 @@ In HBase:
 
 Now stop the connector.
 
-Starting the Connector (Distributed)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Connectors can be deployed distributed mode. In this mode one or many connectors are started on the same or different
-hosts with the same cluster id. The cluster id can be found in ``etc/schema-registry/connect-avro-distributed.properties.``
-
-.. sourcecode:: bash
-
-    # The group ID is a unique identifier for the set of workers that form a single Kafka Connect
-    # cluster
-    group.id=connect-cluster
-
-For this quick-start we will just use one host.
-
-Now start the connector in distributed mode, this time we only give it one properties file for the kafka, zookeeper and
-schema registry configurations.
-
-.. sourcecode:: bash
-
-    ➜  confluent-3.0.0/bin/connect-distributed confluent-3.0.0/etc/schema-registry/connect-avro-distributed.properties
-
-Once the connector has started lets use the kafka-connect-tools cli to post in our distributed properties file.
-
-.. sourcecode:: bash
-
-    ➜  java -jar build/libs/kafka-connect-cli-0.2-all.jar create hbase-sink < hbase-sink.properties
-
-If you switch back to the terminal you started the Connector in you
-should see the HBase sink being accepted and the task starting.
-
-
 Features
 --------
 
@@ -288,10 +294,9 @@ The HBase sink writes records from Kafka to HBase.
 
 The sink supports:
 
-1. Field selection - Kafka topic payload field selection is supported, allowing you to have choose selection of fields
-   or all fields written to HBase.
+1. Field selection - Kafka topic payload field selection is supported, allowing you to select fields written to HBase.
 2. Topic to table routing.
-3. RowKey selection - Selection of fields to use as the row key, if none specified the topic name, partition and offset is
+3. RowKey selection - Selection of fields to use as the row key, if none specified the topic name, partition and offset are
    used.
 4. Error policies.
 
@@ -359,6 +364,10 @@ Configurations
 
 The hbase column family.
 
+* Type: string
+* Importance: high
+* Optional: no
+
 ``connect.hbase.export.route.query``
 
 Kafka connect query language expression. Allows for expressive topic to table routing, field selection and renaming. Fields
@@ -372,6 +381,10 @@ Examples:
 
 If no primary keys are specified the topic name, partition and offset converted to bytes are used as the HBase rowkey.
 
+* Type: string
+* Importance: high
+* Optional: no
+
 ``connect.hbase.sink.error.policy``
 
 Specifies the action to be taken if an error occurs while inserting the data.
@@ -383,16 +396,18 @@ option. The ``connect.hbase.sink.retry.interval`` option specifies the interval 
 The errors will be logged automatically.
 
 * Type: string
-* Importance: high
+* Importance: medium
+* Optional: yes
+* Default: RETRY
 
 ``connect.hbase.sink.max.retries``
 
 The maximum number of times a message is retried. Only valid when the ``connect.habse.sink.error.policy`` is set to ``retry``.
 
 * Type: string
-* Importance: high
+* Importance: medium
+* Optional: yes
 * Default: 10
-
 
 ``connect.hbase.sink.retry.interval``
 
@@ -400,6 +415,7 @@ The interval, in milliseconds between retries if the sink is using ``connect.hba
 
 * Type: int
 * Importance: medium
+* Optional: yes
 * Default : 60000 (1 minute)
 
 

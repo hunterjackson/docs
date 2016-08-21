@@ -15,8 +15,8 @@ Prerequisites
 Setup
 -----
 
-rethink Setup
-~~~~~~~~~~~
+Rethink Setup
+~~~~~~~~~~~~~
 
 Download and install RethinkDb. Follow the instruction `here <https://rethinkdb.com/docs/install/>`__ dependent on your
 operating system.
@@ -72,18 +72,20 @@ If you want to build the connector, clone the repo and build the jar.
 Sink Connector QuickStart
 -------------------------
 
-Sink Connector Configuration
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Next we start the connector in standalone mode. This useful for testing and one of jobs, usually you'd run in
-distributed mode to get fault tolerance and better performance.
+Next we will start the connector in distributed mode. Connect has two modes, standalone where the tasks run on only one host
+and distributed mode. Usually you'd run in distributed mode to get fault tolerance and better performance. In distributed mode
+you start Connect on multiple hosts and they join together to form a cluster. Connectors which are then submitted are
+distributed across the cluster.
 
 Before we can start the connector we need to setup it's configuration. In standalone mode this is done by creating a
 properties file and passing this to the connector at startup. In distributed mode you can post in the configuration as
 json to the Connectors HTTP endpoint. Each connector exposes a rest endpoint for stopping, starting and updating the
 configuration.
 
-Since we are in standalone mode we'll create a file called ``rethinkdb-sink.properties`` with the contents below:
+Sink Connector Configuration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Create a file called ``rethinkdb-sink.properties`` with the contents below:
 
 .. sourcecode:: bash
 
@@ -104,11 +106,24 @@ This configuration defines:
 5.  The max number of tasks the connector is allowed to created. Should not be greater than the number of partitions in
     the source topics otherwise tasks will be idle.
 6.  The source kafka topics to take events from.
+7.  The KCQL statement for topic routing and field selection.
 
-Starting the Sink Connector (Standalone)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Starting the Connector (Distributed)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Now we are ready to start the rethink sink Connector in standalone mode.
+Connectors can be deployed distributed mode. In this mode one or many connectors are started on the same or different
+hosts with the same cluster id. The cluster id can be found in ``etc/schema-registry/connect-avro-distributed.properties.``
+
+.. sourcecode:: bash
+
+    # The group ID is a unique identifier for the set of workers that form a single Kafka Connect
+    # cluster
+    group.id=connect-cluster
+
+Now start the connector in distributed mode. We only give it one properties file for the kafka, zookeeper and
+schema registry configurations.
+
+First add the connector jar to the CLASSPATH and then start Connect.
 
 .. note::
 
@@ -119,10 +134,20 @@ Now we are ready to start the rethink sink Connector in standalone mode.
 .. sourcecode:: bash
 
     #Add the Connector to the class path
-    ➜  export CLASSPATH=kafka-connect-rethink-0.1-all.jar
-    #Start the connector in standalone mode, passing in two properties files, the first for the schema registry, kafka
-    #and zookeeper and the second with the connector properties.
-    ➜  bin/connect-standalone etc/schema-registry/connect-avro-standalone.properties rethink-sink.properties
+    ➜  export CLASSPATH=kafka-connect-rethink-0.1-cp-3.0.all.jar
+
+.. sourcecode:: bash
+
+    ➜  confluent-3.0.0/bin/connect-distributed confluent-3.0.0/etc/schema-registry/connect-avro-distributed.properties
+
+Once the connector has started lets use the kafka-connect-tools cli to post in our distributed properties file.
+
+.. sourcecode:: bash
+
+    ➜  java -jar build/libs/kafka-connect-cli-0.2-all.jar create rethink-sink < rethink-sink.properties
+
+If you switch back to the terminal you started the Connector in you should see the Redis sink being accepted and the
+task starting.
 
 We can use the CLI to check if the connector is up but you should be able to see this in logs as-well.
 
@@ -140,6 +165,11 @@ We can use the CLI to check if the connector is up but you should be able to see
     connect.rethink.export.route.query=INSERT INTO TABLE1 SELECT * FROM person_rethink
     #task ids: 0
 
+    #check for running connectors with the CLI
+    ➜ java -jar build/libs/kafka-connect-cli-0.2-all.jar ps
+    rethink-sink
+
+
 .. sourcecode:: bash
 
     [2016-05-08 22:37:05,616] INFO
@@ -153,8 +183,6 @@ We can use the CLI to check if the connector is up but you should be able to see
       / /_/ / _ \/ / / __ \/ / __ \/ //_/ / / / __  |
      / _, _/  __/ / / / / / / / / / ,< / /_/ / /_/ /
     /_/ |_|\___/_/ /_/ /_/_/_/ /_/_/|_/_____/_____/
-
-
 
      (com.datamountaineer.streamreactor.connect.rethink.sink.config.RethinkSinkConfig)
 
@@ -180,7 +208,7 @@ Now the producer is waiting for input. Paste in the following:
 
     {"firstName": "John", "lastName": "Smith", "age":30, "salary": 4830}
 
-Check for records in rethink
+Check for records in Rethink
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Now check the logs of the connector you should see this:
@@ -190,41 +218,9 @@ Now check the logs of the connector you should see this:
     INFO Received record from topic:person_rethink partition:0 and offset:0 (com.datamountaineer.streamreactor.connect.rethink.sink.writer.rethinkDbWriter:48)
     INFO Empty list of records received. (com.datamountaineer.streamreactor.connect.rethink.sink.RethinkSinkTask:75)
 
-Check the rethink.
-
+Check for records in Rethink
 
 Now stop the connector.
-
-Starting the Connector (Distributed)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Connectors can be deployed distributed mode. In this mode one or many connectors are started on the same or different
-hosts with the same cluster id. The cluster id can be found in ``etc/schema-registry/connect-avro-distributed.properties.``
-
-.. sourcecode:: bash
-
-    # The group ID is a unique identifier for the set of workers that form a single Kafka Connect
-    # cluster
-    group.id=connect-cluster
-
-For this quick-start we will just use one host.
-
-Now start the connector in distributed mode, this time we only give it one properties file for the kafka, zookeeper and
-schema registry configurations.
-
-.. sourcecode:: bash
-
-    ➜  confluent-3.0.0/bin/connect-distributed confluent-3.0.0/etc/schema-registry/connect-avro-distributed.properties
-
-Once the connector has started lets use the kafka-connect-tools cli to
-post in our distributed properties file.
-
-.. sourcecode:: bash
-
-    ➜  java -jar build/libs/kafka-connect-cli-0.2-all.jar create rethink-sink < rethink-sink.properties
-
-If you switch back to the terminal you started the Connector in you should see the rethink sink being accepted and the
-task starting.
 
 Features
 --------
@@ -233,10 +229,9 @@ The ReThinkDb sink writes records from Kafka to RethinkDb.
 
 The sink supports:
 
-1. Field selection - Kafka topic payload field selection is supported, allowing you to have choose selection of fields
-   or all fields written to RethinkDb.
+1. Field selection - Kafka topic payload field selection is supported, allowing you to select fields written to RethinkDb.
 2. Topic to table routing.
-3. RowKey selection - Selection of fields to use as the row key, if none specified the topic name, partition and offset is
+3. RowKey selection - Selection of fields to use as the row key, if none specified the topic name, partition and offset are
    used.
 4. RethinkDB write modes.
 5. Error policies for handling failures.
@@ -318,11 +313,6 @@ Example:
     //Select all
     INSERT INTO table1 SELECT * FROM topic1; INSERT INTO tableA SELECT * FROM topicC
 
-.. tip::
-
-    Explicit mapping of topics to tables is required. If not present the sink will not start and fail validation checks.
-    Use AUTOCREATE to have the sink create tables for you based on the topic schema.
-
 Field Selection
 ~~~~~~~~~~~~~~~
 
@@ -365,11 +355,27 @@ schema is found the table is created when the first record is received for the t
 Configurations
 --------------
 
+``connect.rethink.export.route.query``
+
+Kafka connect query language expression. Allows for expressive topic to table routing, field selection and renaming. Fields
+to be used as the row key can be set by specifing the ``PK``. The below example uses field1 as the primary key.
+
+* Data type : string
+* Importance: high
+* Optional  : no
+
+Examples:
+
+.. sourcecode:: sql
+
+    INSERT INTO TABLE1 SELECT * FROM TOPIC1;INSERT INTO TABLE2 SELECT * FROM TOPIC2 PK field1
+
 ``connect.rethink.sink.host``
 
 Specifies the rethink server.
 
 * Data type : string
+* Importance: high
 * Optional  : no
 
 ``connect.rethink.sink.port``
@@ -377,6 +383,7 @@ Specifies the rethink server.
 Specifies the rethink server port number.
 
 * Data type : int
+* Importance: high
 * Optional  : yes
 
 ``connect.rethink.sink.error.policy``
@@ -390,7 +397,9 @@ option. The ``connect.rethink.sink.retry.interval`` option specifies the interva
 The errors will be logged automatically.
 
 * Type: string
-* Importance: high
+* Importance: medium
+* Optional: yes
+* Default: RETRY
 
 ``connect.rethink.sink.max.retries``
 
@@ -398,6 +407,7 @@ The maximum number of times a message is retried. Only valid when the ``connect.
 
 * Type: string
 * Importance: high
+* Optional: yes
 * Default: 10
 
 
@@ -407,6 +417,7 @@ The interval, in milliseconds between retries if the sink is using ``connect.ret
 
 * Type: int
 * Importance: medium
+* Optional: yes
 * Default : 60000 (1 minute)
 
 ``connect.rethink.sink.batch.size``
@@ -416,18 +427,8 @@ calling the sink it won't wait to fulfill this value but rather execute it.
 
 * Type : int
 * Importance : medium
+* Optional: yes
 * Defaults : 3000
-
-``connect.rethink.export.route.query``
-
-Kafka connect query language expression. Allows for expressive topic to table routing, field selection and renaming. Fields
-to be used as the row key can be set by specifing the ``PK``. The below example uses field1 as the primary key.
-
-Examples:
-
-.. sourcecode:: sql
-
-    INSERT INTO TABLE1 SELECT * FROM TOPIC1;INSERT INTO TABLE2 SELECT * FROM TOPIC2 PK field1
 
 
 Example

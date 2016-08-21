@@ -3,6 +3,8 @@ Kafka Connect Cassandra Source
 
 Kafka Connect Cassandra is a Source Connector for reading data from Cassandra and writing to Kafka.
 
+WORK IN PROGRESS!!!!
+
 Prerequisites
 -------------
 
@@ -209,7 +211,7 @@ Now we are ready to start the Cassandra Source Connector in standalone mode.
 .. sourcecode:: bash
 
     #Add the Connector to the class path
-    ➜  export CLASSPATH=kafka-connect-cassandra-0.1-all.jar
+    ➜  export CLASSPATH=kafka-connect-cassandra-0.1-cp-3.0-all.jar
     #Start the connector in standalone mode, passing in two properties files, the first for the schema registry, kafka
     #and zookeeper and the second with the connector properties.
     ➜  bin/connect-standalone etc/schema-registry/connect-avro-standalone.properties cassandra-source-bulk-orders.properties
@@ -253,8 +255,6 @@ We can use the CLI to check if the connector is up but you should be able to see
     connect.cassandra.password=cassandra
     connect.cassandra.import.route.query=INSERT INTO orders-topic SELECT * FROM orders
     #task ids: 0
-
-
 
 
 Check for Source Records in Kafka
