@@ -159,7 +159,7 @@ Once the connector has started lets use the kafka-connect-tools cli to post in o
     connect.elastic.cluster.name=elasticsearch
     tasks.max=1
     topics=TOPIC1
-    connect.cassandra.export.route.query=INSERT INTO INDEX_1 SELECT field1, field2 FROM TOPIC1
+    connect.elastic.export.route.query=INSERT INTO INDEX_1 SELECT field1, field2 FROM TOPIC1
     #task ids: 0
 
 If you switch back to the terminal you started the Connector in you should see the Elastic sink being accepted and the
