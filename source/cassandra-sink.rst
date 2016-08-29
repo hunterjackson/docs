@@ -133,7 +133,7 @@ Execute the following to create the keyspace and table:
     CREATE KEYSPACE demo WITH REPLICATION = {'class' : 'SimpleStrategy', 'replication_factor' : 3};
     use demo;
 
-    create table orders (id int, created string, product text, qty int, price float, PRIMARY KEY (id, created))
+    create table orders (id int, created varchar, product varchar, qty int, price float, PRIMARY KEY (id, created))
     WITH CLUSTERING ORDER BY (created asc);
 
 Sink Connector Configuration
@@ -253,10 +253,18 @@ Now the producer is waiting for input. Paste in the following (each on a line se
 
 .. sourcecode:: bash
 
-    {"id": 1, "created": "2016-05-06 13:53:00", "product", "OP-DAX-P-20150201-95.7", "price": "94.2"}
-    {"id": 2, "created": "2016-05-06 13:54:00", "product", "OP-DAX-C-20150201-100", "price": "99.5"}
-    {"id": 3, "created": "2016-05-06 13:55:00", "product", "FU-DATAMOUNTAINEER-20150201-100", "price": "10000"}
-    {"id": 4, "created": "2016-05-06 13:56:00", "product", "FU-KOSPI-C-20150201-100", "price": "150"}
+    {"id": 1, "created": "2016-05-06 13:53:00", "product": "OP-DAX-P-20150201-95.7", "price": 94.2}
+    {"id": 2, "created": "2016-05-06 13:54:00", "product": "OP-DAX-C-20150201-100", "price": 99.5}
+    {"id": 3, "created": "2016-05-06 13:55:00", "product": "FU-DATAMOUNTAINEER-20150201-100", "price": 10000}
+    {"id": 4, "created": "2016-05-06 13:56:00", "product": "FU-KOSPI-C-20150201-100", "price": 150}
+
+Now if we check the logs of the connector we should see 2 records being inserted to Elastic Search:
+
+.. sourcecode:: bash
+
+    [2016-05-06 13:55:10,368] INFO Setting newly assigned partitions [orders-topic-0] for group connect-cassandra-sink-1 (org.apache.kafka.clients.consumer.internals.ConsumerCoordinator:219)
+    [2016-05-06 13:55:16,423] INFO Received 4 records. (com.datamountaineer.streamreactor.connect.cassandra.sink.CassandraJsonWriter:96)
+    [2016-05-06 13:55:16,484] INFO Processed 4 records. (com.datamountaineer.streamreactor.connect.cassandra.sink.CassandraJsonWriter:138)
 
 .. sourcecode:: bash
 

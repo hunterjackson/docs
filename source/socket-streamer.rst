@@ -11,7 +11,7 @@ Akka Http with Reactive Kafka to stream topics to clients via Web sockets and Se
 Prerequisites
 -------------
 
-* Confluent Platform 2.0.1
+* Confluent Platform 3.0.0
 * Scala 2.11.7
 
 Setup

@@ -15,13 +15,13 @@ to manage connectors. It is used in a git like fashion where the first program a
 ``[ps|get|rm|create|run]``.
 
 The CLI is meant to behave as a good unix citizen: input from ``stdin``; output to ``stdout``; out of band info to ``stderr`` and non-zero exit
-status on error. Commands dealing with configuration expect or produce data in .properties style: ``key=value`` lines and comments start with a
+status on error. Commands dealing with configuration expect or producedata in .properties style: ``key=value`` lines and comments start with a
 ``#``.
 
-::
+.. sourcecode:: bash
 
-    kafconcli 2.0
-    Usage: kafconcli [ps|get|rm|create|run] [options] [<connector-name>...]
+    kafka-connect-cli 0.3
+    Usage: kafka-connect-cli [ps|get|rm|create|run|status] [options] [<connector-name>]
 
       --help
             prints this usage text
@@ -32,10 +32,10 @@ status on error. Commands dealing with configuration expect or produce data in .
     list active connectors names.
 
     Command: get
-    get information about the specified connector(s).
+    get the configuration of the specified connector.
 
     Command: rm
-    remove the specified connector(s).
+    remove the specified connector.
 
     Command: create
     create the specified connector with the .properties from stdin; the connector cannot already exist.
@@ -43,8 +43,11 @@ status on error. Commands dealing with configuration expect or produce data in .
     Command: run
     create or update the specified connector with the .properties from stdin.
 
-      <connector-name>...
-            connector name(s)
+    Command: status
+    get connector and it's task(s) state(s).
+
+      <connector-name>
+            connector name
 
 You can override the default endpoint by setting an environment variable `KAFKA_CONNECT_REST` i.e.
 
