@@ -1,9 +1,9 @@
 .. tools:
 
-.. image:: https://img.shields.io/badge/latest%20release-v0.2-blue.svg?label=maven%20latest%20release
+.. image:: https://img.shields.io/badge/latest%20release-v0.4-blue.svg?label=maven%20latest%20release
     :target: http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22kafka-connect-cli%22
 .. image:: ../images/git.png
-    :target: https://github.com/datamountaineer/kafka-connect-tools/releases/tag/0.2
+    :target: https://github.com/datamountaineer/kafka-connect-tools/releases/tag/v0.4
 
 Kafka Connect CLI
 =================
@@ -20,7 +20,7 @@ status on error. Commands dealing with configuration expect or producedata in .p
 
 .. sourcecode:: bash
 
-    kafka-connect-cli 0.3
+    kafka-connect-cli 0.4
     Usage: kafka-connect-cli [ps|get|rm|create|run|status] [options] [<connector-name>]
 
       --help
