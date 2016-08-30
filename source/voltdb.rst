@@ -185,7 +185,7 @@ Once the connector has started lets use the kafka-connect-tools cli to post in o
 
 .. sourcecode:: bash
 
-    ➜  java -jar build/libs/kafka-connect-cli-0.2-all.jar create voltdb-sink < voltdb-sink.properties
+    ➜  java -jar build/libs/kafka-connect-cli-0.4-all.jar create voltdb-sink < voltdb-sink.properties
 
     #Connector `voltdb-sink`:
     connect.volt.connection.password=
@@ -206,7 +206,7 @@ We can use the CLI to check if the connector is up but you should be able to see
 .. sourcecode:: bash
 
     #check for running connectors with the CLI
-    ➜ java -jar build/libs/kafka-connect-cli-0.2-all.jar ps
+    ➜ java -jar build/libs/kafka-connect-cli-0.4-all.jar ps
     rethink-sink
 
 .. sourcecode:: bash
