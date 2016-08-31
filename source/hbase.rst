@@ -188,7 +188,7 @@ First add the connector jar to the CLASSPATH and then start Connect.
 .. sourcecode:: bash
 
     #Add the Connector to the class path
-    ➜  export CLASSPATH=kafka-connect-hbase-0.1-cp-3.0.0.all.jar
+    ➜  export CLASSPATH=kafka-connect-hbase-0.2-cp-3.0.0.all.jar
 
 .. sourcecode:: bash
 

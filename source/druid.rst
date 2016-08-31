@@ -117,7 +117,7 @@ Now we are ready to start the Druid sink Connector in standalone mode.
 .. sourcecode:: bash
 
     #Add the Connector to the class path
-    ➜  export CLASSPATH=kafka-connect-druid-0.1-cp-3.0.0-all.jar
+    ➜  export CLASSPATH=kafka-connect-druid-0.2-cp-3.0.0-all.jar
     #Start the connector in standalone mode, passing in two properties files, the first for the schema registry, kafka
     #and zookeeper and the second with the connector properties.
     ➜  bin/connect-standalone etc/schema-registry/connect-avro-standalone.properties druid-sink.properties

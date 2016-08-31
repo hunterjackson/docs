@@ -164,7 +164,7 @@ We will start Kafka Connect in distributed mode.
 .. sourcecode:: bash
 
     #Add the Connector to the class path
-    ➜  export CLASSPATH=kafka-connect-cassandra-0.1-cp-3.0.0-all.jar
+    ➜  export CLASSPATH=kafka-connect-cassandra-0.2-cp-3.0.0-all.jar
 
 .. sourcecode:: bash
 
