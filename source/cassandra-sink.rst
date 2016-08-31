@@ -164,7 +164,7 @@ We will start Kafka Connect in distributed mode.
 .. sourcecode:: bash
 
     #Add the Connector to the class path
-    ➜  export CLASSPATH=kafka-connect-cassandra-0.1-cp-3.0-all.jar
+    ➜  export CLASSPATH=kafka-connect-cassandra-0.1-cp-3.0.0-all.jar
 
 .. sourcecode:: bash
 
@@ -175,7 +175,7 @@ download the CLI from `here <http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22k
 
 .. sourcecode:: bash
 
-    ➜  java -jar kafka-connect-cli-0.4-all.jar create cassandra-sink-orders < cassandra-sink-distributed-orders.properties
+    ➜  java -jar kafka-connect-cli-0.5-all.jar create cassandra-sink-orders < cassandra-sink-distributed-orders.properties
 
     #Connector `cassandra-sink-orders`:
     name=cassandra-sink-orders
@@ -199,7 +199,7 @@ We can use the CLI to check if the connector is up but you should be able to see
 .. sourcecode:: bash
 
     #check for running connectors with the CLI
-    ➜ java -jar build/libs/kafka-connect-cli-0.4-all.jar ps
+    ➜ java -jar build/libs/kafka-connect-cli-0.5-all.jar ps
     cassandra-sink
 
 

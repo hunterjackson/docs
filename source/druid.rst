@@ -117,7 +117,7 @@ Now we are ready to start the Druid sink Connector in standalone mode.
 .. sourcecode:: bash
 
     #Add the Connector to the class path
-    ➜  export CLASSPATH=kafka-connect-druid-0.1-cp-3.0-all.jar
+    ➜  export CLASSPATH=kafka-connect-druid-0.1-cp-3.0.0-all.jar
     #Start the connector in standalone mode, passing in two properties files, the first for the schema registry, kafka
     #and zookeeper and the second with the connector properties.
     ➜  bin/connect-standalone etc/schema-registry/connect-avro-standalone.properties druid-sink.properties
@@ -126,7 +126,7 @@ We can use the CLI to check if the connector is up but you should be able to see
 
 .. sourcecode:: bash
 
-    ➜ java -jar build/libs/kafka-connect-cli-0.4-all.jar get druid-sink
+    ➜ java -jar build/libs/kafka-connect-cli-0.5-all.jar get druid-sink
 
 ... sourcecode:: bash
 
@@ -191,7 +191,7 @@ Once the connector has started lets use the kafka-connect-tools cli to post in o
 
 .. sourcecode:: bash
 
-    ➜  java -jar build/libs/kafka-connect-cli-0.4-all.jar create druid-sink < druid-sink.properties
+    ➜  java -jar build/libs/kafka-connect-cli-0.5-all.jar create druid-sink < druid-sink.properties
 
 If you switch back to the terminal you started the Connector in you should see the Druid sink being accepted and the task starting.
 

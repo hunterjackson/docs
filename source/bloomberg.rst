@@ -136,7 +136,7 @@ We can use the CLI to check if the connector is up but you should be able to see
 
 .. sourcecode:: bash
 
-    ➜ java -jar build/libs/kafka-connect-cli-0.4-all.jar get bloomberg-source
+    ➜ java -jar build/libs/kafka-connect-cli-0.5-all.jar get bloomberg-source
 
 
 Check for Source Records in Kafka
@@ -181,7 +181,7 @@ post in our distributed properties file.
 
 .. sourcecode:: bash
 
-    ➜  java -jar build/libs/kafka-connect-cli-0.4-all.jar create bloomberg-source < bloomberg-source.properties
+    ➜  java -jar build/libs/kafka-connect-cli-0.5-all.jar create bloomberg-source < bloomberg-source.properties
 
 If you switch back to the terminal you started the Connector in you
 should see the Bloomberg Source being accepted and the task starting.

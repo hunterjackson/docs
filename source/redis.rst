@@ -154,7 +154,7 @@ First add the connector jar to the CLASSPATH and then start Connect.
 .. sourcecode:: bash
 
     #Add the Connector to the class path
-    ➜  export CLASSPATH=kafka-connect-redis-0.1-cp-3.0.all.jar
+    ➜  export CLASSPATH=kafka-connect-redis-0.1-cp-3.0.0.all.jar
 
 .. sourcecode:: bash
 
@@ -164,7 +164,7 @@ Once the connector has started lets use the kafka-connect-tools cli to post in o
 
 .. sourcecode:: bash
 
-    ➜  java -jar build/libs/kafka-connect-cli-0.4-all.jar create redis-sink < redis-sink.properties
+    ➜  java -jar build/libs/kafka-connect-cli-0.5-all.jar create redis-sink < redis-sink.properties
     #Connector name=`redis-sink`
     connect.redis.connection.host=localhost
     connect.redis.connection.port=6379
@@ -182,7 +182,7 @@ We can use the CLI to check if the connector is up but you should be able to see
 .. sourcecode:: bash
 
     #check for running connectors with the CLI
-    ➜ java -jar build/libs/kafka-connect-cli-0.4-all.jar ps
+    ➜ java -jar build/libs/kafka-connect-cli-0.5-all.jar ps
     redis-sink
 
 .. sourcecode:: bash

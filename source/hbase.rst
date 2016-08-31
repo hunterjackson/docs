@@ -188,7 +188,7 @@ First add the connector jar to the CLASSPATH and then start Connect.
 .. sourcecode:: bash
 
     #Add the Connector to the class path
-    ➜  export CLASSPATH=kafka-connect-hbase-0.1-cp-3.0.all.jar
+    ➜  export CLASSPATH=kafka-connect-hbase-0.1-cp-3.0.0.all.jar
 
 .. sourcecode:: bash
 
@@ -198,7 +198,7 @@ Once the connector has started lets use the kafka-connect-tools cli to post in o
 
 .. sourcecode:: bash
 
-    ➜  java -jar build/libs/kafka-connect-cli-0.4-all.jar create hbase-sink < hbase-sink.properties
+    ➜  java -jar build/libs/kafka-connect-cli-0.5-all.jar create hbase-sink < hbase-sink.properties
 
     #Connector name=`hbase-sink`
     name=person-hbase-test
@@ -217,7 +217,7 @@ We can use the CLI to check if the connector is up but you should be able to see
 .. sourcecode:: bash
 
     #check for running connectors with the CLI
-    ➜ java -jar build/libs/kafka-connect-cli-0.4-all.jar ps
+    ➜ java -jar build/libs/kafka-connect-cli-0.5-all.jar ps
     hbase-sink
 
 .. sourcecode:: bash
