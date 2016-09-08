@@ -138,7 +138,7 @@ Create a file called ``voltdb-sink.properties`` with the contents below:
     connector.class=com.datamountaineer.streamreactor.connect.voltdb.VoltSinkConnector
     max.tasks=1
     topics = sink-test
-    connect.volt.connection.servers=localhost:9999
+    connect.volt.connection.servers=localhost:21212
     connect.volt.connection.user=
     connect.volt.connection.password=
     connect.volt.export.route.query=INSERT INTO person SELECT * FROM sink-test
