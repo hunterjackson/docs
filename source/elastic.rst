@@ -352,7 +352,7 @@ Schema Evolution
 
 Upstream changes to schemas are handled by Schema registry which will validate the addition and removal
 or fields, data type changes and if defaults are set. The Schema Registry enforces Avro schema evolution rules.
-More information can be found `here <http://docs.confluent.io/2.0.1/schema-registry/docs/api.html#compatibility>`_.
+More information can be found `here <http://docs.confluent.io/3.0.1/schema-registry/docs/api.html#compatibility>`_.
 
 Elastic Search is very flexible about what is inserted. All documents in Elasticsearch are stored in an index. We do not
 need to tell Elasticsearch in advance what an index will look like (eg what fields it will contain) as Elasticsearch will

@@ -715,7 +715,7 @@ Schema Evolution
 
 Upstream changes to schemas are handled by Schema registry which will validate the addition and removal or fields,
 data type changes and if defaults are set. The Schema Registry enforces Avro schema evolution rules. More information
-can be found `here <http://docs.confluent.io/2.0.1/schema-registry/docs/api.html#compatibility>`_.
+can be found `here <http://docs.confluent.io/3.0.1/schema-registry/docs/api.html#compatibility>`_.
 
 For the Source connector, at present no column selection is handled, every column from the table is queried to column
 additions and deletions are handled in accordance with the compatibility mode of the Schema Registry.

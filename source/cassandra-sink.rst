@@ -518,7 +518,7 @@ Schema Evolution
 
 Upstream changes to schemas are handled by Schema registry which will validate the addition and removal or fields,
 data type changes and if defaults are set. The Schema Registry enforces Avro schema evolution rules. More information
-can be found `here <http://docs.confluent.io/2.0.1/schema-registry/docs/api.html#compatibility>`_.
+can be found `here <http://docs.confluent.io/3.0.1/schema-registry/docs/api.html#compatibility>`_.
 
 For the Sink connector, if columns are add to the target Cassandra table and not present in the source topic they will be
 set to null by Cassandras Json insert functionality. Columns which are omitted from the JSON value map are treated as a

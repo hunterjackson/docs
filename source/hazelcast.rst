@@ -498,7 +498,7 @@ Schema Evolution
 
 Upstream changes to schemas are handled by Schema registry which will validate the addition and removal
 or fields, data type changes and if defaults are set. The Schema Registry enforces Avro schema evolution rules.
-More information can be found `here <http://docs.confluent.io/2.0.1/schema-registry/docs/api.html#compatibility>`_.
+More information can be found `here <http://docs.confluent.io/3.0.1/schema-registry/docs/api.html#compatibility>`_.
 
 The sink serializes either an Avro or Json representation of the sink record to the target reliable topic in Hazelcaset.
 Hazelcast is agnostic to the schema.

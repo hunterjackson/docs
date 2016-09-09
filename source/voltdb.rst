@@ -15,7 +15,7 @@ Prerequisites
 Setup
 -----
 
-HazelCast Setup
+VoltDB Setup
 ~~~~~~~~~~~~~~~
 
 Download VoltDB from `here <http://learn.voltdb.com/DLSoftwareDownload.html/>`__
@@ -207,7 +207,7 @@ We can use the CLI to check if the connector is up but you should be able to see
 
     #check for running connectors with the CLI
     ➜ java -jar build/libs/kafka-connect-cli-0.5-all.jar ps
-    rethink-sink
+    voltdb-sink
 
 .. sourcecode:: bash
 
@@ -486,7 +486,7 @@ Schema Evolution
 
 Upstream changes to schemas are handled by Schema registry which will validate the addition and removal
 or fields, data type changes and if defaults are set. The Schema Registry enforces Avro schema evolution rules.
-More information can be found `here <http://docs.confluent.io/2.0.1/schema-registry/docs/api.html#compatibility>`_.
+More information can be found `here <http://docs.confluent.io/3.0.1/schema-registry/docs/api.html#compatibility>`_.
 
 No schema evolution is handled by the sink yet on changes in the upstream topics.
 
