@@ -128,6 +128,13 @@ This configuration defines:
 6.  The source kafka topics to take events from.
 7.  The KCQL statement for topic routing and field selection.
 
+
+If your redis server is requiring the connection to be authenticated you would need to provide an extra setting:
+
+.. sourcecode:: bash
+    connect.redis.sink.connection.password=$REDIS_PASSWORD
+Don't set the value to empty if no password is required.
+
 Starting the Connector (Distributed)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -371,6 +378,7 @@ Specifies the authorization password.
 * Data type : string
 * Importance: high
 * Optional  : yes
+* Description: If you don't have a password set up on the redis server don't provide the value or you will see this error: "ERR Client sent AUTH, but no password is set"
 
 ``connect.redis.sink.error.policy``
 
