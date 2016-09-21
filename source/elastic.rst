@@ -102,7 +102,7 @@ Create a file called ``elastic-sink.properties`` with the contents below:
     connect.elastic.cluster.name=elasticsearch
     tasks.max=1
     topics=TOPIC1
-    connect.cassandra.export.route.query=INSERT INTO INDEX_1 SELECT field1, field2 FROM TOPIC1
+    connect.elastic.export.route.query=INSERT INTO INDEX_1 SELECT field1, field2 FROM TOPIC1
 
 This configuration defines:
 
@@ -320,7 +320,7 @@ Port of the Elastic cluster.
 * Importance: high
 * Optional  : no
 
-``connect.cassandra.export.route.query``
+``connect.elastic.export.route.query``
 
 Kafka connect query language expression. Allows for expressive table to topic routing, field selection and renaming.
 
@@ -345,7 +345,7 @@ Example
     connect.elastic.cluster.name=elasticsearch
     tasks.max=1
     topics=test_table
-    connect.cassandra.export.route.query=INSERT INTO INDEX_1 SELECT field1, field2 FROM TOPIC1
+    connect.elastic.export.route.query=INSERT INTO INDEX_1 SELECT field1, field2 FROM TOPIC1
 
 Schema Evolution
 ----------------
