@@ -1,5 +1,5 @@
 Kafka Connect Blockchain
-=======================
+========================
 
 A Connector to hook into the live streaming providing a real time feed for new bitcoin blocks and transactions provided by
 `www.blochain.info <http://www.blockchain.info/>`__ The connector subscribe to notification on blocks, transactions or an address
@@ -25,7 +25,7 @@ Setup
 -----
 
 Blockchain Setup
-~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~
 All you need is having the confluent platform installed. Here is how you would install it
 
 .. sourcecode:: bash
@@ -54,7 +54,7 @@ Start the Confluent platform.
 Build the Connector and CLI
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The prebuilt jars can be taken from here and
+The prebuilt jars can be taken from `here <https://github.com/datamountaineer/stream-reactor/releases>`__ and
 `here <https://github.com/datamountaineer/kafka-connect-tools/releases>`__
 or from `Maven <http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22kafka-connect-cli%22>`__
 
@@ -73,7 +73,7 @@ If you want to build the connector, clone the repo and build the jar.
     ➜  gradle fatJar
 
 Source Connector QuickStart
--------------------------
+---------------------------
 
 Next we will start the connector in distributed mode. Connect has two modes, standalone where the tasks run on only one host
 and distributed mode. Usually you'd run in distributed mode to get fault tolerance and better performance. In distributed mode
@@ -86,7 +86,7 @@ json to the Connectors HTTP endpoint. Each connector exposes a rest endpoint for
 configuration.
 
 Source Connector Configuration
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Create a file called ``blockchain-source.properties`` with the contents below:
 
@@ -125,11 +125,11 @@ First add the connector jar to the CLASSPATH and then start Connect.
 .. sourcecode:: bash
 
     #Add the Connector to the class path
-    ➜  export CLASSPATH=kafka-connect-blockchain-0.2-cp-3.0.0.all.jar
+    ➜  export CLASSPATH=kafka-connect-blockchain-0.2-cp-3.0.1.all.jar
 
 .. sourcecode:: bash
 
-    ➜  confluent-3.0.0/bin/connect-distributed confluent-3.0.0/etc/schema-registry/connect-avro-distributed.properties
+    ➜  confluent-3.0.1/bin/connect-distributed confluent-3.0.1/etc/schema-registry/connect-avro-distributed.properties
 
 Once the connector has started lets use the kafka-connect-tools cli to post in our distributed properties file.
 
@@ -185,6 +185,7 @@ Now we need to see records pushed on the topic. We can use the ``kafka-avro-cons
     $ ./bin/kafka-avro-console-consumer --topic blockchain-test \
          --zookeeper localhost:2181 \
          --from-beginning
+
 Now the console is reading blockchain transaction data which would print on the terminal.
 
 

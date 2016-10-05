@@ -56,13 +56,13 @@ Confluent Setup
     ➜  mkdir confluent
 
     #download confluent
-    ➜  wget http://packages.confluent.io/archive/3.0/confluent-3.0.0-2.11.tar.gz
+    ➜  wget http://packages.confluent.io/archive/3.0/confluent-3.0.1-2.11.tar.gz
 
     #extract archive to confluent folder
-    ➜  tar -xvf confluent-3.0.0-2.11.tar.gz -C confluent
+    ➜  tar -xvf confluent-3.0.1-2.11.tar.gz -C confluent
 
     #setup variables
-    ➜  export CONFLUENT_HOME=~/confluent/confluent-3.0.0
+    ➜  export CONFLUENT_HOME=~/confluent/confluent-3.0.1
 
 Start the Confluent platform.
 
@@ -164,11 +164,11 @@ We will start Kafka Connect in distributed mode.
 .. sourcecode:: bash
 
     #Add the Connector to the class path
-    ➜  export CLASSPATH=kafka-connect-cassandra-0.2-cp-3.0.0-all.jar
+    ➜  export CLASSPATH=kafka-connect-cassandra-0.2-cp-3.0.1-all.jar
 
 .. sourcecode:: bash
 
-    ➜  confluent-3.0.0/bin/connect-distributed etc/schema-registry/connect-avro-distributed.properties
+    ➜  confluent-3.0.1/bin/connect-distributed etc/schema-registry/connect-avro-distributed.properties
 
 Once the connector has started lets use the kafka-connect-tools cli to post in our distributed properties file. You can
 download the CLI from `here <http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22kafka-connect-cli%22>`__

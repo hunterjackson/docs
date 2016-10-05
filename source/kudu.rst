@@ -8,7 +8,7 @@ The connector takes the value from the Kafka Connect SinkRecords and inserts a n
 Prerequisites
 -------------
 
-- Confluent 3.0.0
+- Confluent 3.0.1
 - Kudu 0.8
 - Java 1.8
 - Scala 2.11
@@ -34,13 +34,13 @@ Confluent Setup
     ➜  mkdir confluent
 
     #download confluent
-    ➜  wget http://packages.confluent.io/archive/3.0/confluent-3.0.0-2.11.tar.gz
+    ➜  wget http://packages.confluent.io/archive/3.0/confluent-3.0.1-2.11.tar.gz
 
     #extract archive to confluent folder
-    ➜  tar -xvf confluent-3.0.0-2.11.tar.gz -C confluent
+    ➜  tar -xvf confluent-3.0.1-2.11.tar.gz -C confluent
 
     #setup variables
-    ➜  export CONFLUENT_HOME=~/confluent/confluent-3.0.0
+    ➜  export CONFLUENT_HOME=~/confluent/confluent-3.0.1
 
 Start the Confluent platform.
 
@@ -54,7 +54,7 @@ Start the Confluent platform.
 Build the Connector and CLI
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The prebuilt jars can be taken from here and `here <https://github.com/datamountaineer/kafka-connect-tools/releases>`__
+The prebuilt jars can be taken from `here <https://github.com/datamountaineer/stream-reactor/releases>`__ and `here <https://github.com/datamountaineer/kafka-connect-tools/releases>`__
 or from `Maven <http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22kafka-connect-cli%22>`__
 
 If you want to build the connector, clone the repo and build the jar.
@@ -153,11 +153,11 @@ First add the connector jar to the CLASSPATH and then start Connect.
 .. sourcecode:: bash
 
     #Add the Connector to the class path
-    ➜  export CLASSPATH=kafka-connect-kudu-0.2-cp-3.0.0.all.jar
+    ➜  export CLASSPATH=kafka-connect-kudu-0.2-cp-3.0.1.all.jar
 
 .. sourcecode:: bash
 
-    ➜  confluent-3.0.0/bin/connect-distributed confluent-3.0.0/etc/schema-registry/connect-avro-distributed.properties
+    ➜  confluent-3.0.1/bin/connect-distributed confluent-3.0.1/etc/schema-registry/connect-avro-distributed.properties
 
 Once the connector has started lets use the kafka-connect-tools cli to post in our distributed properties file.
 

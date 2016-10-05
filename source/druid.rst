@@ -6,7 +6,7 @@ WORK IN PROGRESS NOT COMPLETE!
 Prerequisites
 -------------
 
-- Confluent 3.0.0
+- Confluent 3.0.1
 - Java 1.8
 - Scala 2.11
 
@@ -14,7 +14,7 @@ Setup
 -----
 
 Druid Setup
-~~~~~~~~~~~~~
+~~~~~~~~~~~
 
 Download and start Druid.
 
@@ -31,13 +31,13 @@ Confluent Setup
     ➜  mkdir confluent
 
     #download confluent
-    ➜  wget http://packages.confluent.io/archive/3.0/confluent-3.0.0-2.11.tar.gz
+    ➜  wget http://packages.confluent.io/archive/3.0/confluent-3.0.1-2.11.tar.gz
 
     #extract archive to confluent folder
-    ➜  tar -xvf confluent-3.0.0-2.11.tar.gz -C confluent
+    ➜  tar -xvf confluent-3.0.1-2.11.tar.gz -C confluent
 
     #setup variables
-    ➜  export CONFLUENT_HOME=~/confluent/confluent-3.0.0
+    ➜  export CONFLUENT_HOME=~/confluent/confluent-3.0.1
 
 Enable topic deletion.
 
@@ -60,7 +60,7 @@ Start the Confluent platform.
 Build the Connector and CLI
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The prebuilt jars can be taken from here and
+The prebuilt jars can be taken from `here <https://github.com/datamountaineer/stream-reactor/releases>`__ and
 `here <https://github.com/datamountaineer/kafka-connect-tools/releases>`__
 or from `Maven <http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22kafka-connect-cli%22>`__
 
@@ -117,7 +117,7 @@ Now we are ready to start the Druid sink Connector in standalone mode.
 .. sourcecode:: bash
 
     #Add the Connector to the class path
-    ➜  export CLASSPATH=kafka-connect-druid-0.2-cp-3.0.0-all.jar
+    ➜  export CLASSPATH=kafka-connect-druid-0.2-cp-3.0.1-all.jar
     #Start the connector in standalone mode, passing in two properties files, the first for the schema registry, kafka
     #and zookeeper and the second with the connector properties.
     ➜  bin/connect-standalone etc/schema-registry/connect-avro-standalone.properties druid-sink.properties
@@ -185,7 +185,7 @@ schema registry configurations.
 
 .. sourcecode:: bash
 
-    ➜  confluent-3.0.0/bin/connect-distributed confluent-3.0.0/etc/schema-registry/connect-avro-distributed.properties
+    ➜  confluent-3.0.1/bin/connect-distributed confluent-3.0.1/etc/schema-registry/connect-avro-distributed.properties
 
 Once the connector has started lets use the kafka-connect-tools cli to post in our distributed properties file.
 

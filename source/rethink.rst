@@ -7,8 +7,8 @@ SinkRecords and inserts a new entry to RethinkDb.
 Prerequisites
 -------------
 
-- Confluent 3.0.0
-- RethinkDb 2.3.0
+- Confluent 3.0.1
+- RethinkDb 2.3.3
 - Java 1.8
 - Scala 2.11
 
@@ -31,13 +31,13 @@ Confluent Setup
     ➜  mkdir confluent
 
     #download confluent
-    ➜  wget http://packages.confluent.io/archive/3.0/confluent-3.0.0-2.11.tar.gz
+    ➜  wget http://packages.confluent.io/archive/3.0/confluent-3.0.1-2.11.tar.gz
 
     #extract archive to confluent folder
-    ➜  tar -xvf confluent-2.0.1-2.11.tar.gz -C confluent
+    ➜  tar -xvf confluent-3.0.1-2.11.tar.gz -C confluent
 
     #setup variables
-    ➜  export CONFLUENT_HOME=~/confluent/confluent-2.0.1
+    ➜  export CONFLUENT_HOME=~/confluent/confluent-3.0.1
 
 Start the Confluent platform.
 
@@ -51,7 +51,7 @@ Start the Confluent platform.
 Build the Connector and CLI
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The prebuilt jars can be taken from here and
+The prebuilt jars can be taken from `here <https://github.com/datamountaineer/stream-reactor/releases>`__ and
 `here <https://github.com/datamountaineer/kafka-connect-tools/releases>`__
 or from `Maven <http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22kafka-connect-cli%22>`__
 
@@ -134,11 +134,11 @@ First add the connector jar to the CLASSPATH and then start Connect.
 .. sourcecode:: bash
 
     #Add the Connector to the class path
-    ➜  export CLASSPATH=kafka-connect-rethink-0.2-cp-3.0.0.all.jar
+    ➜  export CLASSPATH=kafka-connect-rethink-0.2-cp-3.0.1.all.jar
 
 .. sourcecode:: bash
 
-    ➜  confluent-3.0.0/bin/connect-distributed confluent-3.0.0/etc/schema-registry/connect-avro-distributed.properties
+    ➜  confluent-3.0.1/bin/connect-distributed confluent-3.0.1/etc/schema-registry/connect-avro-distributed.properties
 
 Once the connector has started lets use the kafka-connect-tools cli to post in our distributed properties file.
 
@@ -155,7 +155,7 @@ Once the connector has started lets use the kafka-connect-tools cli to post in o
     connect.rethink.export.route.query=INSERT INTO TABLE1 SELECT * FROM person_rethink
     #task ids: 0
 
-If you switch back to the terminal you started the Connector in you should see the Redis sink being accepted and the
+If you switch back to the terminal you started the Connector in you should see the ReThinkDB Sink being accepted and the
 task starting.
 
 We can use the CLI to check if the connector is up but you should be able to see this in logs as-well.

@@ -26,13 +26,13 @@ Confluent Setup
     mkdir confluent
 
     #download confluent
-    wget wget http://packages.confluent.io/archive/3.0/confluent-3.0.0-2.11.tar.gz
+    wget wget http://packages.confluent.io/archive/3.0/confluent-3.0.1-2.11.tar.gz
 
     #extract archive to confluent folder
-    tar -xvf confluent-3.0.0-2.11.tar.gz -C confluent
+    tar -xvf confluent-3.0.1-2.11.tar.gz -C confluent
 
     #setup variables
-    export CONFLUENT_HOME=~/confluent/confluent-3.0.0
+    export CONFLUENT_HOME=~/confluent/confluent-3.0.1
 
 Enable topic deletion.
 
