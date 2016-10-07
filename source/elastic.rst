@@ -150,7 +150,7 @@ Once the connector has started lets use the kafka-connect-tools cli to post in o
 
 .. sourcecode:: bash
 
-    ➜  java -jar build/libs/kafka-connect-cli-0.5-all.jar create elastic-sink < elastic-sink.properties
+    ➜  java -jar build/libs/kafka-connect-cli-0.6-all.jar create elastic-sink < elastic-sink.properties
 
     #Connector name=`elastic-sink`
     name=elastic-sink
@@ -170,7 +170,7 @@ We can use the CLI to check if the connector is up but you should be able to see
 .. sourcecode:: bash
 
     #check for running connectors with the CLI
-    ➜ java -jar build/libs/kafka-connect-cli-0.5-all.jar ps
+    ➜ java -jar build/libs/kafka-connect-cli-0.6-all.jar ps
     elastic-sink
 
 .. sourcecode:: bash

@@ -153,7 +153,7 @@ Once the connector has started lets use the kafka-connect-tools cli to post in o
 
 .. sourcecode:: bash
 
-    ➜  java -jar build/libs/kafka-connect-cli-0.5-all.jar create jms-sink < jms-sink.properties
+    ➜  java -jar build/libs/kafka-connect-cli-0.6-all.jar create jms-sink < jms-sink.properties
     #Connector name=`jms-sink`
     name=jms-sink
     connector.class=com.datamountaineer.streamreactor.connect.jms.sink.JMSSinkConnector
@@ -176,7 +176,7 @@ We can use the CLI to check if the connector is up but you should be able to see
 .. sourcecode:: bash
 
     #check for running connectors with the CLI
-    ➜ java -jar build/libs/kafka-connect-cli-0.5-all.jar ps
+    ➜ java -jar build/libs/kafka-connect-cli-0.6-all.jar ps
     jms-sink
 
 

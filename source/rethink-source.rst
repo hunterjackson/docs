@@ -144,7 +144,7 @@ Once the connector has started lets use the kafka-connect-tools cli to post in o
 
 .. sourcecode:: bash
 
-    ➜  java -jar build/libs/kafka-connect-cli-0.5-all.jar create rethink-sink < rethink-sink.properties
+    ➜  java -jar build/libs/kafka-connect-cli-0.6-all.jar create rethink-sink < rethink-sink.properties
 
 
 If you switch back to the terminal you started the Connector in you should see the ReThinkDB Sink being accepted and the
@@ -155,10 +155,10 @@ We can use the CLI to check if the connector is up but you should be able to see
 .. sourcecode:: bash
 
     #check for running connectors with the CLI
-    ➜ java -jar build/libs/kafka-connect-cli-0.5-all.jar ps
+    ➜ java -jar build/libs/kafka-connect-cli-0.6-all.jar ps
     rethink-sink
 
-    ➜ java -jar build/libs/kafka-connect-cli-0.5-all.jar get rethink-sink
+    ➜ java -jar build/libs/kafka-connect-cli-0.6-all.jar get rethink-sink
     #Connector name=`rethink-source`
     name=rethink-source
     connect.rethink.source.host=localhost
