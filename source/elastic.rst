@@ -102,7 +102,7 @@ Create a file called ``elastic-sink.properties`` with the contents below:
     connect.elastic.cluster.name=elasticsearch
     tasks.max=1
     topics=TOPIC1
-    connect.elastic.export.route.query=INSERT INTO INDEX_1 SELECT field1, field2 FROM TOPIC1
+    connect.elastic.export.route.query=INSERT INTO index_1 SELECT field1, field2 FROM TOPIC1
 
 This configuration defines:
 
@@ -159,7 +159,7 @@ Once the connector has started lets use the kafka-connect-tools cli to post in o
     connect.elastic.cluster.name=elasticsearch
     tasks.max=1
     topics=TOPIC1
-    connect.elastic.export.route.query=INSERT INTO INDEX_1 SELECT field1, field2 FROM TOPIC1
+    connect.elastic.export.route.query=INSERT INTO index_1 SELECT id, random_field FROM TOPIC1
     #task ids: 0
 
 If you switch back to the terminal you started the Connector in you should see the Elastic sink being accepted and the
@@ -237,7 +237,7 @@ If we query Elastic Search for ``id`` 999:
 
 .. sourcecode:: bash
 
-    curl -XGET 'http://localhost:9200/INDEX_1/_search?q=id:999'
+    curl -XGET 'http://localhost:9200/index_1/_search?q=id:999'
 
     {
         "took": 45,
