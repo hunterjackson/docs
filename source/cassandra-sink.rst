@@ -269,7 +269,7 @@ Now if we check the logs of the connector we should see 2 records being inserted
 .. sourcecode:: bash
 
     use demo;
-    SELECT * FROM orders_write_back;
+    SELECT * FROM orders;
 
      id | created             | price | product                           | qty
     ----+---------------------+-------+-----------------------------------+-----

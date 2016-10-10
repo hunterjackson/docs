@@ -175,12 +175,12 @@ Create a file called ``cassandra-source-bulk-orders.properties`` with the conten
 
     name=cassandra-source-orders
     connector.class=com.datamountaineer.streamreactor.connect.cassandra.source.CassandraSourceConnector
-    cassandra.key.space=demo
+    connect.cassandra.key.space=demo
     connect.cassandra.import.route.query=INSERT INTO orders-topic SELECT * FROM orders
-    cassandra.import.mode=incremental
-    cassandra.contact.points=localhost
-    cassandra.username=cassandra
-    cassandra.password=cassandra
+    connect.cassandra.import.mode=incremental
+    connect.cassandra.contact.points=localhost
+    connect.cassandra.username=cassandra
+    connect.cassandra.password=cassandra
 
 This configuration defines:
 
