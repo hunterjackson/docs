@@ -4,7 +4,7 @@ Sink Connectors
 Sink connectors stream data from Kafka into external systems.
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 1
 
    cassandra-sink
    druid
@@ -14,6 +14,7 @@ Sink connectors stream data from Kafka into external systems.
    influx
    jms
    kudu
+   mongo
    redis
    rethink
    voltdb
