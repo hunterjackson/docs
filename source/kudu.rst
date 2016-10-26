@@ -1,9 +1,16 @@
 Kafka Connect Kudu
 ===================
 
-A Connector and Sink to write events from Kafka to kudu.
+A Connector and Sink to write events from Kafka to kudu.The connector takes the value from the Kafka Connect SinkRecords
+and inserts a new entry to Kudu.
 
-The connector takes the value from the Kafka Connect SinkRecords and inserts a new entry to Kudu.
+The Sink supports:
+
+1. :ref:`The KCQL routing querying <kcql>` - Kafka topic payload field selection is supported, allowing you to select fields written to Kudu.
+2. Topic to table routing via KCQL.
+3. Auto table create with DISTRIBUTE BY partition strategy via KCQL.
+4. Auto evolution of tables via KCQL.
+5. Error policies for handling failures.
 
 Prerequisites
 -------------
@@ -28,66 +35,25 @@ Download and check Kudu QuickStart VM starts up.
 Confluent Setup
 ~~~~~~~~~~~~~~~
 
-.. sourcecode:: bash
-
-    #make confluent home folder
-    ➜  mkdir confluent
-
-    #download confluent
-    ➜  wget http://packages.confluent.io/archive/3.0/confluent-3.0.1-2.11.tar.gz
-
-    #extract archive to confluent folder
-    ➜  tar -xvf confluent-3.0.1-2.11.tar.gz -C confluent
-
-    #setup variables
-    ➜  export CONFLUENT_HOME=~/confluent/confluent-3.0.1
-
-Start the Confluent platform.
-
-.. sourcecode:: bash
-
-    #Start the confluent platform, we need kafka, zookeeper and the schema registry
-    bin/zookeeper-server-start etc/kafka/zookeeper.properties &
-    bin/kafka-server-start etc/kafka/server.properties &
-    bin/schema-registry-start etc/schema-registry/schema-registry.properties &
-
-Build the Connector and CLI
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The prebuilt jars can be taken from `here <https://github.com/datamountaineer/stream-reactor/releases>`__ and `here <https://github.com/datamountaineer/kafka-connect-tools/releases>`__
-or from `Maven <http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22kafka-connect-cli%22>`__
-
-If you want to build the connector, clone the repo and build the jar.
-
-.. sourcecode:: bash
-
-    ##Build the connectors
-    git clone https://github.com/datamountaineer/stream-reactor
-    cd stream-reactor
-    gradle fatJar
-
-    ##Build the CLI for interacting with Kafka connectors
-    git clone https://github.com/datamountaineer/kafka-connect-tools
-    cd kafka-connect-tools
-    gradle fatJar
+Follow the instructions :ref:`here <install>`.
 
 Sink Connector QuickStart
 -------------------------
 
-Next we will start the connector in distributed mode. Connect has two modes, standalone where the tasks run on only one host
+We will start the connector in distributed mode. Connect has two modes, standalone where the tasks run on only one host
 and distributed mode. Usually you'd run in distributed mode to get fault tolerance and better performance. In distributed mode
-you start Connect on multiple hosts and they join together to form a cluster. Connectors which are then submitted are
-distributed across the cluster.
+you start Connect on multiple hosts and they join together to form a cluster. Connectors which are then submitted are distributed
+across the cluster. Each connector exposes a rest endpoint for stopping, starting and updating the configuration. We have developed
+a Command Line Interface to make interacting with the Connect Rest API easier. The CLI can be found in the Stream Reactor download under
+the ``bin`` folder. Alternatively the Jar can be pulled from
+`Maven <http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22kafka-connect-cli%22>`__ or the our GitHub
+`releases <https://github.com/datamountaineer/kafka-connect-tools/releases>`__ page.
 
-Before we can start the connector we need to setup it's configuration. In standalone mode this is done by creating a
-properties file and passing this to the connector at startup. In distributed mode you can post in the configuration as
-json to the Connectors HTTP endpoint. Each connector exposes a rest endpoint for stopping, starting and updating the
-configuration.
 
 Kudu Table
 ~~~~~~~~~~
 
-Lets create a table in Kudu via Impala. The sink does support auto creation of tables but they are not sync'd yet with Impala.
+Lets create a table in Kudu via Impala. The Sink does support auto creation of tables but they are not sync'd yet with Impala.
 
 .. sourcecode:: bash
 
@@ -100,79 +66,52 @@ Lets create a table in Kudu via Impala. The sink does support auto creation of t
     'storage_handler'='com.cloudera.kudu.hive.KuduStorageHandler')
     exit;
 
-.. note:: The sink will fail to start if the tables matching the topics do not already exist and the sink is not in auto create mode.
-
-Sink Connector Configuration
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Create a file called ``kudu-sink.properties`` with the contents below:
-
-.. sourcecode:: bash
-
-    name=kudu-sink
-    connector.class=com.datamountaineer.streamreactor.connect.kudu.sink.KuduSinkConnector
-    tasks.max=1
-    connect.kudu.export.route.query = INSERT INTO kudu_test SELECT * FROM kudu_test
-    connect.kudu.master=quickstart
-    topics=kudu_test
-
-This configuration defines:
-
-1.  The name of the sink.
-2.  The sink class.
-3.  The max number of tasks the connector is allowed to created. Should not be greater than the number of partitions in
-    the source topics otherwise tasks will be idle.
-4.  The KCQL statement to route topics to tables and any mappings. See KCQL for details.
-5.  The Kudu master host
-6.  The source kafka topics to take events from.
+.. note:: The Sink will fail to start if the tables matching the topics do not already exist and the Sink is not in auto create mode.
 
 
 Starting the Connector (Distributed)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Connectors can be deployed distributed mode. In this mode one or many connectors are started on the same or different
-hosts with the same cluster id. The cluster id can be found in ``etc/schema-registry/connect-avro-distributed.properties.``
+Download, unpack and install the Stream Reactor. Follow the instructions :ref:`here <install>` if you haven't already done so.
+All paths in the quickstart are based in the location you installed the Stream Reactor.
+
+Start Kafka Connect in distributed more by running the ``start-connect.sh`` script in the ``bin`` folder.
 
 .. sourcecode:: bash
 
-    # The group ID is a unique identifier for the set of workers that form a single Kafka Connect
-    # cluster
-    group.id=connect-cluster
+    ➜ bin/start-connect.sh
 
-Now start the connector in distributed mode. We only give it one properties file for the kafka, zookeeper and
-schema registry configurations.
-
-First add the connector jar to the CLASSPATH and then start Connect.
-
-.. note::
-
-    You need to add the connector to your classpath or you can create a folder in ``share/java`` of the Confluent
-    install location like, kafka-connect-myconnector and the start scripts provided by Confluent will pick it up.
-    The start script looks for folders beginning with kafka-connect.
+Once the connector has started lets use the kafka-connect-tools cli to post in our distributed properties file for Kudu.
+If you are using the :ref:`dockers <dockers>` you will have to set the following environment variable to for the CLI to
+connect to the Rest API of Kafka Connect of your container.
 
 .. sourcecode:: bash
 
-    #Add the Connector to the class path
-    ➜  export CLASSPATH=kafka-connect-kudu-0.2-cp-3.0.1.all.jar
+   export KAFKA_CONNECT_REST="http://myserver:myport"
 
 .. sourcecode:: bash
 
-    ➜  confluent-3.0.1/bin/connect-distributed confluent-3.0.1/etc/schema-registry/connect-avro-distributed.properties
-
-Once the connector has started lets use the kafka-connect-tools cli to post in our distributed properties file.
-
-.. sourcecode:: bash
-
-    ➜  java -jar build/libs/kafka-connect-cli-0.6-all.jar create kudu-sink < kudu-sink.properties
+    ➜  bin/cli create kudu-sink < conf/kudu-sink.properties
     #Connector name=kudu-sink
-    connector.class=com.datamountaineer.streamreactor.connect.kudu.sink.KuduSinkConnector
+    connector.class=com.datamountaineer.streamreactor.connect.kudu.KuduSinkConnector
     tasks.max=1
     connect.kudu.master=quickstart
     connect.kudu.export.route.query = INSERT INTO kudu_test SELECT * FROM kudu_test
     topics=kudu_test
     #task ids: 0
 
-If you switch back to the terminal you started the Connector in you should see the Kudu sink being accepted and the
+
+The ``kudu-sink.properties`` file defines:
+
+1.  The name of the sink.
+2.  The Sink class.
+3.  The max number of tasks the connector is allowed to created. Should not be greater than the number of partitions in
+    the Source topics otherwise tasks will be idle.
+4. T he Kudu master host.
+5.  :ref:`The KCQL routing querying. <kcql>`
+6.  The Source kafka topics to take events from.
+
+If you switch back to the terminal you started the Connector in you should see the Kudu Sink being accepted and the
 task starting.
 
 We can use the CLI to check if the connector is up but you should be able to see this in logs as-well.
@@ -285,9 +224,9 @@ Now stop the connector.
 Features
 --------
 
-The Kudu sink writes records from Kafka to Kudu.
+The Kudu Sink writes records from Kafka to Kudu.
 
-The sink supports:
+The Sink supports:
 
 1. Field selection - Kafka topic payload field selection is supported, allowing you to select fields written to Kudu.
 2. Topic to table routing.
@@ -301,7 +240,7 @@ Kafka Connect Query Language
 **K** afka **C** onnect **Q** uery **L** anguage found here `GitHub repo <https://github.com/datamountaineer/kafka-connector-query-language>`_
 allows for routing and mapping using a SQL like syntax, consolidating typically features in to one configuration option.
 
-The Kudu sink supports the following:
+The Kudu Sink supports the following:
 
 .. sourcecode:: bash
 
@@ -323,8 +262,8 @@ Example:
 Error Polices
 ~~~~~~~~~~~~~
 
-The sink has three error policies that determine how failed writes to the target database are handled. The error policies
-affect the behaviour of the schema evolution characteristics of the sink. See the schema evolution section for more
+The Sink has three error policies that determine how failed writes to the target database are handled. The error policies
+affect the behaviour of the schema evolution characteristics of the Sink. See the schema evolution section for more
 information.
 
 **Throw**
@@ -339,7 +278,7 @@ Any error on write to the target database is ignored and processing continues.
 .. warning::
 
     This can lead to missed errors if you don't have adequate monitoring. Data is not lost as it's still in Kafka
-    subject to Kafka's retention policy. The sink currently does **not** distinguish between integrity constraint
+    subject to Kafka's retention policy. The Sink currently does **not** distinguish between integrity constraint
     violations and or other expections thrown by drivers.
 
 **Retry**
@@ -349,18 +288,18 @@ Kafka connect framework to pause and replay the message. Offsets are not committ
 it will cause a write failure, the message can be replayed. With the Retry policy the issue can be fixed without stopping
 the sink.
 
-The length of time the sink will retry can be controlled by using the ``connect.kudu.sink.max.retries`` and the
+The length of time the Sink will retry can be controlled by using the ``connect.kudu.sink.max.retries`` and the
 ``connect.kudu.sink.retry.interval``.
 
 Auto conversion of Connect records to Kudu
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The sink automatically converts incoming Connect records to Kudu inserts or upserts.
+The Sink automatically converts incoming Connect records to Kudu inserts or upserts.
 
 Topic Routing
 ~~~~~~~~~~~~~
 
-The sink supports topic routing that allows mapping the messages from topics to a specific table. For example, map a
+The Sink supports topic routing that allows mapping the messages from topics to a specific table. For example, map a
 topic called "bloomberg_prices" to a table called "prices". This mapping is set in the ``connect.kudu.export.route.query``
 option.
 
@@ -374,7 +313,7 @@ Example:
 Field Selection
 ~~~~~~~~~~~~~~~
 
-The Kudu sink supports field selection and mapping. This mapping is set in the ``connect.kudu.export.route.query`` option.
+The Kudu Sink supports field selection and mapping. This mapping is set in the ``connect.kudu.export.route.query`` option.
 
 Examples:
 
@@ -399,7 +338,7 @@ Examples:
 Write Modes
 ~~~~~~~~~~~
 
-The sink supports both **insert** and **upsert** modes.  This mapping is set in the ``connect.kudu.sink.export.mappings`` option.
+The Sink supports both **insert** and **upsert** modes.  This mapping is set in the ``connect.kudu.sink.export.mappings`` option.
 
 **Insert**
 
@@ -408,13 +347,13 @@ Insert is the default write mode of the sink.
 **Insert Idempotency**
 
 Kafka currently provides at least once delivery semantics. Therefore, this mode may produce errors if unique constraints
-have been implemented on the target tables. If the error policy has been set to NOOP then the sink will discard the error
+have been implemented on the target tables. If the error policy has been set to NOOP then the Sink will discard the error
 and continue to process, however, it currently makes no attempt to distinguish violation of integrity constraints from other
 exceptions such as casting issues.
 
 **Upsert**
 
-The sink support Kudu upserts which replaces the existing row if a match is found on the primary keys.
+The Sink support Kudu upserts which replaces the existing row if a match is found on the primary keys.
 
 **Upsert Idempotency**
 
@@ -432,7 +371,7 @@ Redelivery produces the same result.
 Auto Create Tables
 ~~~~~~~~~~~~~~~~~~
 
-The sink supports auto creation of tables for each topic. This mapping is set in the ``connect.kudu.export.route.query`` option.
+The Sink supports auto creation of tables for each topic. This mapping is set in the ``connect.kudu.export.route.query`` option.
 
 Primary keys are set in the ``DISTRIBUTEBY`` clause of the ``connect.kudu.export.route.query``.
 
@@ -448,25 +387,25 @@ statement.
 
     The fields specified as the primary keys (distributeby) must be in the SELECT clause or all fields must be selected
 
-The sink will try and create the table at start up if a schema for the topic is found in the Schema Registry. If no
+The Sink will try and create the table at start up if a schema for the topic is found in the Schema Registry. If no
 schema is found the table is created when the first record is received for the topic.
 
 Auto Evolve Tables
 ~~~~~~~~~~~~~~~~~~
 
-The sink supports auto evolution of tables for each topic. This mapping is set in the ``connect.kudu.export.route.query`` option.
-When set the sink will identify new schemas for each topic based on the schema version from the Schema registry. New columns
+The Sink supports auto evolution of tables for each topic. This mapping is set in the ``connect.kudu.export.route.query`` option.
+When set the Sink will identify new schemas for each topic based on the schema version from the Schema registry. New columns
 will be identified and an alter table DDL statement issued against Kudu.
 
 Schema evolution can occur upstream, for example any new fields or change in data type in the schema of the topic, or
 downstream DDLs on the database.
 
-Upstream changes must follow the schema evolution rules laid out in the Schema Registry. This sink only supports BACKWARD
-and FULLY compatible schemas. If new fields are added the sink will attempt to perform a ALTER table DDL statement against
+Upstream changes must follow the schema evolution rules laid out in the Schema Registry. This Sink only supports BACKWARD
+and FULLY compatible schemas. If new fields are added the Sink will attempt to perform a ALTER table DDL statement against
 the target table to add columns. All columns added to the target table are set as nullable.
 
 Fields cannot be deleted upstream. Fields should be of Avro union type [null, <dataType>] with a default set. This allows
-the sink to either retrieve the default value or null. The sink is not aware that the field has been deleted
+the Sink to either retrieve the default value or null. The Sink is not aware that the field has been deleted
 as a value is always supplied to it.
 
 .. warning::
@@ -553,7 +492,7 @@ The maximum number of times a message is retried. Only valid when the ``connect.
 
 ``connect.kudu.sink.retry.interval``
 
-The interval, in milliseconds between retries if the sink is using ``connect.kudu.sink.error.policy`` set to **RETRY**.
+The interval, in milliseconds between retries if the Sink is using ``connect.kudu.sink.error.policy`` set to **RETRY**.
 
 * Type: int
 * Importance: medium
@@ -572,7 +511,7 @@ The url for the Schema registry. This is used to retrieve the latest schema for 
 ``connect.kudu.sink.batch.size``
 
 Specifies how many records to insert together at one time. If the connect framework provides less records when it is
-calling the sink it won't wait to fulfill this value but rather execute it.
+calling the Sink it won't wait to fulfill this value but rather execute it.
 
 * Type : int
 * Importance : medium
@@ -585,7 +524,7 @@ Example
 .. sourcecode:: bash
 
     name=kudu-sink
-    connector.class=com.datamountaineer.streamreactor.connect.kudu.sink.KuduSinkConnector
+    connector.class=com.datamountaineer.streamreactor.connect.kudu.KuduSinkConnector
     tasks.max=1
     connect.kudu.master=quickstart
     connect.kudu.export.route.query=INSERT INTO kudu_test SELECT * FROM kudu_test AUTOCREATE DISTRIBUTEBY id INTO 5 BUCKETS

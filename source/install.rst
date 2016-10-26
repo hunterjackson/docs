@@ -1,8 +1,5 @@
 .. _install:
 
-.. toctree::
-    :maxdepth: 2
-
 Install
 =======
 
@@ -11,7 +8,7 @@ optionally the Schema Registry provided by this distribution.
 
 The following releases are available:
 
--  `0.2.3 <https://github.com/datamountaineer/stream-reactor/releases/tag/v0.2.3>`__
+-  `0.2.2 <https://github.com/datamountaineer/stream-reactor/releases/tag/v0.2.2>`__
 
 +------------------------+------------------------+
 | Connector              | Versions               |
@@ -42,8 +39,6 @@ The following releases are available:
 +------------------------+------------------------+
 | MongoDB                | MongoDB 3.3.0          |
 +------------------------+------------------------+
-| MQTT                   | MQTT 1.1.0             |
-+------------------------+------------------------+
 | Redis                  | Redis 2.8.1            |
 +------------------------+------------------------+
 | ReThinkDB              | ReThinkDB 2.3.3        |
@@ -54,7 +49,7 @@ The following releases are available:
 +------------------------+------------------------+
 
 Install Confluent
------------------
+~~~~~~~~~~~~~~~~~
 
 Confluent can be downloaded for `here <http://www.confluent.io/download/>`__
 
@@ -64,7 +59,7 @@ Confluent can be downloaded for `here <http://www.confluent.io/download/>`__
     ➜  mkdir confluent
 
     #download confluent
-    ➜  wget http://packages.confluent.io/archive/3.0.1/confluent-3.0.1-2.11.tar.gz
+    ➜  wget http://packages.confluent.io/archive/3.0/confluent-3.0.1-2.11.tar.gz
 
     #extract archive to confluent folder
     ➜  tar -xvf confluent-3.0.1-2.11.tar.gz -C confluent
@@ -82,7 +77,7 @@ Start the Confluent platform.
     bin/schema-registry-start etc/schema-registry/schema-registry.properties &
 
 Stream Reactor Install
-----------------------
+~~~~~~~~~~~~~~~~~~~~~~
 
 Download the latest release from `here <https://github.com/datamountaineer/stream-reactor/releases>`__.
 
@@ -90,103 +85,44 @@ Unpack the archive:
 
 .. sourcecode:: bash
 
-    #Stream reactor release 0.2.3
-    tar xvf -C stream-reactor-0.2.3-cp-3.0.1.jar stream-reactor
+    #Stream reactor release 0.2.2
+    tar xvf -C stream-reactor-0.2.2-cp-3.0.0.jar stream-reactor
 
 Within the unpacked directory you will find the following structure:
 
 .. sourcecode:: bash
 
-    stream-reactor-0.2.3-3.0.1
+    stream-reactor-0.2-3.0.0
     |-- LICENSE
     |-- README.md
     |-- bin
-    |   |-- cli.sh
-    |   |-- install-ui.sh
-    |   |-- sr-cli-linux
-    |   |-- sr-cli-osx
-    |   |-- start-connect.sh
-    |   `-- start-ui.sh
-    |-- conf
-    |   |-- blockchain-source.properties
-    |   |-- bloomberg-source.properties
-    |   |-- cassandra-sink.properties
-    |   |-- cassandra-source.properties
-    |   |-- druid-sink.properties
-    |   |-- hazelcast-sink.properties
-    |   |-- hbase-sink.properties
-    |   |-- influxdb-sink.properties
-    |   |-- jms-sink.properties
-    |   |-- kudu-sink.properties
-    |   |-- mongodb-sink.properties
-    |   |-- mqtt-source.properties
-    |   |-- redis-sink.properties
-    |   |-- rethink-sink.properties
-    |   |-- rethink-source.properties
-    |   |-- voltdb-sink.properties
-    |   `-- yahoo-source.properties
+    |   `-- start-connect.sh
     `-- libs
-        |-- kafka-connect-blockchain-0.2.3-3.0.1-all.jar
-        |-- kafka-connect-bloomberg-0.2.3-3.0.1-all.jar
-        |-- kafka-connect-cassandra-0.2.3-3.0.1-all.jar
-        |-- kafka-connect-cli-0.8-all.jar
-        |-- kafka-connect-druid-0.2.3-3.0.1-all.jar
-        |-- kafka-connect-elastic-0.2.3-3.0.1-all.jar
-        |-- kafka-connect-hazelcast-0.2.3-3.0.1-all.jar
-        |-- kafka-connect-hbase-0.2.3-3.0.1-all.jar
-        |-- kafka-connect-influxdb-0.2.3-3.0.1-all.jar
-        |-- kafka-connect-jms-0.2.3-3.0.1-all.jar
-        |-- kafka-connect-kudu-0.2.3-3.0.1-all.jar
-        |-- kafka-connect-mongodb-0.2.3-3.0.1-all.jar
-        |-- kafka-connect-mqtt-0.2.3-3.0.1-all.jar
-        |-- kafka-connect-redis-0.2.3-3.0.1-all.jar
-        |-- kafka-connect-rethink-0.2.3-3.0.1-all.jar
-        |-- kafka-connect-voltdb-0.2.3-3.0.1-all.jar
-        |-- kafka-connect-yahoo-0.2.2-3.0.1-all.jar
-        `-- kafka-socket-streamer-0.2.3-3.0.1-all.jar
-
+        |-- kafka-connect-blockchain-0.2-3.0.0-all.jar
+        |-- kafka-connect-bloomberg-0.2-3.0.0-all.jar
+        |-- kafka-connect-cassandra-0.2-3.0.0-all.jar
+        |-- kafka-connect-druid-0.2-3.0.0-all.jar
+        |-- kafka-connect-elastic-0.2-3.0.0-all.jar
+        |-- kafka-connect-hazelcast-0.2-3.0.0-all.jar
+        |-- kafka-connect-hbase-0.2-3.0.0-all.jar
+        |-- kafka-connect-influxdb-0.2-3.0.0-all.jar
+        |-- kafka-connect-jms-0.2-3.0.0-all.jar
+        |-- kafka-connect-kudu-0.2-3.0.0-all.jar
+        |-- kafka-connect-redis-0.2-3.0.0-all.jar
+        |-- kafka-connect-rethink-0.2-3.0.0-all.jar
+        |-- kafka-connect-voltdb-0.2-3.0.0-all.jar
+        |-- kafka-connect-yahoo-0.2-3.0.0-all.jar
+        `-- kafka-socket-streamer-0.2-3.0.0-all.jar
 
 The ``libs`` folder contains all the Stream Reactor Connector jars.
 
-The ``bin`` folder contains:
-
-*   ``start-connect.sh`` script loads all the Stream Reactors jars onto the CLASSPATH and starts
-    Kafka Connect in distributed mode. The Confluent Platform, Zookeeper, Kafka and the Schema Registry must be started first.
-*   :ref:`sr-cli <schema-registry-cli>` GO scripts for interacting with the Schema Registry. Two versions are package,
-    for Linux and OSX.
-*   :ref:`cli <cli>` script for interacting with Kafka Connects REST API's.
-*   ``install-ui.sh`` script to download and install the Schema Registry and Topic Browser UIs from `Landoop <https://www.landoop.com/>`__.
-*   ``start-ui.sh`` script to start the Schema Registry and Topic Browser UIs from `Landoop <https://www.landoop.com/>`__.
-
-The ``conf`` folder contains quickstart connector properties files.
-
-Release Notes
-~~~~~~~~~~~~~
-
-*   Added MongoDB Sink.
-*   Added MQTT Source.
-*   Hazelcast support for ring buffers.
-*   Redis support for Sorted Sets.
-*   Added start scripts.
-*   Added Kafka Connect and Schema Registry CLI.
-*   Kafka Connect CLI now supports pause/restart/resume; checking connectors on the classpath and validating configuration of connectors.
-*   Support for Struct, Schema.STRING and Json with schema in the ReThinkDB, InfluxDB and MongoDB sinks.
-*   Rename export.query.route to sink.kcql.
-*   Rename import.query.route to source.kcql.
-*   Upgrade to KCQL 0.9.4 - Add support for STOREAS so specify target sink types, e.g. Redis Sorted Sets, Hazelcast map, queues, ringbuffers.
-
-Migration from Stream Reactor 0.2.1
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. warning::
-
-    In Release 0.2.2 we have renamed the ``sink.kcql`` and ``source.kcql`` configuration options to ``sink.kcql`` and
-    ``source.kcql`` respectively. This means existing configurations will need updating.
+The ``bin`` folder contains the ``start-connect.sh`` script. This loads all the Stream Reactors jars onto the CLASSPATH and starts
+Kafka Connect in distributed mode. The Confluent Platform, Zookeeper, Kafka and the Schema Registry must be started first.
 
 .. _dockers:
 
 Docker Install
---------------
+~~~~~~~~~~~~~~
 
 All the Stream Reactor Connectors, Confluent and UI's for Connect, Schema Registry and topic browsing are available in Dockers.
 The Docker images are available in `DockerHub <https://hub.docker.com/>`__ and maintained by our partner `Landoop <https://www.landoop.com/>`__
@@ -203,7 +139,7 @@ Pull the latest images:
     docker pull landoop/schema-registry-ui
 
 Fast Data Dev
-~~~~~~~~~~~~~
+-------------
 
 This is Docker image for development.
 
@@ -242,7 +178,7 @@ localhost:8081, your Connect Distributed at localhost:8083, your ZooKeeper at lo
     :alt:
 
 Fast Data Dev Connect
-~~~~~~~~~~~~~~~~~~~~~
+---------------------
 
 This docker is targeted to more advanced users and is a special case since it doesn't set-up a Kafka cluster,
 instead it expects to find a Kafka Cluster with Schema Registry up and running.
@@ -262,15 +198,15 @@ The developer can then use this docker image to setup a connect-distributed clus
 
 Things to look out for in configuration options:
 
-1.  It is important to give a full URL (including schema —http://) for schema registry.
+1. It is important to give a full URL (including schema —http://) for schema registry.
 
-2.  ID should be unique to the Connect cluster you setup, for current and old instances. This is because Connect stores
-    data in Brokers and Schema Registry. Thus even if you destroyed a Connect cluster, its data remain in your Kafka setup.
+2. ID should be unique to the Connect cluster you setup, for current and old instances. This is because Connect stores
+data in Brokers and Schema Registry. Thus even if you destroyed a Connect cluster, its data remain in your Kafka setup.
 
 3.  HOST should be set to an IP address or domain name that other connect instances and clients can use to reach the
-    current instance. We chose not to try to autodetect this IP because such a feat would fail more often than not.
-    Good choices are your local network ip (e.g 10.240.0.2) if you work inside a local network, your public ip (if you have
-    one and want to use it) or a domain name that is resolvable by all the hosts you will use to talk to Connect.
+current instance. We chose not to try to autodetect this IP because such a feat would fail more often than not.
+Good choices are your local network ip (e.g 10.240.0.2) if you work inside a local network, your public ip (if you have
+one and want to use it) or a domain name that is resolvable by all the hosts you will use to talk to Connect.
 
 If you don't want to run with --net=host you have to expose Connect's port which at default settings is 8083.
 There a PORT option, that allows you to set Connect's port explicitly if you can't use the default 8083. Please remember
@@ -288,32 +224,6 @@ that it is important to expose Connect's port on the same port at the host. This
            -e PORT=8085
            -p 8085:8085
            landoop/fast-data-dev-connect-cluster
-
-Web Only Mode
-^^^^^^^^^^^^^
-
-This is a special mode only for Linux hosts, where only Landoop's Web UIs are started and kafka services are expected to be running on the local machine. It must be run with --net=host flag, thus the Linux only requisite:
-
-.. sourcecode:: bash
-
-    docker run --rm -it --net=host \
-               -e WEB_ONLY=true \
-               landoop/fast-data-dev
-
-This is useful if you already have a cluster with Confluent's distribution install and want a fancy UI.
-
-HBase Connector
-^^^^^^^^^^^^^^^
-
-Due to some issues with dependencies, the ElasticSearch connector and the HBase connector cannot coexist. Whilst both are available,
-HBase won't work. We do provide the PREFER_HBASE environment variable which will remove ElasticSearch (and the Twitter connector)
-to let HBase work:
-
-.. sourcecode:: bash
-
-    docker run --rm -it --net=host \
-               -e PREFER_HBASE=true \
-               landoop/fast-data-dev
 
 Advanced
 ^^^^^^^^

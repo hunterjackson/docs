@@ -72,9 +72,13 @@ Follow the instructions :ref:`here <install>`.
 Sink Connector QuickStart
 -------------------------
 
-We will start the connector in distributed mode. Each connector exposes a rest endpoint for stopping, starting and updating the configuration. We have developed
+We will start the connector in distributed mode. Connect has two modes, standalone where the tasks run on only one host
+and distributed mode. Usually you'd run in distributed mode to get fault tolerance and better performance. In distributed mode
+you start Connect on multiple hosts and they join together to form a cluster. Connectors which are then submitted are distributed
+across the cluster. Each connector exposes a rest endpoint for stopping, starting and updating the configuration. We have developed
 a Command Line Interface to make interacting with the Connect Rest API easier. The CLI can be found in the Stream Reactor download under
-the ``bin`` folder. Alternatively the Jar can be pulled from our GitHub
+the ``bin`` folder. Alternatively the Jar can be pulled from
+`Maven <http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22kafka-connect-cli%22>`__ or the our GitHub
 `releases <https://github.com/datamountaineer/kafka-connect-tools/releases>`__ page.
 
 HBase Table
@@ -110,7 +114,7 @@ Start Kafka Connect in distributed more by running the ``start-connect.sh`` scri
 
     ➜ bin/start-connect.sh
 
-Once the connector has started we can now use the kafka-connect-tools cli to post in our distributed properties file for HBase.
+Once the connector has started lets use the kafka-connect-tools cli to post in our distributed properties file for HBase.
 If you are using the :ref:`dockers <dockers>` you will have to set the following environment variable to for the CLI to
 connect to the Rest API of Kafka Connect of your container.
 
@@ -120,7 +124,7 @@ connect to the Rest API of Kafka Connect of your container.
 
 .. sourcecode:: bash
 
-    ➜  bin/cli.sh create hbase-sink < conf/hbase-sink.properties
+    ➜  bin/cli create hbase-sink < conf/hbase-sink.properties
 
     #Connector name=`hbase-sink`
     name=person-hbase-test
@@ -141,7 +145,7 @@ This ``hbase-sink.properties`` configuration defines:
 5.  The HBase column family to write to.
 6.  :ref:`The KCQL routing querying. <kcql>`
 
-If you switch back to the terminal you started Kafka Connect in you should see the HBase Sink being accepted and the
+If you switch back to the terminal you started the Connector in you should see the HBase Sink being accepted and the
 task starting.
 
 We can use the CLI to check if the connector is up but you should be able to see this in logs as-well.
@@ -149,7 +153,7 @@ We can use the CLI to check if the connector is up but you should be able to see
 .. sourcecode:: bash
 
     #check for running connectors with the CLI
-    ➜ bin/cli.sh ps
+    ➜ bin/cli ps
     hbase-sink
 
 .. sourcecode:: bash
@@ -178,7 +182,7 @@ a ``lastname`` field of type string, an ``age`` field of type int and a ``salary
 
 .. sourcecode:: bash
 
-    ${CONFLUENT_HOME}/bin/kafka-avro-console-producer \
+    bin/kafka-avro-console-producer \
       --broker-list localhost:9092 --topic TOPIC1 \
       --property value.schema='{"type":"record","name":"User","namespace":"com.datamountaineer.streamreactor.connect.hbase"
       "fields":[{"name":"firstName","type":"string"},{"name":"lastName","type":"string"},{"name":"age","type":"int"},
