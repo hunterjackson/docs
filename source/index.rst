@@ -26,4 +26,5 @@ Components:
    connectors
    tools
    socket-streamer
+   ui
    faq
