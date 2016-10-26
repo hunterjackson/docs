@@ -44,14 +44,18 @@ Download and start Elastic search.
 Sink Connector QuickStart
 -------------------------
 
-We will start the connector in distributed mode. Each connector exposes a rest endpoint for stopping, starting and updating the configuration. We have developed
+We will start the connector in distributed mode. Connect has two modes, standalone where the tasks run on only one host
+and distributed mode. Usually you'd run in distributed mode to get fault tolerance and better performance. In distributed mode
+you start Connect on multiple hosts and they join together to form a cluster. Connectors which are then submitted are distributed
+across the cluster. Each connector exposes a rest endpoint for stopping, starting and updating the configuration. We have developed
 a Command Line Interface to make interacting with the Connect Rest API easier. The CLI can be found in the Stream Reactor download under
-the ``bin`` folder. Alternatively the Jar can be pulled from our GitHub
+the ``bin`` folder. Alternatively the Jar can be pulled from
+`Maven <http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22kafka-connect-cli%22>`__ or the our GitHub
 `releases <https://github.com/datamountaineer/kafka-connect-tools/releases>`__ page.
 
 
-Starting the Connector
-~~~~~~~~~~~~~~~~~~~~~~
+Starting the Connector (Distributed)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Download, unpack and install the Stream Reactor. Follow the instructions :ref:`here <install>` if you haven't already done so.
 All paths in the quickstart are based in the location you installed the Stream Reactor.
@@ -62,7 +66,7 @@ Start Kafka Connect in distributed more by running the ``start-connect.sh`` scri
 
     ➜ bin/start-connect.sh
 
-Once the connector has started we can now use the kafka-connect-tools cli to post in our distributed properties file for Elastic.
+Once the connector has started lets use the kafka-connect-tools cli to post in our distributed properties file for Elastic.
 If you are using the :ref:`dockers <dockers>` you will have to set the following environment variable to for the CLI to
 connect to the Rest API of Kafka Connect of your container.
 
@@ -72,7 +76,7 @@ connect to the Rest API of Kafka Connect of your container.
 
 .. sourcecode:: bash
 
-    ➜  bin/cli.sh create elastic-sink < conf/quickstarts/elastic-sink.properties
+    ➜  bin/cli create elastic-sink < conf/elastic-sink.properties
 
     #Connector name=`elastic-sink`
     name=elastic-sink
@@ -81,14 +85,14 @@ connect to the Rest API of Kafka Connect of your container.
     connect.elastic.cluster.name=elasticsearch
     tasks.max=1
     topics=TOPIC1
-    connect.elastic.sink.kcql=INSERT INTO INDEX_1 SELECT field1, field2 FROM TOPIC1
+    connect.elastic.export.route.query=INSERT INTO INDEX_1 SELECT field1, field2 FROM TOPIC1
     #task ids: 0
 
 The ``elastic-sink.properties`` file defines:
 
 1. The name of the connector.
 2. The class containing the connector.
-3. The name of the cluster on the Elastic Search server to connect to.
+3. Tne name of the cluster on the Elastic Search server to connect to.
 4. The max number of task allowed for this connector.
 5. The Source topic to get records from.
 6. :ref:`The KCQL routing querying. <kcql>`
@@ -101,7 +105,7 @@ We can use the CLI to check if the connector is up but you should be able to see
 .. sourcecode:: bash
 
     #check for running connectors with the CLI
-    ➜ bin/cli.sh ps
+    ➜ bin/cli ps
     elastic-sink
 
 .. sourcecode:: bash
@@ -131,13 +135,6 @@ We can use the CLI to check if the connector is up but you should be able to see
 Test Records
 ^^^^^^^^^^^^
 
-.. hint::
-
-    If your input topic doesn't match the target use Kafka Streams to transform in realtime the input. Also checkout the
-    `Plumber <https://github.com/rollulus/kafka-streams-plumber>`__, which allows you to inject a Lua script into
-    `Kafka Streams <http://www.confluent.io/blog/introducing-kafka-streams-stream-processing-made-simple>`__ to do this,
-    no Java or Scala required!
-
 Now we need to put some records it to the test_table topics. We can use the ``kafka-avro-console-producer`` to do this.
 
 Start the producer and pass in a schema to register in the Schema Registry. The schema has a ``id`` field of type int
@@ -145,10 +142,10 @@ and a ``random_field`` of type string.
 
 .. sourcecode:: bash
 
-    ${CONFLUENT_HOME}/bin/kafka-avro-console-producer \
+    bin/kafka-avro-console-producer \
      --broker-list localhost:9092 --topic TOPIC1 \
      --property value.schema='{"type":"record","name":"myrecord","fields":[{"name":"id","type":"int"},
-    {"name":"random_field","type": "string"}]}'
+    {"name":"random_field", "type": "string"}]}'
 
 Now the producer is waiting for input. Paste in the following:
 
@@ -212,8 +209,8 @@ Features
 Kafka Connect Query Language
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**K** afka **C** onnect **Q** uery **L**, :ref:`KCQL <kcql>` allows for routing and mapping using a SQL like syntax,
-consolidating typically features in to one configuration option.
+**K** afka **C** onnect **Q** uery **L** anguage found here `GitHub repo <https://github.com/datamountaineer/kafka-connector-query-language>`__
+allows for routing and mapping using a SQL like syntax, consolidating typically features in to one configuration option.
 
 The Elastic Sink supports the following:
 
@@ -231,7 +228,7 @@ Example:
     #Insert mode, select 3 fields and rename from topicB and write to indexB
     INSERT INTO indexB SELECT x AS a, y AS b and z AS c FROM topicB PK y
 
-This is set in the ``connect.elastic.sink.kcql`` option.
+This is set in the ``connect.elastic.export.route.query`` option.
 
 Auto Index Creation
 ~~~~~~~~~~~~~~~~~~~
@@ -258,7 +255,7 @@ Port of the Elastic cluster.
 * Importance: high
 * Optional  : no
 
-``connect.elastic.sink.kcql``
+``connect.elastic.export.route.query``
 
 Kafka connect query language expression. Allows for expressive table to topic routing, field selection and renaming.
 
@@ -283,7 +280,7 @@ Example
     connect.elastic.cluster.name=elasticsearch
     tasks.max=1
     topics=test_table
-    connect.elastic.sink.kcql=INSERT INTO INDEX_1 SELECT field1, field2 FROM TOPIC1
+    connect.elastic.export.route.query=INSERT INTO INDEX_1 SELECT field1, field2 FROM TOPIC1
 
 Schema Evolution
 ----------------

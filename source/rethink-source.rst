@@ -38,12 +38,16 @@ Follow the instructions :ref:`here <install>`.
 Sink Connector QuickStart
 -------------------------
 
-We will start the connector in distributed mode. Each connector exposes a rest endpoint for stopping, starting and updating the configuration. We have developed
+We will start the connector in distributed mode. Connect has two modes, standalone where the tasks run on only one host
+and distributed mode. Usually you'd run in distributed mode to get fault tolerance and better performance. In distributed mode
+you start Connect on multiple hosts and they join together to form a cluster. Connectors which are then submitted are distributed
+across the cluster. Each connector exposes a rest endpoint for stopping, starting and updating the configuration. We have developed
 a Command Line Interface to make interacting with the Connect Rest API easier. The CLI can be found in the Stream Reactor download under
-the ``bin`` folder. Alternatively the Jar can be pulled from our GitHub
+the ``bin`` folder. Alternatively the Jar can be pulled from
+`Maven <http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22kafka-connect-cli%22>`__ or the our GitHub
 `releases <https://github.com/datamountaineer/kafka-connect-tools/releases>`__ page.
 
-Starting the Connector
+Starting the Connector (Distributed)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Download, unpack and install the Stream Reactor. Follow the instructions :ref:`here <install>` if you haven't already done so.
@@ -55,7 +59,7 @@ Start Kafka Connect in distributed more by running the ``start-connect.sh`` scri
 
     ➜ bin/start-connect.sh
 
-Once the connector has started we can now use the kafka-connect-tools cli to post in our distributed properties file for ReThinkDB.
+Once the connector has started lets use the kafka-connect-tools cli to post in our distributed properties file for ReThinkDB.
 If you are using the :ref:`dockers <dockers>` you will have to set the following environment variable to for the CLI to
 connect to the Rest API of Kafka Connect of your container.
 
@@ -65,7 +69,7 @@ connect to the Rest API of Kafka Connect of your container.
 
 .. sourcecode:: bash
 
-    ➜  bin/cli.sh create rethink-source < conf/quickstarts/rethink-source.properties
+    ➜  bin/cli create rethink-source < conf/rethink-source.properties
     #Connector name=`rethink-source`
     name=rethink-source
     connect.rethink.source.host=localhost
@@ -73,7 +77,7 @@ connect to the Rest API of Kafka Connect of your container.
     connector.class=com.datamountaineer.streamreactor.connect.rethink.source.ReThinkSourceConnector
     tasks.max=1
     connect.rethink.source.db=test
-    connect.rethink.sink.kcql=INSERT INTO rethink-topic SELECT * FROM source-test
+    connect.rethink.export.route.query=INSERT INTO rethink-topic SELECT * FROM source-test
     #task ids: 0
 
 The ``rethink-source.properties`` file defines:
@@ -82,7 +86,7 @@ The ``rethink-source.properties`` file defines:
 2.  The name of the rethink host to connect to.
 3.  The rethink port to connect to.
 4.  The Source class.
-5.  The max number of tasks the connector is allowed to created. The connector splits and groups the `connect.rethink.source.kcql`
+5.  The max number of tasks the connector is allowed to created. The connector splits and groups the `connect.rethink.import.route.query`
     by the number of tasks to ensure a distribution based on allowed number of tasks and Source tables.
 6.  The ReThinkDB database to connect to.
 7.  :ref:`The KCQL routing querying. <kcql>`
@@ -95,7 +99,7 @@ We can use the CLI to check if the connector is up but you should be able to see
 .. sourcecode:: bash
 
     #check for running connectors with the CLI
-    ➜ bin/cli.sh ps
+    ➜ bin/cli ps
     rethink-source
 
 .. sourcecode:: bash
@@ -116,7 +120,7 @@ We can use the CLI to check if the connector is up but you should be able to see
     [2016-10-05 12:09:35,420] INFO ReThinkSourceConfig values:
         connect.rethink.source.port = 28015
         connect.rethink.source.host = localhost
-        connect.rethink.source.kcql = insert into rethink-topic select * from source-test
+        connect.rethink.import.route.query = insert into rethink-topic select * from source-test
         connect.rethink.source.db = test
 
 
@@ -172,8 +176,8 @@ The Source supports:
 Kafka Connect Query Language
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**K** afka **C** onnect **Q** uery **L**, :ref:`KCQL <kcql>` allows for routing and mapping using a SQL like syntax,
-consolidating typically features in to one configuration option.
+**K** afka **C** onnect **Q** uery **L** anguage found here `GitHub repo <https://github.com/datamountaineer/kafka-connector-query-language>`_
+allows for routing and mapping using a SQL like syntax, consolidating typically features in to one configuration option.
 
 The ReThink Source supports the following:
 
@@ -195,7 +199,7 @@ Example:
 Configurations
 --------------
 
-``connect.rethink.source.kcql``
+``connect.rethink.import.route.query``
 
 Kafka connect query language expression. Allows for expressive topic to table routing, field selection and renaming. Fields
 to be used as the row key can be set by specifing the ``PK``. The below example uses field1 as the primary key.
@@ -236,7 +240,7 @@ Example
     connect.rethink.source.port=28015
     connector.class=com.datamountaineer.streamreactor.connect.rethink.source.ReThinkSourceConnector
     tasks.max=1
-    connect.rethink.sink.kcql=INSERT INTO rethink-topic SELECT * FROM source-test
+    connect.rethink.export.route.query=INSERT INTO rethink-topic SELECT * FROM source-test
 
 Schema Evolution
 ----------------

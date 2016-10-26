@@ -1,5 +1,3 @@
-.. _sinks:
-
 Sink Connectors
 ===============
 
@@ -16,7 +14,7 @@ Sink connectors stream data from Kafka into external systems.
    influx
    jms
    kudu
-   mongo-sink
+   mongo
    redis
    rethink
    voltdb

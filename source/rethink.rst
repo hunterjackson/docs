@@ -39,12 +39,17 @@ Follow the instructions :ref:`here <install>`.
 Sink Connector QuickStart
 -------------------------
 
-We will start the connector in distributed mode. Each connector exposes a rest endpoint for stopping, starting and updating the configuration. We have developed
+We will start the connector in distributed mode. Connect has two modes, standalone where the tasks run on only one host
+and distributed mode. Usually you'd run in distributed mode to get fault tolerance and better performance. In distributed mode
+you start Connect on multiple hosts and they join together to form a cluster. Connectors which are then submitted are distributed
+across the cluster. Each connector exposes a rest endpoint for stopping, starting and updating the configuration. We have developed
 a Command Line Interface to make interacting with the Connect Rest API easier. The CLI can be found in the Stream Reactor download under
-the ``bin`` folder. Alternatively the Jar can be pulled from our GitHub
+the ``bin`` folder. Alternatively the Jar can be pulled from
+`Maven <http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22kafka-connect-cli%22>`__ or the our GitHub
 `releases <https://github.com/datamountaineer/kafka-connect-tools/releases>`__ page.
 
-Starting the Connector
+
+Starting the Connector (Distributed)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Download, unpack and install the Stream Reactor. Follow the instructions :ref:`here <install>` if you haven't already done so.
@@ -56,7 +61,7 @@ Start Kafka Connect in distributed more by running the ``start-connect.sh`` scri
 
     ➜ bin/start-connect.sh
 
-Once the connector has started we can now use the kafka-connect-tools cli to post in our distributed properties file for ReThinkDB.
+Once the connector has started lets use the kafka-connect-tools cli to post in our distributed properties file for ReThinkDB.
 If you are using the :ref:`dockers <dockers>` you will have to set the following environment variable to for the CLI to
 connect to the Rest API of Kafka Connect of your container.
 
@@ -66,7 +71,7 @@ connect to the Rest API of Kafka Connect of your container.
 
 .. sourcecode:: bash
 
-    ➜  bin/cli.sh create rethink-sink < rethink-sink.properties
+    ➜  bin/cli create rethink-sink < rethink-sink.properties
     #Connector name=`rethink-sink`
     name=rethink-sink
     connect.rethink.sink.db=localhost
@@ -74,7 +79,7 @@ connect to the Rest API of Kafka Connect of your container.
     connector.class=com.datamountaineer.streamreactor.connect.rethink.sink.ReThinkSinkConnector
     tasks.max=1
     topics=person_rethink
-    connect.rethink.sink.kcql=INSERT INTO TABLE1 SELECT * FROM person_rethink
+    connect.rethink.export.route.query=INSERT INTO TABLE1 SELECT * FROM person_rethink
     #task ids: 0
 
 The ``rethink-sink.properties`` file defines:
@@ -96,7 +101,7 @@ We can use the CLI to check if the connector is up but you should be able to see
 .. sourcecode:: bash
 
     #check for running connectors with the CLI
-    ➜ bin/cli.sh ps
+    ➜ bin/cli ps
     rethink-sink
 
 .. sourcecode:: bash
@@ -119,13 +124,6 @@ We can use the CLI to check if the connector is up but you should be able to see
 Test Records
 ^^^^^^^^^^^^
 
-.. hint::
-
-    If your input topic doesn't match the target use Kafka Streams to transform in realtime the input. Also checkout the
-    `Plumber <https://github.com/rollulus/kafka-streams-plumber>`__, which allows you to inject a Lua script into
-    `Kafka Streams <http://www.confluent.io/blog/introducing-kafka-streams-stream-processing-made-simple>`__ to do this,
-    no Java or Scala required!
-
 Now we need to put some records it to the test_table topics. We can use the ``kafka-avro-console-producer`` to do this.
 
 Start the producer and pass in a schema to register in the Schema Registry. The schema has a ``firstname`` field of type
@@ -133,7 +131,7 @@ string a ``lastname`` field of type string, an ``age`` field of type int and a `
 
 .. sourcecode:: bash
 
-    ${CONFLUENT_HOME}/bin/kafka-avro-console-producer \
+    bin/kafka-avro-console-producer \
       --broker-list localhost:9092 --topic person_rethink \
       --property value.schema='{"type":"record","name":"User","namespace":"com.datamountaineer.streamreactor.connect.rethink"
       ,"fields":[{"name":"firstName","type":"string"},{"name":"lastName","type":"string"},{"name":"age","type":"int"},{"name":"salary","type":"double"}]}'
@@ -175,8 +173,8 @@ The Sink supports:
 Kafka Connect Query Language
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**K** afka **C** onnect **Q** uery **L**, :ref:`KCQL <kcql>` allows for routing and mapping using a SQL like syntax,
-consolidating typically features in to one configuration option.
+**K** afka **C** onnect **Q** uery **L** anguage found here `GitHub repo <https://github.com/datamountaineer/kafka-connector-query-language>`_
+allows for routing and mapping using a SQL like syntax, consolidating typically features in to one configuration option.
 
 The ReThink Sink supports the following:
 
@@ -239,7 +237,7 @@ Topic Routing
 ~~~~~~~~~~~~~
 
 The Sink supports topic routing that allows mapping the messages from topics to a specific table. For example, map a
-topic called "bloomberg_prices" to a table called "prices". This mapping is set in the ``connect.rethink.sink.kcql``
+topic called "bloomberg_prices" to a table called "prices". This mapping is set in the ``connect.rethink.export.route.query``
 option.
 
 Example:
@@ -252,7 +250,7 @@ Example:
 Field Selection
 ~~~~~~~~~~~~~~~
 
-The ReThink Sink supports field selection and mapping. This mapping is set in the ``connect.rethink.sink.kcql`` option.
+The ReThink Sink supports field selection and mapping. This mapping is set in the ``connect.rethink.export.route.query`` option.
 
 
 Examples:
@@ -270,9 +268,9 @@ Examples:
 Auto Create Tables
 ~~~~~~~~~~~~~~~~~~
 
-The Sink supports auto creation of tables for each topic. This mapping is set in the ``connect.rethink.sink.kcql`` option.
+The Sink supports auto creation of tables for each topic. This mapping is set in the ``connect.rethink.export.route.query`` option.
 
-A user specified primary can be set in the ``PK`` clause for the ``connect.rethink.sink.kcql`` option. Only one
+A user specified primary can be set in the ``PK`` clause for the ``connect.rethink.export.route.query`` option. Only one
 key is supported. If more than one is set only the first is used. If no primary keys are set the default primary key
 called ``id`` is used. The value for the default key is the topic name, partition and offset of the records.
 
@@ -291,7 +289,7 @@ schema is found the table is created when the first record is received for the t
 Configurations
 --------------
 
-``connect.rethink.sink.kcql``
+``connect.rethink.export.route.query``
 
 Kafka connect query language expression. Allows for expressive topic to table routing, field selection and renaming. Fields
 to be used as the row key can be set by specifing the ``PK``. The below example uses field1 as the primary key.
@@ -378,7 +376,7 @@ Example
     connector.class=com.datamountaineer.streamreactor.connect.rethink.sink.ReThinkSinkConnector
     tasks.max=1
     topics=person_rethink
-    connect.rethink.sink.kcql=INSERT INTO TABLE1 SELECT * FROM person_rethink
+    connect.rethink.export.route.query=INSERT INTO TABLE1 SELECT * FROM person_rethink
 
 Schema Evolution
 ----------------

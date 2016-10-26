@@ -79,9 +79,13 @@ ALLOW\_FILTERING can also be supplied as an configuration.
 Source Connector QuickStart
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-We will start the connector in distributed mode. Each connector exposes a rest endpoint for stopping, starting and updating the configuration. We have developed
-a Command Line Interface to make interacting with the Connect Rest API easier. The CLI can be found in the Stream Reactor download under
-the ``bin`` folder. Alternatively the Jar can be pulled from our GitHub
+We will start the connector in distributed mode. Connect has two modes, standalone where the tasks run on only one host
+and distributed mode. Usually you'd run in distributed mode to get fault tolerance and better performance. In distributed mode
+you start Connect on multiple hosts and they join together to form a cluster. Connectors which are then submitted are
+distributed across the cluster. Each connector exposes a rest endpoint for stopping, starting and updating the configuration.
+We have developed a Command Line Interface to make interacting with the Connect Rest API easier. The CLI can be found in the
+Stream Reactor download under the ``bin`` folder. Alternatively the Jar can be pulled from
+`Maven <http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22kafka-connect-cli%22>`__ or the our GitHub
 `releases <https://github.com/datamountaineer/kafka-connect-tools/releases>`__ page.
 
 Test data
@@ -126,7 +130,7 @@ Execute the following:
 
     (3 rows)
 
-Starting the Connector
+Starting the Connector (Distributed)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Download, unpack and install the Stream Reactor. Follow the instructions :ref:`here <install>` if you haven't already done so.
@@ -138,7 +142,7 @@ Start Kafka Connect in distributed more by running the ``start-connect.sh`` scri
 
     ➜ bin/start-connect.sh
 
-Once the connector has started we can now use the kafka-connect-tools cli to post in our distributed properties file for Cassandra.
+Once the connector has started lets use the kafka-connect-tools cli to post in our distributed properties file for Cassandra.
 If you are using the :ref:`dockers <dockers>` you will have to set the following environment variable to for the CLI to
 connect to the Rest API of Kafka Connect of your container.
 
@@ -148,13 +152,13 @@ connect to the Rest API of Kafka Connect of your container.
 
 .. sourcecode:: bash
 
-    ➜  bin/cli.sh create cassandra-source-orders < cassandra-source-incr-orders.properties
+    ➜  bin/cli create cassandra-source-orders < cassandra-source-incr-orders.properties
 
     #Connector `cassandra-source-orders`:
     name=cassandra-source-orders
     connector.class=com.datamountaineer.streamreactor.connect.cassandra.source.CassandraSourceConnector
     connect.cassandra.key.space=demo
-    connect.cassandra.source.kcql=INSERT INTO orders-topic SELECT * FROM orders PK created
+    connect.cassandra.import.route.query=INSERT INTO orders-topic SELECT * FROM orders PK created
     connect.cassandra.import.mode=incremental
     connect.cassandra.contact.points=localhost
     connect.cassandra.username=cassandra
@@ -179,7 +183,7 @@ We can use the CLI to check if the connector is up but you should be able to see
 .. sourcecode:: bash
 
     #check for running connectors with the CLI
-    ➜ bin/cli.sh ps
+    ➜ bin/cli ps
     cassandra-sink
 
 .. sourcecode:: bash
@@ -303,8 +307,9 @@ Features
 Kafka Connect Query Language
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**K** afka **C** onnect **Q** uery **L**, :ref:`KCQL <kcql>` allows for routing and mapping using a SQL like syntax,
-consolidating typically features in to one configuration option.
+Both connectors support **K** afka **C** onnect **Q** uery **L** anguage found here
+`GitHub repo <https://github.com/datamountaineer/kafka-connector-query-language>`_ allows for routing and mapping using
+a SQL like syntax, consolidating typically features in to one configuration option.
 
 Data Types
 ^^^^^^^^^^
@@ -408,7 +413,7 @@ Topic Routing
 
 The Sink supports topic routing that allows mapping the messages from topics to a specific table. For example map
 a topic called "bloomberg_prices" to a table called "prices". This mapping is set in the
-``connect.cassandra.source.kcql`` option.
+``connect.cassandra.import.route.query`` option.
 
 Error Polices
 ~~~~~~~~~~~~~
@@ -541,7 +546,7 @@ Either bulk or incremental.
 * Optional  : no
 
 
-``connect.cassandra.source.kcql``
+``connect.cassandra.import.route.query``
 
 Kafka connect query language expression. Allows for expressive table to topic routing, field selection and renaming.
 In incremental mode the timestampColumn can be specified by ``PK colName``.
@@ -624,7 +629,7 @@ Bulk Example
     name=cassandra-source-orders-bulk
     connector.class=com.datamountaineer.streamreactor.connect.cassandra.source.CassandraSourceConnector
     connect.cassandra.key.space=demo
-    connect.cassandra.source.kcql=INSERT INTO TABLE_X SELECT * FROM TOPIC_Y
+    connect.cassandra.import.route.query=INSERT INTO TABLE_X SELECT * FROM TOPIC_Y
     connect.cassandra.import.mode=bulk
     connect.cassandra.contact.points=localhost
     connect.cassandra.username=cassandra
@@ -638,7 +643,7 @@ Incremental Example
     name=cassandra-source-orders-incremental
     connector.class=com.datamountaineer.streamreactor.connect.cassandra.source.CassandraSourceConnector
     connect.cassandra.key.space=demo
-    connect.cassandra.source.kcql=INSERT INTO TABLE_X SELECT * FROM TOPIC_Y PK created
+    connect.cassandra.import.route.query=INSERT INTO TABLE_X SELECT * FROM TOPIC_Y PK created
     connect.cassandra.import.mode=incremental
     connect.cassandra.contact.points=localhost
     connect.cassandra.username=cassandra

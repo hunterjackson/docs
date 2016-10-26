@@ -34,7 +34,7 @@ Download and extract HBase:
     tar -xvf hbase-1.2.1-bin.tar.gz -C hbase
 
 
-Edit ``conf/quickstarts/hbase-site.xml`` and add the following content:
+Edit ``conf/hbase-site.xml`` and add the following content:
 
 .. sourcecode:: html
 
@@ -72,9 +72,13 @@ Follow the instructions :ref:`here <install>`.
 Sink Connector QuickStart
 -------------------------
 
-We will start the connector in distributed mode. Each connector exposes a rest endpoint for stopping, starting and updating the configuration. We have developed
+We will start the connector in distributed mode. Connect has two modes, standalone where the tasks run on only one host
+and distributed mode. Usually you'd run in distributed mode to get fault tolerance and better performance. In distributed mode
+you start Connect on multiple hosts and they join together to form a cluster. Connectors which are then submitted are distributed
+across the cluster. Each connector exposes a rest endpoint for stopping, starting and updating the configuration. We have developed
 a Command Line Interface to make interacting with the Connect Rest API easier. The CLI can be found in the Stream Reactor download under
-the ``bin`` folder. Alternatively the Jar can be pulled from our GitHub
+the ``bin`` folder. Alternatively the Jar can be pulled from
+`Maven <http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22kafka-connect-cli%22>`__ or the our GitHub
 `releases <https://github.com/datamountaineer/kafka-connect-tools/releases>`__ page.
 
 HBase Table
@@ -98,7 +102,7 @@ The Sink expects a precreated table in HBase. In the HBase shell create the test
      _SCOPE => '0'}
     1 row(s) in 0.0810 seconds
 
-Starting the Connector
+Starting the Connector (Distributed)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Download, unpack and install the Stream Reactor. Follow the instructions :ref:`here <install>` if you haven't already done so.
@@ -110,7 +114,7 @@ Start Kafka Connect in distributed more by running the ``start-connect.sh`` scri
 
     ➜ bin/start-connect.sh
 
-Once the connector has started we can now use the kafka-connect-tools cli to post in our distributed properties file for HBase.
+Once the connector has started lets use the kafka-connect-tools cli to post in our distributed properties file for HBase.
 If you are using the :ref:`dockers <dockers>` you will have to set the following environment variable to for the CLI to
 connect to the Rest API of Kafka Connect of your container.
 
@@ -120,7 +124,7 @@ connect to the Rest API of Kafka Connect of your container.
 
 .. sourcecode:: bash
 
-    ➜  bin/cli.sh create hbase-sink < conf/quickstarts/hbase-sink.properties
+    ➜  bin/cli create hbase-sink < conf/hbase-sink.properties
 
     #Connector name=`hbase-sink`
     name=person-hbase-test
@@ -128,7 +132,7 @@ connect to the Rest API of Kafka Connect of your container.
     tasks.max=1
     topics=TOPIC1
     connect.hbase.sink.column.family=d
-    connect.hbase.sink.kcql=INSERT INTO person_hbase SELECT * FROM TOPIC1
+    connect.hbase.export.route.query=INSERT INTO person_hbase SELECT * FROM TOPIC1
     #task ids: 0
 
 This ``hbase-sink.properties`` configuration defines:
@@ -149,7 +153,7 @@ We can use the CLI to check if the connector is up but you should be able to see
 .. sourcecode:: bash
 
     #check for running connectors with the CLI
-    ➜ bin/cli.sh ps
+    ➜ bin/cli ps
     hbase-sink
 
 .. sourcecode:: bash
@@ -171,13 +175,6 @@ We can use the CLI to check if the connector is up but you should be able to see
 Test Records
 ^^^^^^^^^^^^
 
-.. hint::
-
-    If your input topic doesn't match the target use Kafka Streams to transform in realtime the input. Also checkout the
-    `Plumber <https://github.com/rollulus/kafka-streams-plumber>`__, which allows you to inject a Lua script into
-    `Kafka Streams <http://www.confluent.io/blog/introducing-kafka-streams-stream-processing-made-simple>`__ to do this,
-    no Java or Scala required!
-
 Now we need to put some records it to the test_table topics. We can use the ``kafka-avro-console-producer`` to do this.
 
 Start the producer and pass in a schema to register in the Schema Registry. The schema has a ``firstname`` field of type string
@@ -185,7 +182,7 @@ a ``lastname`` field of type string, an ``age`` field of type int and a ``salary
 
 .. sourcecode:: bash
 
-    ${CONFLUENT_HOME}/bin/kafka-avro-console-producer \
+    bin/kafka-avro-console-producer \
       --broker-list localhost:9092 --topic TOPIC1 \
       --property value.schema='{"type":"record","name":"User","namespace":"com.datamountaineer.streamreactor.connect.hbase"
       "fields":[{"name":"firstName","type":"string"},{"name":"lastName","type":"string"},{"name":"age","type":"int"},
@@ -242,8 +239,8 @@ The Sink supports:
 Kafka Connect Query Language
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**K** afka **C** onnect **Q** uery **L**, :ref:`KCQL <kcql>` allows for routing and mapping using a SQL like syntax,
-consolidating typically features in to one configuration option.
+**K** afka **C** onnect **Q** uery **L** anguage found here `GitHub repo <https://github.com/datamountaineer/kafka-connector-query-language>`_
+allows for routing and mapping using a SQL like syntax, consolidating typically features in to one configuration option.
 
 The HBase Sink supports the following:
 
@@ -261,7 +258,7 @@ Example:
     #Insert mode, select 3 fields and rename from topicB and write to tableB, use field y from the topic as the row key
     INSERT INTO tableB SELECT x AS a, y AS b and z AS c FROM topicB PK y
 
-This is set in the ``connect.hbase.sink.kcql`` option.
+This is set in the ``connect.hbase.export.route.query`` option.
 
 Error Polices
 ~~~~~~~~~~~~~
@@ -307,7 +304,7 @@ The hbase column family.
 * Importance: high
 * Optional: no
 
-``connect.hbase.sink.kcql``
+``connect.hbase.export.route.query``
 
 Kafka connect query language expression. Allows for expressive topic to table routing, field selection and renaming. Fields
 to be used as the row key can be set by specifing the ``PK``. The below example uses field1 and field2 are the row key.
@@ -364,7 +361,7 @@ Example
 .. sourcecode:: bash
 
     connect.hbase.sink.column.family=d
-    connect.hbase.sink.kcql=INSERT INTO person_hbase SELECT * FROM TOPIC1
+    connect.hbase.export.route.query=INSERT INTO person_hbase SELECT * FROM TOPIC1
     connector.class=com.datamountaineer.streamreactor.connect.hbase.HbaseSinkConnector
     tasks.max=1
     topics=TOPIC1

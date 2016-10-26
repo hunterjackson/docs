@@ -59,12 +59,16 @@ Follow the instructions :ref:`here <install>`.
 Sink Connector QuickStart
 -------------------------
 
-We will start the connector in distributed mode. Each connector exposes a rest endpoint for stopping, starting and updating the configuration. We have developed
+We will start the connector in distributed mode. Connect has two modes, standalone where the tasks run on only one host
+and distributed mode. Usually you'd run in distributed mode to get fault tolerance and better performance. In distributed mode
+you start Connect on multiple hosts and they join together to form a cluster. Connectors which are then submitted are distributed
+across the cluster. Each connector exposes a rest endpoint for stopping, starting and updating the configuration. We have developed
 a Command Line Interface to make interacting with the Connect Rest API easier. The CLI can be found in the Stream Reactor download under
-the ``bin`` folder. Alternatively the Jar can be pulled from our GitHub
+the ``bin`` folder. Alternatively the Jar can be pulled from
+`Maven <http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22kafka-connect-cli%22>`__ or the our GitHub
 `releases <https://github.com/datamountaineer/kafka-connect-tools/releases>`__ page.
 
-Starting the Connector
+Starting the Connector (Distributed)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Download, unpack and install the Stream Reactor. Follow the instructions :ref:`here <install>` if you haven't already done so.
@@ -76,7 +80,7 @@ Start Kafka Connect in distributed more by running the ``start-connect.sh`` scri
 
     ➜ bin/start-connect.sh
 
-Once the connector has started we can now use the kafka-connect-tools cli to post in our distributed properties file for Redis.
+Once the connector has started lets use the kafka-connect-tools cli to post in our distributed properties file for Redis.
 If you are using the :ref:`dockers <dockers>` you will have to set the following environment variable to for the CLI to
 connect to the Rest API of Kafka Connect of your container.
 
@@ -86,14 +90,14 @@ connect to the Rest API of Kafka Connect of your container.
 
 .. sourcecode:: bash
 
-    ➜  bin/cli.sh create redis-sink < conf/quickstarts/redis-sink.properties
+    ➜  bin/cli create redis-sink < conf/redis-sink.properties
     #Connector name=`redis-sink`
     connect.redis.connection.host=localhost
     connect.redis.connection.port=6379
     connector.class=com.datamountaineer.streamreactor.connect.redis.sink.RedisSinkConnector
     tasks.max=1
     topics=person_redis
-    connect.redis.sink.kcql=INSERT INTO TABLE1 SELECT * FROM person_redis
+    connect.redis.export.route.query=INSERT INTO TABLE1 SELECT * FROM person_redis
     #task ids: 0
 
 The ``redis-sink.properties`` file defines:
@@ -126,7 +130,7 @@ We can use the CLI to check if the connector is up but you should be able to see
 .. sourcecode:: bash
 
     #check for running connectors with the CLI
-    ➜ bin/cli.sh ps
+    ➜ bin/cli ps
     redis-sink
 
 .. sourcecode:: bash
@@ -154,13 +158,6 @@ We can use the CLI to check if the connector is up but you should be able to see
 Test Records
 ^^^^^^^^^^^^
 
-.. hint::
-
-    If your input topic doesn't match the target use Kafka Streams to transform in realtime the input. Also checkout the
-    `Plumber <https://github.com/rollulus/kafka-streams-plumber>`__, which allows you to inject a Lua script into
-    `Kafka Streams <http://www.confluent.io/blog/introducing-kafka-streams-stream-processing-made-simple>`__ to do this,
-    no Java or Scala required!
-
 Now we need to put some records it to the test_table topics. We can use the ``kafka-avro-console-producer`` to do this.
 
 Start the producer and pass in a schema to register in the Schema Registry. The schema has a ``firstname`` field of type
@@ -168,7 +165,7 @@ string a ``lastname`` field of type string, an ``age`` field of type int and a `
 
 .. sourcecode:: bash
 
-    ${CONFLUENT_HOME}/bin/kafka-avro-console-producer \
+    bin/kafka-avro-console-producer \
       --broker-list localhost:9092 --topic person_redis \
       --property value.schema='{"type":"record","name":"User","namespace":"com.datamountaineer.streamreactor.connect.redis"
       ,"fields":[{"name":"firstName","type":"string"},{"name":"lastName","type":"string"},{"name":"age","type":"int"},{"name":"salary","type":"double"}]}'
@@ -189,7 +186,7 @@ Now check the logs of the connector you should see this:
     INFO Received record from topic:person_redis partition:0 and offset:0 (com.datamountaineer.streamreactor.connect.redis.sink.writer.RedisDbWriter:48)
     INFO Empty list of records received. (com.datamountaineer.streamreactor.connect.redis.sink.RedisSinkTask:75)
 
-Check in Redis.
+Check the Redis.
 
 .. sourcecode:: bash
 
@@ -222,8 +219,8 @@ The Sink supports:
 Kafka Connect Query Language
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**K** afka **C** onnect **Q** uery **L**, :ref:`KCQL <kcql>` allows for routing and mapping using a SQL like syntax,
-consolidating typically features in to one configuration option.
+**K** afka **C** onnect **Q** uery **L** anguage found here `GitHub repo <https://github.com/datamountaineer/kafka-connector-query-language>`_
+allows for routing and mapping using a SQL like syntax, consolidating typically features in to one configuration option.
 
 The Redis Sink supports the following:
 
@@ -241,7 +238,7 @@ Example:
     #Insert mode, select 3 fields and rename from topicB and write to tableB, use field y from the topic as the primary key
     INSERT INTO tableB SELECT x AS a, y AS b and z AS c FROM topicB PK y
 
-This is set in the ``connect.redis.sink.kcql`` option.
+This is set in the ``connect.redis.export.route.query`` option.
 
 Error Polices
 ~~~~~~~~~~~~~
@@ -278,7 +275,7 @@ The length of time the Sink will retry can be controlled by using the ``connect.
 Configurations
 --------------
 
-``connect.redis.sink.kcql``
+``connect.redis.export.route.query``
 
 Kafka connect query language expression. Allows for expressive topic to table routing, field selection and renaming. Fields
 to be used as the row key can be set by specifing the ``PK``. The below example uses field1 as the primary key.
@@ -370,7 +367,7 @@ Example
     connector.class=com.datamountaineer.streamreactor.connect.redis.sink.RedisSinkConnector
     tasks.max=1
     topics=person_redis
-    connect.redis.sink.kcql=INSERT INTO TABLE1 SELECT * FROM person_redis
+    connect.redis.export.route.query=INSERT INTO TABLE1 SELECT * FROM person_redis
 
 Schema Evolution
 ----------------
@@ -382,7 +379,7 @@ More information can be found `here <http://docs.confluent.io/3.0.1/schema-regis
 The Redis Sink will automatically write and update the Redis table if new fields are added to the Source topic,
 if fields are removed the Kafka Connect framework will return the default value for this field, dependent of the
 compatibility settings of the Schema registry. This value will be put into the Redis column family cell based on the
-``connect.redis.sink.kcql`` mappings.
+``connect.redis.export.route.query`` mappings.
 
 Deployment Guidelines
 ---------------------
