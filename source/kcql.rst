@@ -1,4 +1,4 @@
-.. connectors:
+.. _kcql:
 
 Kafka Connect Query Language
 ============================
@@ -9,7 +9,7 @@ Why ?
 -----
 
 While working on our sink/sources we ended up producing quite complex configuration in order to support the functionality
-required. Imagine a sink where you source from different topics and from each topic you want to cherry pick the payload
+required. Imagine a Sink where you Source from different topics and from each topic you want to cherry pick the payload
 fields or even rename them. Furthermore you might want the storage structure to be automatically created and/or even
 evolve or you might add new support for the likes of bucketing (Riak TS has one such scenario). Imagine the JDBC sink
 with a table which needs to be linked to two different topics and the fields in there need to be aligned with the table
@@ -69,5 +69,5 @@ Examples
     SELECT *, field1 AS newName FROM mytopic      // Select all & rename a field - excellent for avro evolution
     SELECT * FROM mytopic IGNORE badField         // Select all & ignore a field - excellent for avro evolution
     SELECT * FROM mytopic PK field1,field2        //Select all & with primary keys (for the sources where primary keys are required)
-    SELECT * FROM mytopic AUTOCREATE              //Select all and create the target source (table for databases)
+    SELECT * FROM mytopic AUTOCREATE              //Select all and create the target Source (table for databases)
     SELECT * FROM mytopic AUTOEVOLVE              //Select all & reflect the new fields added to the avro payload into the target

@@ -4,6 +4,14 @@ Kafka Connect Redis
 A Connector and Sink to write events from Kafka to Redis. The connector takes the value from the Kafka Connect
 SinkRecords and inserts a new entry to Redis.
 
+The Sink supports:
+
+1. :ref:`The KCQL routing querying <kcql>` - Kafka topic payload field selection is supported, allowing you to select fields written to Redis.
+2. Topic to table routing via KCQL.
+3. RowKey selection - Selection of fields to use as the row key, if none specified the topic name, partition and offset are
+   used via KCQL.
+4. Error policies for handling failures.
+
 Prerequisites
 -------------
 
@@ -42,138 +50,47 @@ Check Redis is running:
         PONG
     ➜  sudo service redis-server status
 
+
 Confluent Setup
 ~~~~~~~~~~~~~~~
 
-.. sourcecode:: bash
-
-    #make confluent home folder
-    ➜  mkdir confluent
-
-    #download confluent
-    ➜  wget http://packages.confluent.io/archive/3.0/confluent-3.0.1-2.11.tar.gz
-
-    #extract archive to confluent folder
-    ➜  tar -xvf confluent-3.0.1-2.11.tar.gz -C confluent
-
-    #setup variables
-    ➜  export CONFLUENT_HOME=~/confluent/confluent-3.0.1
-
-Start the Confluent platform.
-
-.. sourcecode:: bash
-
-    #Start the confluent platform, we need kafka, zookeeper and the schema registry
-    ➜  bin/zookeeper-server-start etc/kafka/zookeeper.properties &
-    ➜  bin/kafka-server-start etc/kafka/server.properties &
-    ➜  bin/schema-registry-start etc/schema-registry/schema-registry.properties &
-
-Build the Connector and CLI
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The prebuilt jars can be taken from `here <https://github.com/datamountaineer/stream-reactor/releases>`__ and
-`here <https://github.com/datamountaineer/kafka-connect-tools/releases>`__
-or from `Maven <http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22kafka-connect-cli%22>`__
-
-If you want to build the connector, clone the repo and build the jar.
-
-.. sourcecode:: bash
-
-    ##Build the connectors
-    ➜  git clone https://github.com/datamountaineer/stream-reactor
-    ➜  cd stream-reactor
-    ➜  gradle fatJar
-
-    ##Build the CLI for interacting with Kafka connectors
-    ➜  git clone https://github.com/datamountaineer/kafka-connect-tools
-    ➜  cd kafka-connect-tools
-    ➜  gradle fatJar
+Follow the instructions :ref:`here <install>`.
 
 Sink Connector QuickStart
 -------------------------
 
-Next we will start the connector in distributed mode. Connect has two modes, standalone where the tasks run on only one host
+We will start the connector in distributed mode. Connect has two modes, standalone where the tasks run on only one host
 and distributed mode. Usually you'd run in distributed mode to get fault tolerance and better performance. In distributed mode
-you start Connect on multiple hosts and they join together to form a cluster. Connectors which are then submitted are
-distributed across the cluster.
-
-Before we can start the connector we need to setup it's configuration. In standalone mode this is done by creating a
-properties file and passing this to the connector at startup. In distributed mode you can post in the configuration as
-json to the Connectors HTTP endpoint. Each connector exposes a rest endpoint for stopping, starting and updating the
-configuration.
-
-Sink Connector Configuration
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Create a file called ``redis-sink.properties`` with the contents below:
-
-.. sourcecode:: bash
-
-    name=redis-sink
-    connect.redis.connection.host=localhost
-    connect.redis.connection.port=6379
-    connector.class=com.datamountaineer.streamreactor.connect.redis.sink.RedisSinkConnector
-    tasks.max=1
-    topics=person_redis
-    connect.redis.export.route.query=INSERT INTO TABLE1 SELECT * FROM person_redis
-
-This configuration defines:
-
-1.  The name of the sink.
-2.  The name of the redis host to connect to.
-3.  The redis port to connect to.
-4.  The sink class.
-5.  The max number of tasks the connector is allowed to created. Should not be greater than the number of partitions in
-    the source topics otherwise tasks will be idle.
-6.  The source kafka topics to take events from.
-7.  The KCQL statement for topic routing and field selection.
-
-
-If your redis server is requiring the connection to be authenticated you would need to provide an extra setting:
-
-.. sourcecode:: bash
-
-    connect.redis.sink.connection.password=$REDIS_PASSWORD
-
-Don't set the value to empty if no password is required.
+you start Connect on multiple hosts and they join together to form a cluster. Connectors which are then submitted are distributed
+across the cluster. Each connector exposes a rest endpoint for stopping, starting and updating the configuration. We have developed
+a Command Line Interface to make interacting with the Connect Rest API easier. The CLI can be found in the Stream Reactor download under
+the ``bin`` folder. Alternatively the Jar can be pulled from
+`Maven <http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22kafka-connect-cli%22>`__ or the our GitHub
+`releases <https://github.com/datamountaineer/kafka-connect-tools/releases>`__ page.
 
 Starting the Connector (Distributed)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Connectors can be deployed distributed mode. In this mode one or many connectors are started on the same or different
-hosts with the same cluster id. The cluster id can be found in ``etc/schema-registry/connect-avro-distributed.properties.``
+Download, unpack and install the Stream Reactor. Follow the instructions :ref:`here <install>` if you haven't already done so.
+All paths in the quickstart are based in the location you installed the Stream Reactor.
+
+Start Kafka Connect in distributed more by running the ``start-connect.sh`` script in the ``bin`` folder.
 
 .. sourcecode:: bash
 
-    # The group ID is a unique identifier for the set of workers that form a single Kafka Connect
-    # cluster
-    group.id=connect-cluster
+    ➜ bin/start-connect.sh
 
-Now start the connector in distributed mode. We only give it one properties file for the kafka, zookeeper and
-schema registry configurations.
-
-First add the connector jar to the CLASSPATH and then start Connect.
-
-.. note::
-
-    You need to add the connector to your classpath or you can create a folder in ``share/java`` of the Confluent
-    install location like, kafka-connect-myconnector and the start scripts provided by Confluent will pick it up.
-    The start script looks for folders beginning with kafka-connect.
+Once the connector has started lets use the kafka-connect-tools cli to post in our distributed properties file for Redis.
+If you are using the :ref:`dockers <dockers>` you will have to set the following environment variable to for the CLI to
+connect to the Rest API of Kafka Connect of your container.
 
 .. sourcecode:: bash
 
-    #Add the Connector to the class path
-    ➜  export CLASSPATH=kafka-connect-redis-0.2-cp-3.0.1.all.jar
+   export KAFKA_CONNECT_REST="http://myserver:myport"
 
 .. sourcecode:: bash
 
-    ➜  confluent-3.0.1/bin/connect-distributed confluent-3.0.1/etc/schema-registry/connect-avro-distributed.properties
-
-Once the connector has started lets use the kafka-connect-tools cli to post in our distributed properties file.
-
-.. sourcecode:: bash
-
-    ➜  java -jar build/libs/kafka-connect-cli-0.6-all.jar create redis-sink < redis-sink.properties
+    ➜  bin/cli create redis-sink < conf/redis-sink.properties
     #Connector name=`redis-sink`
     connect.redis.connection.host=localhost
     connect.redis.connection.port=6379
@@ -183,7 +100,29 @@ Once the connector has started lets use the kafka-connect-tools cli to post in o
     connect.redis.export.route.query=INSERT INTO TABLE1 SELECT * FROM person_redis
     #task ids: 0
 
-If you switch back to the terminal you started the Connector in you should see the Redis sink being accepted and the
+The ``redis-sink.properties`` file defines:
+
+1.  The name of the sink.
+2.  The name of the redis host to connect to.
+3.  The redis port to connect to.
+4.  The Sink class.
+5.  The max number of tasks the connector is allowed to created. Should not be greater than the number of partitions in
+    the Source topics otherwise tasks will be idle.
+6.  The Source kafka topics to take events from.
+7.  :ref:`The KCQL routing querying. <kcql>`
+
+
+.. warning::
+
+    If your redis server is requiring the connection to be authenticated you will need to provide an extra setting:
+
+    .. sourcecode:: bash
+
+        connect.redis.sink.connection.password=$REDIS_PASSWORD
+
+    Don't set the value to empty if no password is required.
+
+If you switch back to the terminal you started the Connector in you should see the Redis Sink being accepted and the
 task starting.
 
 We can use the CLI to check if the connector is up but you should be able to see this in logs as-well.
@@ -191,7 +130,7 @@ We can use the CLI to check if the connector is up but you should be able to see
 .. sourcecode:: bash
 
     #check for running connectors with the CLI
-    ➜ java -jar build/libs/kafka-connect-cli-0.6-all.jar ps
+    ➜ bin/cli ps
     redis-sink
 
 .. sourcecode:: bash
@@ -267,9 +206,9 @@ Now stop the connector.
 Features
 --------
 
-The Redis sink writes records from Kafka to Redis.
+The Redis Sink writes records from Kafka to Redis.
 
-The sink supports:
+The Sink supports:
 
 1. Field selection - Kafka topic payload field selection is supported, allowing you to select fields written to Redis.
 2. Topic to table routing.
@@ -283,7 +222,7 @@ Kafka Connect Query Language
 **K** afka **C** onnect **Q** uery **L** anguage found here `GitHub repo <https://github.com/datamountaineer/kafka-connector-query-language>`_
 allows for routing and mapping using a SQL like syntax, consolidating typically features in to one configuration option.
 
-The Redis sink supports the following:
+The Redis Sink supports the following:
 
 .. sourcecode:: bash
 
@@ -304,7 +243,7 @@ This is set in the ``connect.redis.export.route.query`` option.
 Error Polices
 ~~~~~~~~~~~~~
 
-The sink has three error policies that determine how failed writes to the target database are handled. The error policies
+The Sink has three error policies that determine how failed writes to the target database are handled. The error policies
 affect the behaviour of the schema evolution characteristics of the sink. See the schema evolution section for more
 information.
 
@@ -320,7 +259,7 @@ Any error on write to the target database is ignored and processing continues.
 .. warning::
 
     This can lead to missed errors if you don't have adequate monitoring. Data is not lost as it's still in Kafka
-    subject to Kafka's retention policy. The sink currently does **not** distinguish between integrity constraint
+    subject to Kafka's retention policy. The Sink currently does **not** distinguish between integrity constraint
     violations and or other expections thrown by drivers.
 
 **Retry**
@@ -330,7 +269,7 @@ Kafka connect framework to pause and replay the message. Offsets are not committ
 it will cause a write failure, the message can be replayed. With the Retry policy the issue can be fixed without stopping
 the sink.
 
-The length of time the sink will retry can be controlled by using the ``connect.redis.sink.max.retries`` and the
+The length of time the Sink will retry can be controlled by using the ``connect.redis.sink.max.retries`` and the
 ``connect.redis.sink.retry.interval``.
 
 Configurations
@@ -410,7 +349,7 @@ The maximum number of times a message is retried. Only valid when the ``connect.
 
 ``connect.redis.sink.retry.interval``
 
-The interval, in milliseconds between retries if the sink is using ``connect.redis.sink.error.policy`` set to **RETRY**.
+The interval, in milliseconds between retries if the Sink is using ``connect.redis.sink.error.policy`` set to **RETRY**.
 
 * Type: int
 * Importance: high
@@ -437,7 +376,7 @@ Upstream changes to schemas are handled by Schema registry which will validate t
 or fields, data type changes and if defaults are set. The Schema Registry enforces Avro schema evolution rules.
 More information can be found `here <http://docs.confluent.io/3.0.1/schema-registry/docs/api.html#compatibility>`_.
 
-The Redis sink will automatically write and update the Redis table if new fields are added to the source topic,
+The Redis Sink will automatically write and update the Redis table if new fields are added to the Source topic,
 if fields are removed the Kafka Connect framework will return the default value for this field, dependent of the
 compatibility settings of the Schema registry. This value will be put into the Redis column family cell based on the
 ``connect.redis.export.route.query`` mappings.
