@@ -1,3 +1,5 @@
+.. _sinks:
+
 Sink Connectors
 ===============
 
