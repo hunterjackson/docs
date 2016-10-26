@@ -1,4 +1,4 @@
-.. tools:
+.. _cli:
 
 .. image:: https://img.shields.io/badge/latest%20release-v0.4-blue.svg?label=maven%20latest%20release
     :target: http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22kafka-connect-cli%22
@@ -8,9 +8,8 @@
 Kafka Connect CLI
 =================
 
-This is a tiny command line interface (CLI) around the `Kafka Connect
-REST
-Interface <http://docs.confluent.io/3.0.1/connect/userguide.html#rest-interface>`__
+This is a tiny command line interface (CLI) around the `Kafka Connect REST Interface
+<http://docs.confluent.io/3.0.1/connect/userguide.html#rest-interface>`__
 to manage connectors. It is used in a git like fashion where the first program argument indicates the command: it can be one of
 ``[ps|get|rm|create|run]``.
 

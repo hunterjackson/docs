@@ -11,8 +11,7 @@ The connector allows you to specify the payload type sent to the JMS target:
 
 The Sink supports:
 
-1. :ref:`The KCQL routing querying <kcql>`  - Kafka topic payload field selection is supported, allowing you to select
-fields written to the queue or topic in JMS.
+1. :ref:`The KCQL routing querying <kcql>`. Kafka topic payload field selection is supported, allowing you to select fields written to the queue or topic in JMS.
 2. Topic to topic routing via KCQL.
 3. Payload format selection via KCQL.
 4. Error policies for handling failures.

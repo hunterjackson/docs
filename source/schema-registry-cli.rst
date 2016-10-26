@@ -1,4 +1,4 @@
-.. tools:
+.. _schema-registry-cli:
 
 Schema Registry CLI
 ==============================================
