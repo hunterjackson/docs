@@ -258,7 +258,7 @@ Now the producer is waiting for input. Paste in the following (each on a line se
     {"id": 3, "created": "2016-05-06 13:55:00", "product": "FU-DATAMOUNTAINEER-20150201-100", "price": 10000}
     {"id": 4, "created": "2016-05-06 13:56:00", "product": "FU-KOSPI-C-20150201-100", "price": 150}
 
-Now if we check the logs of the connector we should see 2 records being inserted to Elastic Search:
+Now if we check the logs of the connector we should see 2 records being inserted to Cassandra:
 
 .. sourcecode:: bash
 
