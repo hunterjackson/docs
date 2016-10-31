@@ -145,7 +145,7 @@ and a ``random_field`` of type string.
     bin/kafka-avro-console-producer \
      --broker-list localhost:9092 --topic TOPIC1 \
      --property value.schema='{"type":"record","name":"myrecord","fields":[{"name":"id","type":"int"},
-    {"name":"random_field", "type": "string"}]}'
+    {"name":"random_field","type": "string"}]}'
 
 Now the producer is waiting for input. Paste in the following:
 

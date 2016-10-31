@@ -205,8 +205,8 @@ Start the producer and pass in a schema to register in the Schema Registry. The 
 
     bin/kafka-avro-console-producer \
      --broker-list localhost:9092 --topic orders-topic \
-     --property value.schema='{"type":"record","name":"myrecord","fields":[{"name":"id","type":"int"},
-    {"name":"created", "type": "string"}, {"name":"product", "type": "string"}, {"name":"price", "type": "double"}]}'
+     --property value.schema='{"type":"record","name":"myrecord","fields":[{"name":"id","type":"int"},{"name":"created",
+     "type":"string"},{"name":"product","type":"string"},{"name":"price","type":"double"}]}'
 
 Now the producer is waiting for input. Paste in the following (each on a line separately):
 
