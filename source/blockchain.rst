@@ -52,7 +52,7 @@ Start Kafka Connect in distributed more by running the ``start-connect.sh`` scri
 
     ➜ bin/start-connect.sh
 
-Once the connector has started lets use the kafka-connect-tools cli to post in our distributed properties file for BlockChain.
+Once the connector has started we can now use the kafka-connect-tools cli to post in our distributed properties file for BlockChain.
 
 .. sourcecode:: bash
 
