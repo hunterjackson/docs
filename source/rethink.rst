@@ -61,7 +61,7 @@ Start Kafka Connect in distributed more by running the ``start-connect.sh`` scri
 
     ➜ bin/start-connect.sh
 
-Once the connector has started lets use the kafka-connect-tools cli to post in our distributed properties file for ReThinkDB.
+Once the connector has started we can now use the kafka-connect-tools cli to post in our distributed properties file for ReThinkDB.
 If you are using the :ref:`dockers <dockers>` you will have to set the following environment variable to for the CLI to
 connect to the Rest API of Kafka Connect of your container.
 

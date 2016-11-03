@@ -6,9 +6,8 @@ and inserts a new entry to InfluxDB.
 
 The Sink supports:
 
-1. :ref:`The KCQL routing querying <kcql>` - Topic to measure mapping and Field selection.
-2. Selection of which field to use as the Point measurement with a default of system time.
-3. Error policies.
+1. :ref:`The KCQL routing querying <kcql>` - Topic to index mapping and Field selection.
+2. Auto mapping of the Kafka topic schema to the index.
 
 Prerequisites
 -------------
@@ -26,9 +25,9 @@ Confluent Setup
 Follow the instructions :ref:`here <install>`.
 
 InfluxDB Setup
-~~~~~~~~~~~~~~
+~~~~~~~~~~~~~
 
-`Download <https://influxdata.com/downloads/#influxdb>`__ and start InfluxDB. Users of OS X 10.8 and higher can install InfluxDB using the Homebrew package manager.
+Download and start InfluxDB. Users of OS X 10.8 and higher can install InfluxDB using the Homebrew package manager.
 Once brew is installed, you can install InfluxDB by running:
 
 .. sourcecode:: bash
@@ -73,13 +72,17 @@ If you are running on a single node start InfluxDB with the new configuration fi
 Sink Connector QuickStart
 -------------------------
 
-We will start the connector in distributed mode. Each connector exposes a rest endpoint for stopping, starting and updating the configuration. We have developed
+We will start the connector in distributed mode. Connect has two modes, standalone where the tasks run on only one host
+and distributed mode. Usually you'd run in distributed mode to get fault tolerance and better performance. In distributed mode
+you start Connect on multiple hosts and they join together to form a cluster. Connectors which are then submitted are distributed
+across the cluster. Each connector exposes a rest endpoint for stopping, starting and updating the configuration. We have developed
 a Command Line Interface to make interacting with the Connect Rest API easier. The CLI can be found in the Stream Reactor download under
-the ``bin`` folder. Alternatively the Jar can be pulled from our GitHub
+the ``bin`` folder. Alternatively the Jar can be pulled from
+`Maven <http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22kafka-connect-cli%22>`__ or the our GitHub
 `releases <https://github.com/datamountaineer/kafka-connect-tools/releases>`__ page.
 
 Test data
-~~~~~~~~~
+^^^^^^^^^
 
 The Sink expects a database to exist in InfluxDB. Use the InfluxDB CLI to create this:
 
@@ -95,7 +98,7 @@ The Sink expects a database to exist in InfluxDB. Use the InfluxDB CLI to create
     > CREATE DATABASE mydb
 
 
-Starting the Connector
+Starting the Connector (Distributed)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Download, unpack and install the Stream Reactor. Follow the instructions :ref:`here <install>` if you haven't already done so.
@@ -117,15 +120,15 @@ connect to the Rest API of Kafka Connect of your container.
 
 .. sourcecode:: bash
 
-    ➜  bin/cli.sh create influx-sink < conf/quickstarts/influxdb-sink.properties
+    ➜  bin/cli create influx-sink < conf/influxdb-sink.properties
 
     #Connector name=`influx-sink`
     name=influxdb-sink
     connector.class=com.datamountaineer.streamreactor.connect.influx.InfluxSinkConnector
     tasks.max=1
     topics=influx-topic
-    connect.influx.sink.route.query=INSERT INTO influxMeasure SELECT * FROM influx-topic WITHTIMESTAMP sys_time()
-    connect.influx.connection.url=http://localhost:8086
+    connect.influx.sink.route.query=INSERT INTO influxMeasure SELECT * FROM influx-topic
+    connect.influx.connection.url=http://localhost:8081
     connect.influx.connection.database=mydb
     #task ids: 0
 
@@ -147,62 +150,32 @@ We can use the CLI to check if the connector is up but you should be able to see
 .. sourcecode:: bash
 
     #check for running connectors with the CLI
-    ➜ bin/cli.sh ps
+    ➜ bin/cli ps
     influxdb-sink
 
 .. sourcecode:: bash
-
-    INFO
-      ____        _        __  __                   _        _
-     |  _ \  __ _| |_ __ _|  \/  | ___  _   _ _ __ | |_ __ _(_)_ __   ___  ___ _ __
-     | | | |/ _` | __/ _` | |\/| |/ _ \| | | | '_ \| __/ _` | | '_ \ / _ \/ _ \ '__|
-     | |_| | (_| | || (_| | |  | | (_) | |_| | | | | || (_| | | | | |  __/  __/ |
-     |____/ \__,_|\__\__,_|_|  |_|\___/ \__,_|_| |_|\__\__,_|_|_| |_|\___|\___|_|
-      ___        __ _            ____  _       ____  _       _ by Stefan Bocutiu
-     |_ _|_ __  / _| |_   ___  _|  _ \| |__   / ___|(_)_ __ | | __
-      | || '_ \| |_| | | | \ \/ / | | | '_ \  \___ \| | '_ \| |/ /
-      | || | | |  _| | |_| |>  <| |_| | |_) |  ___) | | | | |   <
-     |___|_| |_|_| |_|\__,_/_/\_\____/|_.__/  |____/|_|_| |_|_|\_\
-      (com.datamountaineer.streamreactor.connect.influx.InfluxSinkTask:45)
-    [INFO InfluxSinkConfig values:
-        connect.influx.retention.policy = autogen
-        connect.influx.error.policy = THROW
-        connect.influx.connection.user = root
-        connect.influx.connection.database = mydb
-        connect.influx.connection.password = [hidden]
-        connect.influx.connection.url = http://localhost:8086
-        connect.influx.retry.interval = 60000
-        connect.influx.sink.route.query = INSERT INTO influxMeasure SELECT * FROM influx-topic WITHTIMESTAMP sys_time()
-        connect.influx.max.retires = 20
-     (com.datamountaineer.streamreactor.connect.influx.config.InfluxSinkConfig:178)
 
 
 Test Records
 ^^^^^^^^^^^^
 
-.. hint::
-
-    If your input topic doesn't match the target use Kafka Streams to transform in realtime the input. Also checkout the
-    `Plumber <https://github.com/rollulus/kafka-streams-plumber>`__, which allows you to inject a Lua script into
-    `Kafka Streams <http://www.confluent.io/blog/introducing-kafka-streams-stream-processing-made-simple>`__ to do this,
-    no Java or Scala required!
-
 Now we need to put some records it to the test_table topics. We can use the ``kafka-avro-console-producer`` to do this.
 
-Start the producer and pass in a schema to register in the Schema Registry. The schema has a ``company`` field of type
-string a ``address`` field of type string, an ``latitude`` field of type int and a ``longitude`` field of type int.
+Start the producer and pass in a schema to register in the Schema Registry. The schema has a ``firstname`` field of type
+string a ``lastname`` field of type string, an ``age`` field of type int and a ``salary`` field of type double.
 
 .. sourcecode:: bash
 
-    ${CONFLUENT_HOME}/bin/kafka-avro-console-producer \
-      --broker-list localhost:9092 --topic influx-topic \
-      --property value.schema='{"type":"record","name":"User","namespace":"com.datamountaineer.streamreactor.connect.influx","fields":[{"name":"company","type":"string"},{"name":"address","type":"string"},{"name":"latitude","type":"float"},{"name":"longitude","type":"float"}]}'
+    bin/kafka-avro-console-producer \
+      --broker-list localhost:9092 --topic influx-sink \
+      --property value.schema='{"type":"record","name":"User","namespace":"com.datamountaineer.streamreactor.connect.influx"
+      ,"fields":[{"name":"firstName","type":"string"},{"name":"lastName","type":"string"},{"name":"age","type":"int"},{"name":"salary","type":"double"}]}'
 
 Now the producer is waiting for input. Paste in the following:
 
 .. sourcecode:: bash
 
-    {"company": "DataMountaineer","address": "MontainTop","latitude": -49.817964,"longitude": -141.645812}
+    {"firstName": "John", "lastName": "Smith", "age":30, "salary": 4830}
 
 Check for records in InfluxDB
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -211,33 +184,15 @@ Now check the logs of the connector you should see this:
 
 .. sourcecode:: bash
 
-    INFO Setting newly assigned partitions [influx-topic-0] for group connect-influx-sink (org.apache.kafka.clients.consumer.internals.ConsumerCoordinator:231)
-    INFO Received 1 record(-s) (com.datamountaineer.streamreactor.connect.influx.InfluxSinkTask:81)
-    INFO Writing 1 points to the database... (com.datamountaineer.streamreactor.connect.influx.writers.InfluxDbWriter:45)
-    INFO Records handled (com.datamountaineer.streamreactor.connect.influx.InfluxSinkTask:83)
 
 
 Check in InfluxDB.
 
 .. sourcecode:: bash
 
-    ✗ influx
-    Visit https://enterprise.influxdata.com to register for updates, InfluxDB server management, and monitoring.
-    Connected to http://localhost:8086 version v1.0.2
-    InfluxDB shell version: v1.0.2
-    > use mydb;
-    Using database mydb
-    > show measurements;
-    name: measurements
-    ------------------
-    name
-    influxMeasure
 
-    > select * from influxMeasure;
-    name: influxMeasure
-    -------------------
-    time			address		async	company		latitude		longitude
-    1478269679104000000	MontainTop	true	DataMountaineer	-49.817962646484375	-141.64581298828125
+
+Now stop the connector.
 
 
 Features
@@ -250,8 +205,8 @@ Features
 Kafka Connect Query Language
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**K** afka **C** onnect **Q** uery **L**, :ref:`KCQL <kcql>` allows for routing and mapping using a SQL like syntax,
-consolidating typically features in to one configuration option.
+**K** afka **C** onnect **Q** uery **L** anguage found here `GitHub repo <https://github.com/datamountaineer/kafka-connector-query-language>`__
+allows for routing and mapping using a SQL like syntax, consolidating typically features in to one configuration option.
 
 The Influx Sink supports the following:
 
@@ -266,14 +221,10 @@ Example:
     #Insert mode, select all fields from topicA and write to indexA
     INSERT INTO measureA SELECT * FROM topicA
 
-    #Insert mode, select 3 fields and rename from topicB and write to indexB, use field Y as the point measurement
+    #Insert mode, select 3 fields and rename from topicB and write to indexB, use field Y as the timestamp field
     INSERT INTO measureB SELECT x AS a, y AS b and z AS c FROM topicB WITHTIMESTAMP y
 
-    #Insert mode, select 3 fields and rename from topicB and write to indexB, use field Y as the current system time for
-    #Point measurement
-    INSERT INTO measureB SELECT x AS a, y AS b and z AS c FROM topicB WITHTIMESTAMP sys_time()
-
-This is set in the ``connect.influx.sink.kcql`` option.
+This is set in the ``connect.influx.export.route.query`` option.
 
 Error Polices
 ~~~~~~~~~~~~~
@@ -310,10 +261,9 @@ The length of time the Sink will retry can be controlled by using the ``connect.
 Configurations
 --------------
 
-``connect.influx.sink.kcql``
+``connect.influx.export.route.query``
 
-Kafka connect query language expression. Allows for expressive topic to table routing, field selection and renaming. For
-InfluxDB it allows either setting a default or selecting a field from the topic as the Point measurement.
+Kafka connect query language expression. Allows for expressive topic to table routing, field selection and renaming.
 
 * Data type : string
 * Importance: high
@@ -417,7 +367,7 @@ Example
     connect.elastic.cluster.name=elasticsearch
     tasks.max=1
     topics=test_table
-    connect.elastic.sink.kcql=INSERT INTO INDEX_1 SELECT field1, field2 FROM TOPIC1
+    connect.elastic.export.route.query=INSERT INTO INDEX_1 SELECT field1, field2 FROM TOPIC1
 
 Schema Evolution
 ----------------

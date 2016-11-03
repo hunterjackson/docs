@@ -66,7 +66,7 @@ Start Kafka Connect in distributed more by running the ``start-connect.sh`` scri
 
     ➜ bin/start-connect.sh
 
-Once the connector has started lets use the kafka-connect-tools cli to post in our distributed properties file for Elastic.
+Once the connector has started we can now use the kafka-connect-tools cli to post in our distributed properties file for Elastic.
 If you are using the :ref:`dockers <dockers>` you will have to set the following environment variable to for the CLI to
 connect to the Rest API of Kafka Connect of your container.
 
@@ -92,7 +92,7 @@ The ``elastic-sink.properties`` file defines:
 
 1. The name of the connector.
 2. The class containing the connector.
-3. Tne name of the cluster on the Elastic Search server to connect to.
+3. The name of the cluster on the Elastic Search server to connect to.
 4. The max number of task allowed for this connector.
 5. The Source topic to get records from.
 6. :ref:`The KCQL routing querying. <kcql>`

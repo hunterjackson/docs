@@ -80,7 +80,7 @@ Start Kafka Connect in distributed more by running the ``start-connect.sh`` scri
 
     ➜ bin/start-connect.sh
 
-Once the connector has started lets use the kafka-connect-tools cli to post in our distributed properties file for Redis.
+Once the connector has started we can now use the kafka-connect-tools cli to post in our distributed properties file for Redis.
 If you are using the :ref:`dockers <dockers>` you will have to set the following environment variable to for the CLI to
 connect to the Rest API of Kafka Connect of your container.
 
@@ -186,7 +186,7 @@ Now check the logs of the connector you should see this:
     INFO Received record from topic:person_redis partition:0 and offset:0 (com.datamountaineer.streamreactor.connect.redis.sink.writer.RedisDbWriter:48)
     INFO Empty list of records received. (com.datamountaineer.streamreactor.connect.redis.sink.RedisSinkTask:75)
 
-Check the Redis.
+Check in Redis.
 
 .. sourcecode:: bash
 
