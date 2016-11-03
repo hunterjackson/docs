@@ -76,3 +76,25 @@ If your redis server is requiring the connection to be authenticated you will ne
         connect.redis.sink.connection.password=$REDIS_PASSWORD
 
 Don't set the value to empty if no password is required.
+
+**InfluxDb Port already in use**
+
+InfluxDB starts an Admin web server listening on port 8083 by default. For this quickstart this will collide with Kafka
+Connects default port of 8083. Since we are running on a single node we will need to  edit the InfluxDB config.
+
+.. sourcecode:: bash
+
+    #create config dir
+    sudo mkdir /etc/influxdb
+    #dump the config
+    influxd config > /etc/influxdb/influxdb.generated.conf
+
+Now change the following section to a port 8087 or any other free port.
+
+.. sourcecode:: bash
+
+    [admin]
+    enabled = true
+    bind-address = ":8087"
+    https-enabled = false
+    https-certificate = "/etc/ssl/influxdb.pem"
