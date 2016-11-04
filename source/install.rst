@@ -86,33 +86,35 @@ Unpack the archive:
 .. sourcecode:: bash
 
     #Stream reactor release 0.2.2
-    tar xvf -C stream-reactor-0.2.2-cp-3.0.0.jar stream-reactor
+    tar xvf -C stream-reactor-0.2.2-cp-3.0.1.jar stream-reactor
 
 Within the unpacked directory you will find the following structure:
 
 .. sourcecode:: bash
 
-    stream-reactor-0.2-3.0.0
+    stream-reactor-0.2-3.0.1
     |-- LICENSE
     |-- README.md
     |-- bin
+    |   |-- cli.sh
     |   `-- start-connect.sh
     `-- libs
-        |-- kafka-connect-blockchain-0.2-3.0.0-all.jar
-        |-- kafka-connect-bloomberg-0.2-3.0.0-all.jar
-        |-- kafka-connect-cassandra-0.2-3.0.0-all.jar
-        |-- kafka-connect-druid-0.2-3.0.0-all.jar
-        |-- kafka-connect-elastic-0.2-3.0.0-all.jar
-        |-- kafka-connect-hazelcast-0.2-3.0.0-all.jar
-        |-- kafka-connect-hbase-0.2-3.0.0-all.jar
-        |-- kafka-connect-influxdb-0.2-3.0.0-all.jar
-        |-- kafka-connect-jms-0.2-3.0.0-all.jar
-        |-- kafka-connect-kudu-0.2-3.0.0-all.jar
-        |-- kafka-connect-redis-0.2-3.0.0-all.jar
-        |-- kafka-connect-rethink-0.2-3.0.0-all.jar
-        |-- kafka-connect-voltdb-0.2-3.0.0-all.jar
-        |-- kafka-connect-yahoo-0.2-3.0.0-all.jar
-        `-- kafka-socket-streamer-0.2-3.0.0-all.jar
+        |-- kafka-connect-cli-0.5-all.jar
+        |-- kafka-connect-blockchain-0.2-3.0.1-all.jar
+        |-- kafka-connect-bloomberg-0.2-3.0.1-all.jar
+        |-- kafka-connect-cassandra-0.2-3.0.1-all.jar
+        |-- kafka-connect-druid-0.2-3.0.1-all.jar
+        |-- kafka-connect-elastic-0.2-3.0.1-all.jar
+        |-- kafka-connect-hazelcast-0.2-3.0.1-all.jar
+        |-- kafka-connect-hbase-0.2-3.0.1-all.jar
+        |-- kafka-connect-influxdb-0.2-3.0.1-all.jar
+        |-- kafka-connect-jms-0.2-3.0.1-all.jar
+        |-- kafka-connect-kudu-0.2-3.0.1-all.jar
+        |-- kafka-connect-redis-0.2-3.0.1-all.jar
+        |-- kafka-connect-rethink-0.2-3.0.1-all.jar
+        |-- kafka-connect-voltdb-0.2-3.0.1-all.jar
+        |-- kafka-connect-yahoo-0.2-3.0.1-all.jar
+        `-- kafka-socket-streamer-0.2-3.0.1-all.jar
 
 The ``libs`` folder contains all the Stream Reactor Connector jars.
 
