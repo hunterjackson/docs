@@ -44,13 +44,9 @@ Download and start Elastic search.
 Sink Connector QuickStart
 -------------------------
 
-We will start the connector in distributed mode. Connect has two modes, standalone where the tasks run on only one host
-and distributed mode. Usually you'd run in distributed mode to get fault tolerance and better performance. In distributed mode
-you start Connect on multiple hosts and they join together to form a cluster. Connectors which are then submitted are distributed
-across the cluster. Each connector exposes a rest endpoint for stopping, starting and updating the configuration. We have developed
+We will start the connector in distributed mode. Each connector exposes a rest endpoint for stopping, starting and updating the configuration. We have developed
 a Command Line Interface to make interacting with the Connect Rest API easier. The CLI can be found in the Stream Reactor download under
-the ``bin`` folder. Alternatively the Jar can be pulled from
-`Maven <http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22kafka-connect-cli%22>`__ or the our GitHub
+the ``bin`` folder. Alternatively the Jar can be pulled from our GitHub
 `releases <https://github.com/datamountaineer/kafka-connect-tools/releases>`__ page.
 
 
@@ -76,7 +72,7 @@ connect to the Rest API of Kafka Connect of your container.
 
 .. sourcecode:: bash
 
-    ➜  bin/cli create elastic-sink < conf/elastic-sink.properties
+    ➜  bin/cli.sh create elastic-sink < conf/elastic-sink.properties
 
     #Connector name=`elastic-sink`
     name=elastic-sink
@@ -105,7 +101,7 @@ We can use the CLI to check if the connector is up but you should be able to see
 .. sourcecode:: bash
 
     #check for running connectors with the CLI
-    ➜ bin/cli ps
+    ➜ bin/cli.sh ps
     elastic-sink
 
 .. sourcecode:: bash
@@ -142,7 +138,7 @@ and a ``random_field`` of type string.
 
 .. sourcecode:: bash
 
-    bin/kafka-avro-console-producer \
+    ${CONFLUENT_HOME}/bin/kafka-avro-console-producer \
      --broker-list localhost:9092 --topic TOPIC1 \
      --property value.schema='{"type":"record","name":"myrecord","fields":[{"name":"id","type":"int"},
     {"name":"random_field", "type": "string"}]}'

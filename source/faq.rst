@@ -47,7 +47,7 @@ You can ask a running instance of Kafka Connect what Connector classes are on th
 
 .. sourcecode:: bash
 
-    bin/cli loaded
+    bin/cli.sh loaded
 
 
 **Guava version**
@@ -76,3 +76,36 @@ If your redis server is requiring the connection to be authenticated you will ne
         connect.redis.sink.connection.password=$REDIS_PASSWORD
 
 Don't set the value to empty if no password is required.
+
+**InfluxDb Port already in use**
+
+InfluxDB starts an Admin web server listening on port 8083 by default. For this quickstart this will collide with Kafka
+Connects default port of 8083. Since we are running on a single node we will need to  edit the InfluxDB config.
+
+.. sourcecode:: bash
+
+    #create config dir
+    sudo mkdir /etc/influxdb
+    #dump the config
+    influxd config > /etc/influxdb/influxdb.generated.conf
+
+Now change the following section to a port 8087 or any other free port.
+
+.. sourcecode:: bash
+
+    [admin]
+    enabled = true
+    bind-address = ":8087"
+    https-enabled = false
+    https-certificate = "/etc/ssl/influxdb.pem"
+
+**How get multiple worker on different hosts to for a Connect Cluster**
+
+For workers to join a Connect cluster, set the `group.id` in the `$CONFLUENT_HOME/etc/schema-registry/connect-avro-distributed.properties`
+file.
+
+.. sourcecode:: bash
+
+    # The group ID is a unique identifier for the set of workers that form a single Kafka Connect
+    # cluster
+    group.id=connect-cluster
