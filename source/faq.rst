@@ -47,7 +47,7 @@ You can ask a running instance of Kafka Connect what Connector classes are on th
 
 .. sourcecode:: bash
 
-    bin/cli loaded
+    bin/cli.sh loaded
 
 
 **Guava version**
@@ -98,3 +98,14 @@ Now change the following section to a port 8087 or any other free port.
     bind-address = ":8087"
     https-enabled = false
     https-certificate = "/etc/ssl/influxdb.pem"
+
+**How get multiple worker on different hosts to for a Connect Cluster**
+
+For workers to join a Connect cluster, set the `group.id` in the `$CONFLUENT_HOME/etc/schema-registry/connect-avro-distributed.properties`
+file.
+
+.. sourcecode:: bash
+
+    # The group ID is a unique identifier for the set of workers that form a single Kafka Connect
+    # cluster
+    group.id=connect-cluster
