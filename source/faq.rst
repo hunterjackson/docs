@@ -55,7 +55,7 @@ You can ask a running instance of Kafka Connect what Connector classes are on th
 The Elastic Search and HBase use different versions of guava, as does the Hive libraries supplied by Confluent with the
 HDFS Connector. This can cause version clashes.
 
-Explicit add the relevant jar to the classpath and restart Kafka Connect. This sets our jars first and should solve the
+Explicitly add the relevant jar to the classpath and restart Kafka Connect. This sets our jars first and should solve the
 issues.
 
 .. sourcecode:: bash

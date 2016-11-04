@@ -1,10 +1,5 @@
 .. _cli:
 
-.. image:: https://img.shields.io/badge/latest%20release-v0.4-blue.svg?label=maven%20latest%20release
-    :target: http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22kafka-connect-cli%22
-.. image:: ../images/git.png
-    :target: https://github.com/datamountaineer/kafka-connect-tools/releases/tag/v0.5
-
 Kafka Connect CLI
 =================
 
@@ -14,12 +9,12 @@ to manage connectors. It is used in a git like fashion where the first program a
 ``[ps|get|rm|create|run]``.
 
 The CLI is meant to behave as a good unix citizen: input from ``stdin``; output to ``stdout``; out of band info to ``stderr`` and non-zero exit
-status on error. Commands dealing with configuration expect or producedata in .properties style: ``key=value`` lines and comments start with a
+status on error. Commands dealing with configuration expect or produce data in .properties style: ``key=value`` lines and comments start with a
 ``#``.
 
 .. sourcecode:: bash
 
-    kafka-connect-cli 0.5
+    kafka-connect-cli 0.6
     Usage: kafka-connect-cli [ps|get|rm|create|run|status] [options] [<connector-name>]
 
       --help

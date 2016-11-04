@@ -92,34 +92,65 @@ Within the unpacked directory you will find the following structure:
 
 .. sourcecode:: bash
 
-    stream-reactor-0.2-3.0.1
-    |-- LICENSE
-    |-- README.md
-    |-- bin
-    |   |-- cli.sh
-    |   `-- start-connect.sh
-    `-- libs
-        |-- kafka-connect-cli-0.5-all.jar
-        |-- kafka-connect-blockchain-0.2-3.0.1-all.jar
-        |-- kafka-connect-bloomberg-0.2-3.0.1-all.jar
-        |-- kafka-connect-cassandra-0.2-3.0.1-all.jar
-        |-- kafka-connect-druid-0.2-3.0.1-all.jar
-        |-- kafka-connect-elastic-0.2-3.0.1-all.jar
-        |-- kafka-connect-hazelcast-0.2-3.0.1-all.jar
-        |-- kafka-connect-hbase-0.2-3.0.1-all.jar
-        |-- kafka-connect-influxdb-0.2-3.0.1-all.jar
-        |-- kafka-connect-jms-0.2-3.0.1-all.jar
-        |-- kafka-connect-kudu-0.2-3.0.1-all.jar
-        |-- kafka-connect-redis-0.2-3.0.1-all.jar
-        |-- kafka-connect-rethink-0.2-3.0.1-all.jar
-        |-- kafka-connect-voltdb-0.2-3.0.1-all.jar
-        |-- kafka-connect-yahoo-0.2-3.0.1-all.jar
-        `-- kafka-socket-streamer-0.2-3.0.1-all.jar
+    `-- stream-reactor-0.2.2-3.0.1
+        |-- LICENSE
+        |-- README.md
+        |-- bin
+        |   |-- cli.sh
+        |   |-- install-ui.sh
+        |   |-- sr-cli-linux
+        |   |-- sr-cli-osx
+        |   |-- start-connect.sh
+        |   `-- start-ui.sh
+        |-- conf
+        |   |-- blockchain-source.properties
+        |   |-- bloomberg-source.properties
+        |   |-- cassandra-sink.properties
+        |   |-- cassandra-source.properties
+        |   |-- druid-sink.properties
+        |   |-- hazelcast-sink.properties
+        |   |-- hbase-sink.properties
+        |   |-- influxdb-sink.properties
+        |   |-- jms-sink.properties
+        |   |-- kudu-sink.properties
+        |   |-- mongodb-sink.properties
+        |   |-- redis-sink.properties
+        |   |-- rethink-sink.properties
+        |   |-- rethink-source.properties
+        |   |-- voltdb-sink.properties
+        |   `-- yahoo-source.properties
+        `-- libs
+            |-- kafka-connect-blockchain-0.2.2-3.0.1-all.jar
+            |-- kafka-connect-bloomberg-0.2.2-3.0.1-all.jar
+            |-- kafka-connect-cassandra-0.2.2-3.0.1-all.jar
+            |-- kafka-connect-cli-0.5-all.jar
+            |-- kafka-connect-druid-0.2.2-3.0.1-all.jar
+            |-- kafka-connect-elastic-0.2.2-3.0.1-all.jar
+            |-- kafka-connect-hazelcast-0.2.2-3.0.1-all.jar
+            |-- kafka-connect-hbase-0.2.2-3.0.1-all.jar
+            |-- kafka-connect-influxdb-0.2.2-3.0.1-all.jar
+            |-- kafka-connect-jms-0.2.2-3.0.1-all.jar
+            |-- kafka-connect-kudu-0.2.2-3.0.1-all.jar
+            |-- kafka-connect-mongodb-0.2.2-3.0.1-all.jar
+            |-- kafka-connect-redis-0.2.2-3.0.1-all.jar
+            |-- kafka-connect-rethink-0.2.2-3.0.1-all.jar
+            |-- kafka-connect-voltdb-0.2.2-3.0.1-all.jar
+            |-- kafka-connect-yahoo-0.2.2-3.0.1-all.jar
+            `-- kafka-socket-streamer-0.2.2-3.0.1-all.jar
 
 The ``libs`` folder contains all the Stream Reactor Connector jars.
 
-The ``bin`` folder contains the ``start-connect.sh`` script. This loads all the Stream Reactors jars onto the CLASSPATH and starts
-Kafka Connect in distributed mode. The Confluent Platform, Zookeeper, Kafka and the Schema Registry must be started first.
+The ``bin`` folder contains:
+
+*   ``start-connect.sh`` script loads all the Stream Reactors jars onto the CLASSPATH and starts
+    Kafka Connect in distributed mode. The Confluent Platform, Zookeeper, Kafka and the Schema Registry must be started first.
+*   :ref:`sr-cli <schema-registry-cli>` GO scripts for interacting with the Schema Registry. Two versions are package,
+    for Linux and OSX.
+*   :ref:`cli <cli>` script for interacting with Kafka Connects REST API's.
+*   ``install-ui.sh`` script to download and install the Schema Registry and Topic Browser UIs from `Landoop <https://www.landoop.com/>`__.
+*   ``start-ui.sh`` script to start the Schema Registry and Topic Browser UIs from `Landoop <https://www.landoop.com/>`__.
+
+The ``conf`` folder contains quickstart connector properties files.
 
 .. _dockers:
 
@@ -227,8 +258,34 @@ that it is important to expose Connect's port on the same port at the host. This
            -p 8085:8085
            landoop/fast-data-dev-connect-cluster
 
+Web Only Mode
+-------------
+
+This is a special mode only for Linux hosts, where only Landoop's Web UIs are started and kafka services are expected to be running on the local machine. It must be run with --net=host flag, thus the Linux only requisite:
+
+.. sourcecode:: bash
+
+    docker run --rm -it --net=host \
+               -e WEB_ONLY=true \
+               landoop/fast-data-dev
+
+This is useful if you already have a cluster with Confluent's distribution install and want a fancy UI.
+
+HBase Connector
+~~~~~~~~~~~~~~~
+
+Due to some issues with dependencies, the ElasticSearch connector and the HBase connector cannot coexist. Whilst both are available,
+HBase won't work. We do provide the PREFER_HBASE environment variable which will remove ElasticSearch (and the Twitter connector)
+to let HBase work:
+
+.. sourcecode:: bash
+
+    docker run --rm -it --net=host \
+               -e PREFER_HBASE=true \
+               landoop/fast-data-dev
+
 Advanced
-^^^^^^^^
+--------
 
 The container does not exit with CTRL+C. This is because we chose to pass control directly to Connect, so you check your logs via docker logs.
 You can stop it or kill it from another terminal.
