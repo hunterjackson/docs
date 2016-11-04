@@ -99,7 +99,7 @@ Within the unpacked directory you will find the following structure:
     |   |-- cli.sh
     |   `-- start-connect.sh
     `-- libs
-        |-- kafka-connect-cli-0.6-all.jar
+        |-- kafka-connect-cli-0.5-all.jar
         |-- kafka-connect-blockchain-0.2-3.0.1-all.jar
         |-- kafka-connect-bloomberg-0.2-3.0.1-all.jar
         |-- kafka-connect-cassandra-0.2-3.0.1-all.jar

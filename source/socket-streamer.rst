@@ -60,7 +60,7 @@ are available. But first we need some data in Kafka. Start the console producer 
 
 .. sourcecode:: bash
 
-    ➜   bin/kafka-avro-console-producer \
+    ➜   ${CONFLUENT_HOME}/bin/kafka-avro-console-producer \
       --broker-list localhost:9092 --topic socket_streamer \
       --property value.schema='{"type":"record","name":"User","namespace":"com.datamountaineer.streamreactor.connect.redis" \
       ,"fields":[{"name":"firstName","type":"string"},{"name":"lastName","type":"string"},{"name":"age","type":"int"}, \
