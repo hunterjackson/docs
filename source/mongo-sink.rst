@@ -1,0 +1,526 @@
+Kafka Connect Mongo Sink
+============================
+
+The Mongo Sink allows you to write events from Kafka to your MongoDB instance. The connector converts the value from the Kafka
+Connect SinkRecords to Mongo Document and will do an insert or upsert depending on the configuration you chose. It is expected the
+database is created upfront; the targeted Mongo collections will be created if they don't exist
+
+The Sink supports three Kafka payloads type:
+- Connect entry with Schema.Struct and payload Struct:If you follow the best practice while producing the events, each message should carry its schema information. Best option
+is to send Avro. Your connect configurations should be set to  `value.converter=io.confluent.connect.avro.AvroConverter`. You can fnd an example here
+`https://github.com/confluentinc/kafka-connect-blog/blob/master/etc/connect-avro-standalone.properties`. To see how easy is to have your producer serialize to Avro have a look at this:
+`http://docs.confluent.io/3.0.1/schema-registry/docs/serializer-formatter.html?highlight=kafkaavroserializer`. This requires SchemaRegistry which is open source thanks to Confluent!
+Alternatively you can send Json + Schema. In this case your connect configuration should read `value.converter=org.apache.kafka.connect.json.JsonConverter`. The difference would be
+to point your serialization to `org.apache.kafka.connect.json.JsonSerializer`. This doesn't require the SchemaRegistry.
+
+- Connect entry with Schema.String and payload json String. Sometimes the producer would find it easier, despite sending Avro to produce a GenericRecord, to just send a message with Schema.String
+and the json string.
+
+- Connect entry without a schema and the payload json String. There are many existing systems which are publishing json over Kafka and bringing them in line with best practices is
+quite a challenge. Hence we added the support
+
+.. note:: The database needs to be created upfront!
+
+Prerequisites
+-------------
+
+-  MongoDB 3.2.10
+-  Confluent 3.0.0
+-  Java 1.8
+-  Scala 2.11
+
+Setup
+-----
+
+Before we can do anything, including the QuickStart we need to install MongoDb and the Confluent platform.
+
+MongoDb Setup
+~~~~~~~~~~~~~~~
+
+If you already have an instance of Mongo running you can skip this step.
+First download and install MongoDb Community edition. This is the manual approach for installing on Ubuntu. You can
+follow the details https://docs.mongodb.com/v3.2/administration/install-community/ for your OS.
+
+.. sourcecode:: bash
+
+    #go to home folder
+    ➜  cd ~
+    #make a folder for mongo
+    ➜  mkdir mongodb
+
+    #Download Mongo
+    ➜  wget wget https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-ubuntu1604-3.2.10.tgz
+
+    #extract the archive
+    ➜  tar xvf mongodb-linux-x86_64-ubuntu1604-3.2.10.tgz -C mongodb
+    ➜  cd mongodb
+    ➜  mv mongodb-linux-x86_64-ubuntu1604-3.2.10/* .
+
+    #create the data folder
+    ➜  mkdir data
+    ➜  mkdir data/db
+
+    #Start MongoDb
+    ➜  bin/mongod --dbpath data/db
+
+    #from a new terminal
+    ➜  cd ~/mongodb/bin
+
+    #start the cli
+    ➜  ./mongo
+
+    #list all dbs
+    ➜  show dbs
+
+    #create a new database named connect
+    ➜  use connect
+    #create a dummy collection and insert one document to actually create the database
+    ➜  db.dummy.insert({"name":"Kafka Rulz!"})
+
+    #list all dbs
+    ➜  show dbs
+
+Confluent Setup
+~~~~~~~~~~~~~~~
+
+.. sourcecode:: bash
+
+    #make confluent home folder
+    ➜  mkdir confluent
+
+    #download confluent
+    ➜  wget http://packages.confluent.io/archive/3.0/confluent-3.0.1-2.11.tar.gz
+
+    #extract archive to confluent folder
+    ➜  tar -xvf confluent-3.0.1-2.11.tar.gz -C confluent
+
+    #setup variables
+    ➜  export CONFLUENT_HOME=~/confluent/confluent-3.0.1
+
+Start the Confluent platform.
+
+.. sourcecode:: bash
+
+    #Start the confluent platform, we need kafka, zookeeper and the schema registry
+    ➜  cd CONFLUENT_HOME
+    ➜  bin/zookeeper-server-start etc/kafka/zookeeper.properties &
+    ➜  bin/kafka-server-start etc/kafka/server.properties &
+    ➜  bin/schema-registry-start etc/schema-registry/schema-registry.properties &
+
+Get the Sink and CLI
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The prebuilt CLI jar can be taken from `here <https://github.com/datamountaineer/kafka-connect-tools/releases>`__
+
+Grab the Mongo artifact link from the latest release `here https://github.com/datamountaineer/stream-reactor/releases`.
+
+.. sourcecode:: bash
+
+   #create a folder for the sink
+   ➜  mkdir $CONFLUENT_HOME/share/java/kafka-connect-mongo
+
+   #move into that directory
+   ➜  cd $CONFLUENT_HOME/share/java/kafka-connect-mongo
+
+   #download the latest mongosink. use the link copied earlier; the one below is a template
+   ➜  wget https://github.com/datamountaineer/stream-reactor/releases/download/v0.x.x/kafka-connect-mongodb-0.x-3.0.1-all.tar.gz
+
+   #unpack the tar
+   ➜  tar xvf kafka-connect-mongodb-0.x-3.0.1-all.tar.gz
+
+   #remove the archive
+   ➜  rm kafka-connect-mongodb-0.x-3.0.1-all.tar.gz
+
+
+Sink Connector QuickStart
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Next we will start the connector in distributed mode. Connect has two modes, standalone where the tasks run on only one host
+and distributed mode. Usually you'd run in distributed mode to get fault tolerance and better performance. In distributed mode
+you start Connect on multiple hosts and they join together to form a cluster. Connectors which are then submitted are
+distributed across the cluster.
+
+The important configuration for connect is related to the key and value deserializer. In the first example we default to the
+best practice where the source sends Avro messages to a Kafka topic. This is not enough to just be Avro messages but work with
+the schema registry to create the schema if it doesn't exist. Every message sent will have a magic byte followed by the Avro schema id
+and then the actual Avro record in binary format.
+
+Here are the entries in the config setting all the above. Of course if your SchemaRegistry runs on a different machine or you have
+multiple instances of it you will have to amend the configuration
+
+.. sourcecode:: bash
+    key.converter=io.confluent.connect.avro.AvroConverter
+    key.converter.schema.registry.url=http://localhost:8081
+    value.converter=io.confluent.connect.avro.AvroConverter
+    value.converter.schema.registry.url=http://localhost:8081
+
+Before we can start the connector we need to setup it's configuration. In standalone mode this is done by creating a
+properties file and passing this to the connector at startup. In distributed mode you can post in the configuration as
+json to the Connectors HTTP endpoint. Each connector exposes a rest endpoint for stopping, starting and updating the
+configuration.
+
+
+Sink Connector Configuration
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+Create a file called mongo-sink-distributed.properties with contents below.
+
+.. sourcecode:: bash
+
+    name=mongo-sink-orders
+    connector.class=com.datamountaineer.streamreactor.connect.mongodb.sink.MongoSinkConnector
+    tasks.max=1
+    topics=orders-topic
+    connect.mongo.sink.kqcl=INSERT INTO orders SELECT * FROM orders-topic
+    connect.mongo.database=connect
+    connect.mongo.hosts=localhost:27017
+    connect.mongo.sink.batch.size=10
+
+
+
+Starting the Sink Connector (Distributed)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+We will start Kafka Connect in distributed mode.
+
+.. sourcecode:: bash
+
+    #Add the Connector to the class path
+    # Start the connect in distributed mode
+    ➜   $CONFLUENT_HOME/bin/connect-distributed etc/schema-registry/connect-avro-distributed.properties
+
+    # Once the connector has started lets use the kafka-connect-tools cli to post in our distributed properties file.
+    # Let's download the CLI
+    ➜   wget https://github.com/datamountaineer/kafka-connect-tools/releases/download/v0.5/kafka-connect-cli-0.5-all.jar
+
+    #create the configuation
+    ➜   echo "" > mongo-sink-orders.properties
+    ➜   cat <<EOF >> mongo-sink-orders.properties
+        name=mongo-sink-orders
+        connector.class=com.datamountaineer.streamreactor.connect.mongodb.sink.MongoSinkConnector
+        tasks.max=1
+        topics=orders-topic
+        connect.mongo.sink.kqcl=INSERT INTO orders SELECT * FROM orders-topic
+        connect.mongo.database=connect
+        connect.mongo.hosts=localhost:27017
+        connect.mongo.sink.batch.size=10
+        EOF
+
+    #start the connector for mongo
+    ➜   java -jar kafka-connect-cli-0.5-all.jar create mongo-sink-orders < mongo-sink-orders.properties
+
+    #Connector `mongo-sink-orders`:
+    name=mongo-sink-orders
+    connector.class=com.datamountaineer.streamreactor.connect.mongodb.sink.MongoSinkConnector
+    tasks.max=1
+    topics=orders-topic
+    connect.mongo.sink.kqcl=INSERT INTO orders SELECT * FROM orders-topic
+    connect.mongo.database=connect
+    connect.mongo.hosts=localhost:27017
+    connect.mongo.sink.batch.size=10
+
+    #task ids: 0
+
+If you switch back to the terminal you started the Connector in you should see the Mongo sink being accepted and the
+task starting.
+
+We can use the CLI to check if the connector is up but you should be able to see this in logs as-well.
+
+.. sourcecode:: bash
+
+    #check for running connectors with the CLI
+    ➜ java -jar kafka-connect-cli-0.5-all.jar ps
+    mongo-sink
+
+
+.. sourcecode:: bash
+
+    [2016-11-06 22:25:29,354] INFO MongoConfig values:
+        connect.mongo.retry.interval = 60000
+        connect.mongo.sink.kqcl = INSERT INTO orders SELECT * FROM orders-topic
+        connect.mongo.hosts = localhost:27017
+        connect.mongo.error.policy = THROW
+        connect.mongo.database = connect
+        connect.mongo.sink.batch.size = 10
+        connect.mongo.max.retires = 20
+     (com.datamountaineer.streamreactor.connect.mongodb.config.MongoConfig:178)
+    [2016-11-06 22:25:29,399] INFO
+      ____        _        __  __                   _        _
+     |  _ \  __ _| |_ __ _|  \/  | ___  _   _ _ __ | |_ __ _(_)_ __   ___  ___ _ __
+     | | | |/ _` | __/ _` | |\/| |/ _ \| | | | '_ \| __/ _` | | '_ \ / _ \/ _ \ '__|
+     | |_| | (_| | || (_| | |  | | (_) | |_| | | | | || (_| | | | | |  __/  __/ |
+     |____/ \__,_|\__\__,_|_|  |_|\___/ \__,_|_| |_|\__\__,_|_|_| |_|\___|\___|_|
+      __  __                         ____  _       ____  _       _ by Stefan Bocutiu
+     |  \/  | ___  _ __   __ _  ___ |  _ \| |__   / ___|(_)_ __ | | __
+     | |\/| |/ _ \| '_ \ / _` |/ _ \| | | | '_ \  \___ \| | '_ \| |/ /
+     | |  | | (_) | | | | (_| | (_) | |_| | |_) |  ___) | | | | |   <
+     |_|  |_|\___/|_| |_|\__, |\___/|____/|_.__/  |____/|_|_| |_|_|\_\
+    . (com.datamountaineer.streamreactor.connect.mongodb.sink.MongoSinkTask:51)
+    [2016-11-06 22:25:29,990] INFO Initialising Mongo writer.Connection to mongodb://localhost:27017 (com.datamountaineer.streamreactor.connect.mongodb.sink.MongoWriter$:126)
+
+
+Test Records
+^^^^^^^^^^^^
+
+Now we need to put some records it to the orders-topic. We can use the ``kafka-avro-console-producer`` to do this.
+
+Start the producer and pass in a schema to register in the Schema Registry. The schema matches the table created earlier.
+
+.. hint::
+
+    If your input topic doesn't match the target use Kafka Streams to transform in realtime the input. Also checkout the
+    `Plumber <https://github.com/rollulus/kafka-streams-plumber>`__, which allows you to inject a Lua script into
+    `Kafka Streams <http://www.confluent.io/blog/introducing-kafka-streams-stream-processing-made-simple>`__ to do this,
+    no Java or Scala required!
+
+.. sourcecode:: bash
+
+    bin/kafka-avro-console-producer \
+     --broker-list localhost:9092 --topic orders-topic \
+     --property value.schema='{"type":"record","name":"myrecord","fields":[{"name":"id","type":"int"},
+    {"name":"created", "type": "string"}, {"name":"product", "type": "string"}, {"name":"price", "type": "double"}]}'
+
+Now the producer is waiting for input. Paste in the following (each on a line separately):
+
+.. sourcecode:: bash
+
+    {"id": 1, "created": "2016-05-06 13:53:00", "product": "OP-DAX-P-20150201-95.7", "price": 94.2}
+    {"id": 2, "created": "2016-05-06 13:54:00", "product": "OP-DAX-C-20150201-100", "price": 99.5}
+    {"id": 3, "created": "2016-05-06 13:55:00", "product": "FU-DATAMOUNTAINEER-20150201-100", "price": 10000}
+    {"id": 4, "created": "2016-05-06 13:56:00", "product": "FU-KOSPI-C-20150201-100", "price": 150}
+
+Now if we check the logs of the connector we should see 2 records being inserted to Elastic Search:
+
+.. sourcecode:: bash
+
+    [2016-11-06 22:30:30,473] INFO Setting newly assigned partitions [orders-topic-0] for group connect-mongo-sink-orders (org.apache.kafka.clients.consumer.internals.ConsumerCoordinator:231)
+    [2016-11-06 22:31:29,328] INFO WorkerSinkTask{id=mongo-sink-orders-0} Committing offsets (org.apache.kafka.connect.runtime.WorkerSinkTask:261)
+
+.. sourcecode:: bash
+
+    #Open a new terminal and navigate to the mongodb instalation folder
+    ➜ ./bin/mongo
+        > show databases
+            connect  0.000GB
+            local    0.000GB
+        > use connect
+            switched to db connect
+        > show collections
+            dummy
+            orders
+        > db.orders.find()
+        { "_id" : ObjectId("581fb21b09690a24b63b35bd"), "id" : 1, "created" : "2016-05-06 13:53:00", "product" : "OP-DAX-P-20150201-95.7", "price" : 94.2 }
+        { "_id" : ObjectId("581fb2f809690a24b63b35c2"), "id" : 2, "created" : "2016-05-06 13:54:00", "product" : "OP-DAX-C-20150201-100", "price" : 99.5 }
+        { "_id" : ObjectId("581fb2f809690a24b63b35c3"), "id" : 3, "created" : "2016-05-06 13:55:00", "product" : "FU-DATAMOUNTAINEER-20150201-100", "price" : 10000 }
+        { "_id" : ObjectId("581fb2f809690a24b63b35c4"), "id" : 4, "created" : "2016-05-06 13:56:00", "product" : "FU-KOSPI-C-20150201-100", "price" : 150 }
+
+
+Bingo, our 4 rows!
+
+Features
+--------
+
+The sink connector will translate the SinkRecords to json and will insert each one in the database. We support to insert modes:
+INSERT and UPSERT. All of this can be expressed via KCQL (our own SQL like syntax for configuration. Please see below the section
+for Kafka Connect Query Language)
+
+The sink supports:
+
+1. Field selection - Kafka topic payload field selection is supported, allowing you to have choose selection of fields
+   or all fields written to MongoDb.
+2. Topic to table routing. Your sink instance can be configured to handle multiple topics and collections. All you have to do is to set
+   your configuration appropriately. Below you will find an example
+
+.. sourcecode:: bash
+
+    connect.mongo.sink.kqcl = INSERT INTO orders SELECT * FROM orders-topic; UPSERT INTO customers SELECT * FROM customer-topic PK customer_id; UPSERT INTO invoiceid as invoice_id, customerid as customer_id, value a SELECT invoice_id, FROM invoice-topic
+
+3. Error policies for handling failures.
+
+Kafka Connect Query Language
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**K** afka **C** onnect **Q** uery **L** anguage found here `GitHub repo <https://github.com/datamountaineer/kafka-connector-query-language>`_
+allows for routing and mapping using a SQL like syntax, consolidating typically features in to one configuration option.
+
+MongoDb sink supports the following:
+
+.. sourcecode:: bash
+
+    INSERT INTO <database>.<target collection> SELECT <fields> FROM <source topic>
+
+Example:
+
+.. sourcecode:: sql
+
+    #Insert mode, select all fields from topicA and write to tableA
+    INSERT INTO collectionA SELECT * FROM topicA
+
+    #Insert mode, select 3 fields and rename from topicB and write to tableB
+    INSERT INTO tableB SELECT x AS a, y AS b and z AS c FROM topicB
+
+
+Error Polices
+~~~~~~~~~~~~~
+
+The sink has three error policies that determine how failed writes to the target database are handled. The error policies
+affect the behaviour of the schema evolution characteristics of the sink. See the schema evolution section for more
+information.
+
+**Throw**
+
+Any error on write to the target database will be propagated up and processing is stopped. This is the default
+behaviour.
+
+**Noop**
+
+Any error on write to the target database is ignored and processing continues.
+
+.. warning::
+
+    This can lead to missed errors if you don't have adequate monitoring. Data is not lost as it's still in Kafka
+    subject to Kafka's retention policy. The sink currently does **not** distinguish between integrity constraint
+    violations and or other exceptions thrown by drivers..
+
+**Retry**
+
+Any error on write to the target database causes the RetryIterable exception to be thrown. This causes the
+Kafka connect framework to pause and replay the message. Offsets are not committed. For example, if the database is offline
+it will cause a write failure, the message can be replayed. With the Retry policy the issue can be fixed without stopping
+the sink.
+
+The length of time the sink will retry can be controlled by using the ``connect.mongo.max.retires`` and the
+``connect.mongo.retry.interval``.
+
+Topic Routing
+^^^^^^^^^^^^^
+
+The sink supports topic routing that maps the messages from topics to a specific collection. For example map
+a topic called "bloomberg_prices" to a collection called "prices". This mapping is set in the ``connect.mongo.kcql`` option.
+You don't need to set up multiple sinks for each topic or collection. The same sink instance can be configured to handle multiple collections.
+For example your configuration in this case:
+
+
+.. sourcecode:: bash
+
+    connect.mongo.sink.kqcl = INSERT INTO orders SELECT * FROM orders-topic; UPSERT INTO customers SELECT * FROM customer-topic PK customer_id; UPSERT INTO invoiceid as invoice_id, customerid as customer_id, value a SELECT invoice_id, FROM invoice-topic
+
+Field Selection
+^^^^^^^^^^^^^^^
+
+The sink supports selecting fields from the source topic or selecting all. There is an option to rename a field as well.
+ All of this can be easily epxress with KCQL:
+ -  select all fields from topic `fx_prices` and insert into the `fx` collection: `INSERT INTO fx SELECT * FROM fx_prices`
+ -  select all fields from topic `fx_prices` and upsert into the `fx` collection: `UPSERT INTO fx SELECT * FROM fx_prices PK ticker`
+The assumption is there will be a ticker field in the incoming json
+ -  select specific fields from the topic 'sample_topic' and insert into the `sample' collection: `INSERT INTO sample SELECT field1,field2,field3 FROM sample_fopic`
+ -  select specific fields from the topic 'sample_topic' and upsert into the `sample' collection: `UPSERT INTO sample SELECT field1,field2,field3 FROM sample_fopic PK field1`
+ -  rename some fields while selecting all from the topic 'sample_topic' and insert into the `sample' collection: `INSERT INTO sample SELECT *, field1 as new_name1,field2 as new_name2 FROM sample_fopic`
+ -  rename some fields while selecting all from the topic 'sample_topic' and upsert into the `sample' collection: `UPSERT INTO sample SELECT *, field1 as new_name1,field2 as new_name2 FROM sample_fopic PK new_name1`
+ -  select specific fields and rename some of them from the topic 'sample_topic' and insert into the `sample' collection: `INSERT INTO sample SELECT field1 as new_name1,field2, field3 as new_name3 FROM sample_fopic`
+ -  select specific fields and rename some of them from the topic 'sample_topic' and upsert into the `sample' collection: `INSERT INTO sample SELECT field1 as new_name1,field2, field3 as new_name3 FROM sample_fopic PK new_name3`
+
+
+Configurations
+--------------
+
+Configurations parameters:
+
+``connect.mongo.database``
+
+The target MongoDb database name.
+
+* Data type: string
+* Optional : no
+
+``connect.mongo.connection``
+
+The mongodb endpoints connections in the format mongodb://[username:password@]host1[:port1][,host2[:port2],...[,hostN[:portN]]][/[database][?options]]
+
+* Data type: string
+* Optional : no
+
+``connect.mongo.sink.batch.size``
+
+The number of records the sink would push to mongo at once (improved performance)
+
+* Data type: int
+* Optional : yes
+* Default: 100
+
+``connect.mongo.sink.kqcl``
+
+Kafka connect query language expression. Allows for expressive topic to collectionrouting, field selection and renaming.
+
+Examples:
+
+.. sourcecode:: sql
+
+    INSERT INTO TABLE1 SELECT * FROM TOPIC1;INSERT INTO TABLE2 SELECT field1, field2, field3 as renamedField FROM TOPIC2
+
+
+* Data Type: string
+* Optional : no
+
+``connect.mongo.error.policy``
+
+Specifies the action to be taken if an error occurs while inserting the data.
+
+There are three available options, **NOOP**, the error is swallowed, **THROW**, the error is allowed to propagate and retry.
+For **RETRY** the Kafka message is redelivered up to a maximum number of times specified by the ``connect.mongo.max.retires``
+option. The ``connect.mongo.retry.interval`` option specifies the interval between retries.
+
+The errors will be logged automatically.
+
+* Type: string
+* Importance: high
+* Default: ``throw``
+
+``connect.mongo.max.retires``
+
+The maximum number of times a message is retried. Only valid when the ``connect.mongo.error.policy`` is set to ``TRHOW``.
+
+* Type: string
+* Importance: high
+* Default: 10
+
+``connect.mongo.retry.interval``
+
+The interval, in milliseconds between retries if the sink is using ``connect.mongo.error.policy`` set to **RETRY**.
+
+* Type: int
+* Importance: medium
+* Default : 60000 (1 minute)
+
+Example
+~~~~~~~
+
+.. sourcecode:: bash
+
+    name=mongo-sink-orders
+    connector.class=com.datamountaineer.streamreactor.connect.mongodb.sink.MongoSinkConnector
+    tasks.max=1
+    topics=orders-topic
+    connect.mongo.sink.kqcl=INSERT INTO orders SELECT * FROM orders-topic
+    connect.mongo.database=connect
+    connect.mongo.hosts=localhost:27017
+    connect.mongo.sink.batch.size=10
+
+Schema Evolution
+----------------
+
+Upstream changes to schemas are handled by Schema registry which will validate the addition and removal or fields,
+data type changes and if defaults are set. The Schema Registry enforces Avro schema evolution rules. More information
+can be found `here <http://docs.confluent.io/3.0.1/schema-registry/docs/api.html#compatibility>`_.
+
+
+Deployment Guidelines
+---------------------
+
+TODO
+
+TroubleShooting
+---------------
+
+TODO
