@@ -318,6 +318,126 @@ Now if we check the logs of the connector we should see 2 records being inserted
 
 Bingo, our 4 rows!
 
+
+Legacy topics (plain text payload with a json string)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+We have found some of the clients have already an infrastructure where they publish pure json on the topic and obviousely the jump to follow
+the best practice and use schema registry is quite an ask. So we offer support for them as well.
+
+This time we need to start the connect with a different set of settings.
+
+.. sourcecode:: bash
+
+      #create a new configuration for connect
+      ➜ cp  etc/schema-registry/connect-avro-distributed.properties etc/schema-registry/connect-avro-distributed-json.properties
+      ➜ vi etc/schema-registry/connect-avro-distributed-json.properties
+
+Replace the following 4 entries in the config
+      key.converter=io.confluent.connect.avro.AvroConverter
+      key.converter.schema.registry.url=http://localhost:8081
+      value.converter=io.confluent.connect.avro.AvroConverter
+      value.converter.schema.registry.url=http://localhost:8081
+
+      with the following
+      key.converter=org.apache.kafka.connect.json.JsonConverter
+      key.converter.schemas.enable=false
+      value.converter=org.apache.kafka.connect.json.JsonConverter
+      value.converter.schemas.enable=false
+
+Now let's restart the connect instance:
+.. sourcecode:: bash
+
+      #start a new instance of connect
+      ➜   $CONFLUENT_HOME/bin/connect-distributed etc/schema-registry/connect-avro-distributed-json.properties
+
+
+In a new terminal we will create a new sink configurations:
+
+.. sourcecode:: bash
+    #create the configuation
+    ➜   echo "" > mongo-sink-orders-json.properties
+    ➜   cat <<EOF >> mongo-sink-orders-json.properties
+        name=mongo-sink-orders-json
+        connector.class=com.datamountaineer.streamreactor.connect.mongodb.sink.MongoSinkConnector
+        tasks.max=1
+        topics=orders-topic-json
+        connect.mongo.sink.kqcl=UPSERT INTO orders_json SELECT id, product as product_name, price as value FROM orders-topic-json PK id
+        connect.mongo.database=connect
+        connect.mongo.hosts=localhost:27017
+        connect.mongo.sink.batch.size=10
+        EOF
+
+     #start the connector for mongo
+    ➜   java -jar kafka-connect-cli-0.5-all.jar create mongo-sink-orders-json < mongo-sink-orders-json.properties
+
+You should see in the terminal where you started the connector the following entries in the log:
+
+.. sourcecode:: bash
+
+        [2016-11-06 23:53:09,881] INFO MongoConfig values:
+            connect.mongo.retry.interval = 60000
+            connect.mongo.sink.kqcl = UPSERT INTO orders_json SELECT id, product as product_name, price as value FROM orders-topic-json PK id
+            connect.mongo.hosts = localhost:27017
+            connect.mongo.error.policy = THROW
+            connect.mongo.database = connect
+            connect.mongo.sink.batch.size = 10
+            connect.mongo.max.retires = 20
+         (com.datamountaineer.streamreactor.connect.mongodb.config.MongoConfig:178)
+        [2016-11-06 23:53:09,927] INFO
+          ____        _        __  __                   _        _
+         |  _ \  __ _| |_ __ _|  \/  | ___  _   _ _ __ | |_ __ _(_)_ __   ___  ___ _ __
+         | | | |/ _` | __/ _` | |\/| |/ _ \| | | | '_ \| __/ _` | | '_ \ / _ \/ _ \ '__|
+         | |_| | (_| | || (_| | |  | | (_) | |_| | | | | || (_| | | | | |  __/  __/ |
+         |____/ \__,_|\__\__,_|_|  |_|\___/ \__,_|_| |_|\__\__,_|_|_| |_|\___|\___|_|
+          __  __                         ____  _       ____  _       _ by Stefan Bocutiu
+         |  \/  | ___  _ __   __ _  ___ |  _ \| |__   / ___|(_)_ __ | | __
+         | |\/| |/ _ \| '_ \ / _` |/ _ \| | | | '_ \  \___ \| | '_ \| |/ /
+         | |  | | (_) | | | | (_| | (_) | |_| | |_) |  ___) | | | | |   <
+         |_|  |_|\___/|_| |_|\__, |\___/|____/|_.__/  |____/|_|_| |_|_|\_\
+        . (com.datamountaineer.streamreactor.connect.mongodb.sink.MongoSinkTask:51)
+        [2016-11-06 23:53:10,270] INFO Initialising Mongo writer.Connection to mongodb://localhost:27017 (com.datamountaineer.streamreactor.connect.mongodb.sink.MongoWriter$:126)
+
+
+Now it's time to produce some records. This time we will use the simple kafka-consoler-consumer to put simple json on the topic:
+
+.. sourcecode:: bash
+
+    ➜ ./bin/kafka-console-producer --broker-list localhost:9092 --topic orders-topic-json
+
+{"id": 1, "created": "2016-05-06 13:53:00", "product": "OP-DAX-P-20150201-95.7", "price": 94.2}
+{"id": 2, "created": "2016-05-06 13:54:00", "product": "OP-DAX-C-20150201-100", "price": 99.5}
+{"id": 3, "created": "2016-05-06 13:55:00", "product": "FU-DATAMOUNTAINEER-20150201-100", "price":10000}
+
+Following the command you should have something similar to this in the logs for your connect:
+
+.. sourcecode:: bash
+
+[2016-11-07 00:08:30,200] INFO Setting newly assigned partitions [orders-topic-json1-0] for group connect-mongo-sink-orders-json (org.apache.kafka.clients.consumer.internals.ConsumerCoordinator:231)
+[2016-11-07 00:08:30,324] INFO Opened connection [connectionId{localValue:3, serverValue:9}] to localhost:27017 (org.mongodb.driver.connection:71)
+
+
+Let's check the mongo db database for the new records:
+.. sourcecode:: bash
+    #Open a new terminal and navigate to the mongodb instalation folder
+    ➜ ./bin/mongo
+        > show databases
+            connect  0.000GB
+            local    0.000GB
+        > use connect
+            switched to db connect
+        > show collections
+            dummy
+            orders
+            orders_json
+        > db.orders_json.find()
+        { "_id" : ObjectId("581fc5fe53b2c9318a3c1004"), "created" : "2016-05-06 13:53:00", "id" : NumberLong(1), "product_name" : "OP-DAX-P-20150201-95.7", "value" : 94.2 }
+        { "_id" : ObjectId("581fc5fe53b2c9318a3c1005"), "created" : "2016-05-06 13:54:00", "id" : NumberLong(2), "product_name" : "OP-DAX-C-20150201-100", "value" : 99.5 }
+        { "_id" : ObjectId("581fc5fe53b2c9318a3c1006"), "created" : "2016-05-06 13:55:00", "id" : NumberLong(3), "product_name" : "FU-DATAMOUNTAINEER-20150201-100", "value" : NumberLong(10000) }
+
+
+Bingo, our 3 rows!
+
 Features
 --------
 
