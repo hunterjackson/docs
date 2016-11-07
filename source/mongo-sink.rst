@@ -413,7 +413,7 @@ Following the command you should have something similar to this in the logs for 
 
 .. sourcecode:: bash
 
-[2016-11-07 00:08:30,200] INFO Setting newly assigned partitions [orders-topic-json1-0] for group connect-mongo-sink-orders-json (org.apache.kafka.clients.consumer.internals.ConsumerCoordinator:231)
+[2016-11-07 00:08:30,200] INFO Setting newly assigned partitions [orders-topic-json-0] for group connect-mongo-sink-orders-json (org.apache.kafka.clients.consumer.internals.ConsumerCoordinator:231)
 [2016-11-07 00:08:30,324] INFO Opened connection [connectionId{localValue:3, serverValue:9}] to localhost:27017 (org.mongodb.driver.connection:71)
 
 
