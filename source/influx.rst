@@ -6,8 +6,9 @@ and inserts a new entry to InfluxDB.
 
 The Sink supports:
 
-1. :ref:`The KCQL routing querying <kcql>` - Topic to index mapping and Field selection.
-2. Auto mapping of the Kafka topic schema to the index.
+1. :ref:`The KCQL routing querying <kcql>` - Topic to measure mapping and Field selection.
+2. Selection of which field to use as the Point measurement with a default of system time.
+3. Error policies.
 
 Prerequisites
 -------------
@@ -242,8 +243,8 @@ Features
 Kafka Connect Query Language
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**K** afka **C** onnect **Q** uery **L** anguage found here `GitHub repo <https://github.com/datamountaineer/kafka-connector-query-language>`__
-allows for routing and mapping using a SQL like syntax, consolidating typically features in to one configuration option.
+**K** afka **C** onnect **Q** uery **L**, :ref:`KCQL <kcql>` allows for routing and mapping using a SQL like syntax,
+consolidating typically features in to one configuration option.
 
 The Influx Sink supports the following:
 

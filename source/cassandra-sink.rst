@@ -249,8 +249,8 @@ See Cassandra's `documentation <http://cassandra.apache.org/doc/cql3/CQL-2.2.htm
 Kafka Connect Query Language
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**K** afka **C** onnect **Q** uery **L** anguage found here `GitHub repo <https://github.com/datamountaineer/kafka-connector-query-language>`_
-allows for routing and mapping using a SQL like syntax, consolidating typically features in to one configuration option.
+**K** afka **C** onnect **Q** uery **L**, :ref:`KCQL <kcql>` allows for routing and mapping using a SQL like syntax,
+consolidating typically features in to one configuration option.
 
 The Cassandra Sink supports the following:
 
