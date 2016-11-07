@@ -1,10 +1,10 @@
 .. faq:
 
-.. toctree::
-    :maxdepth: 1
-
 FAQS
 ====
+
+.. toctree::
+    :maxdepth: 1
 
 I want to sink multiple topics. Do I need a Connector per topic?
 ----------------------------------------------------------------
