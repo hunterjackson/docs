@@ -1,9 +1,19 @@
 .. faq:
 
+.. toctree::
+    :maxdepth: 1
+
 FAQS
 ====
 
-**I have JSON. Can I still use DataMountaineer Sink Connectors?**
+I want to sink multiple topics. Do I need a Connector per topic?
+----------------------------------------------------------------
+
+No you don't, our Sinks run :ref:`KCQL <kcql>` which allow sinking of multiple topic data. However you may want to consider separating
+different logical groups of topics into separate connectors for better isolation.
+
+I have JSON. Can I still use DataMountaineer Sink Connectors?
+-------------------------------------------------------------
 
 Kafka Connect has two converters for both the key and payload from Kafka. These are Json and Avro, the Json converter is
 part of the Kafka distribution and the Avro converter from Confluents schema registry. These converters convert the records
@@ -18,7 +28,8 @@ records will be delivered with a schema of type ``SCHEMA.String``.
 We are currently working on support for schemaless json records.
 
 
-**Can I run on multiple nodes?**
+Can I run on multiple nodes?
+----------------------------
 
 Yes, Kafka Connect has two modes, standalone and distributed. Both allow for scaling by setting the `max.tasks` property.
 
@@ -31,7 +42,8 @@ file that is part of the Confluent distribution. Within this file a property cal
     # cluster
     group.id=connect-cluster
 
-**ClassNotFoundException**
+ClassNotFoundException
+----------------------
 
 The ``start-connect.sh`` in the Stream Reactor download adds all the jars from the `libs` folder to the CLASSPATH
 automatically. If you are not using this start script it is more than likely you have not add the relevant Connector
@@ -50,7 +62,8 @@ You can ask a running instance of Kafka Connect what Connector classes are on th
     bin/cli.sh loaded
 
 
-**Guava version**
+Guava Version
+-------------
 
 The Elastic Search and HBase use different versions of guava, as does the Hive libraries supplied by Confluent with the
 HDFS Connector. This can cause version clashes.
@@ -67,7 +80,8 @@ issues.
     #export CLASSPATH=kafka-connect-hbase-0.2.3-3.0.1.jar
 
 
-**Redis authentication**
+Redis Authentication
+--------------------
 
 If your redis server is requiring the connection to be authenticated you will need to provide an extra setting:
 
@@ -99,7 +113,8 @@ Now change the following section to a port 8087 or any other free port.
     https-enabled = false
     https-certificate = "/etc/ssl/influxdb.pem"
 
-**How get multiple worker on different hosts to for a Connect Cluster**
+How to get multiple worker on different hosts to for a Connect Cluster
+----------------------------------------------------------------------
 
 For workers to join a Connect cluster, set the `group.id` in the `$CONFLUENT_HOME/etc/schema-registry/connect-avro-distributed.properties`
 file.
