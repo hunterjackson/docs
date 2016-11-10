@@ -65,7 +65,7 @@ connect to the Rest API of Kafka Connect of your container.
 
 .. sourcecode:: bash
 
-    ➜  bin/cli.sh create rethink-source < conf/rethink-source.properties
+    ➜  bin/cli.sh create rethink-source < conf/quickstarts/rethink-source.properties
     #Connector name=`rethink-source`
     name=rethink-source
     connect.rethink.source.host=localhost

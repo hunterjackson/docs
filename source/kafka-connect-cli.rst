@@ -243,7 +243,7 @@ Command: ``validate``
 
 .. sourcecode:: bash
 
-    ./cli validate com.datamountaineer.streamreactor.connect.rethink.sink.ReThinkSinkConnector < ../conf/quickstarts/rethink-sink.properties
+    ./cli validate com.datamountaineer.streamreactor.connect.rethink.sink.ReThinkSinkConnector < ../conf/quickstarts/quickstarts/rethink-sink.properties
     ..............
      "definition": {
             "name": "connect.rethink.sink.port",

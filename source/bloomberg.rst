@@ -51,7 +51,7 @@ connect to the Rest API of Kafka Connect of your container.
 
 .. sourcecode:: bash
 
-    ➜  bin/cli.sh create bloomberg-source < conf/bloomberg-source.properties
+    ➜  bin/cli.sh create bloomberg-source < conf/quickstarts/bloomberg-source.properties
     #Connector name=name=`bloomberg-source`
     connector.class=com.datamountaineer.streamreactor.connect.bloomberg.BloombergSourceConnector
     tasks.max=1

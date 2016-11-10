@@ -117,7 +117,7 @@ connect to the Rest API of Kafka Connect of your container.
 
 .. sourcecode:: bash
 
-    ➜  bin/cli.sh create cassandra-sink-orders < conf/cassandra-sink.properties
+    ➜  bin/cli.sh create cassandra-sink-orders < conf/quickstarts/cassandra-sink.properties
 
     #Connector `cassandra-sink-orders`:
     name=cassandra-sink-orders

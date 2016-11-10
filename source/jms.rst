@@ -66,7 +66,7 @@ connect to the Rest API of Kafka Connect of your container.
 
 .. sourcecode:: bash
 
-    ➜  bin/cli.sh create jms-sink < conf/jms-sink.properties
+    ➜  bin/cli.sh create jms-sink < conf/quickstarts/jms-sink.properties
     #Connector name=`jms-sink`
     name=jms-sink
     connector.class=com.datamountaineer.streamreactor.connect.jms.sink.JMSSinkConnector

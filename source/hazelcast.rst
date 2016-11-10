@@ -93,7 +93,7 @@ connect to the Rest API of Kafka Connect of your container.
 
 .. sourcecode:: bash
 
-    ➜  bin/cli.sh create hazelcast-sink < conf/hazelcast-sink.properties
+    ➜  bin/cli.sh create hazelcast-sink < conf/quickstarts/hazelcast-sink.properties
 
     #Connector name=`hazelcast-sink`
     name=hazelcast-sink

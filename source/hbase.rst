@@ -34,7 +34,7 @@ Download and extract HBase:
     tar -xvf hbase-1.2.1-bin.tar.gz -C hbase
 
 
-Edit ``conf/hbase-site.xml`` and add the following content:
+Edit ``conf/quickstarts/hbase-site.xml`` and add the following content:
 
 .. sourcecode:: html
 
@@ -120,7 +120,7 @@ connect to the Rest API of Kafka Connect of your container.
 
 .. sourcecode:: bash
 
-    ➜  bin/cli.sh create hbase-sink < conf/hbase-sink.properties
+    ➜  bin/cli.sh create hbase-sink < conf/quickstarts/hbase-sink.properties
 
     #Connector name=`hbase-sink`
     name=person-hbase-test

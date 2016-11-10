@@ -87,7 +87,7 @@ connect to the Rest API of Kafka Connect of your container.
 
 .. sourcecode:: bash
 
-    ➜  bin/cli.sh create kudu-sink < conf/kudu-sink.properties
+    ➜  bin/cli.sh create kudu-sink < conf/quickstarts/kudu-sink.properties
     #Connector name=kudu-sink
     connector.class=com.datamountaineer.streamreactor.connect.kudu.KuduSinkConnector
     tasks.max=1
