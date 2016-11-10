@@ -131,6 +131,13 @@ We can use the CLI to check if the connector is up but you should be able to see
 Test Records
 ^^^^^^^^^^^^
 
+.. hint::
+
+    If your input topic doesn't match the target use Kafka Streams to transform in realtime the input. Also checkout the
+    `Plumber <https://github.com/rollulus/kafka-streams-plumber>`__, which allows you to inject a Lua script into
+    `Kafka Streams <http://www.confluent.io/blog/introducing-kafka-streams-stream-processing-made-simple>`__ to do this,
+    no Java or Scala required!
+
 Now we need to put some records it to the test_table topics. We can use the ``kafka-avro-console-producer`` to do this.
 
 Start the producer and pass in a schema to register in the Schema Registry. The schema has a ``id`` field of type int
