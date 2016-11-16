@@ -115,10 +115,12 @@ Release Notes
 
 *   Added MongoDB Sink.
 *   Added start scripts.
-*   Added Kafka Connect and Schema Registry CLI
+*   Added Kafka Connect and Schema Registry CLI.
 *   Kafka Connect CLI now supports pause/restart/resume; checking connectors on the classpath and validating configuration of connectors.
-*   Fixes to Kudu flush calls
+*   Fixes to Kudu flush calls.
 *   Support for ``Struct``, ``Schema.STRING`` and ``Json`` with schema in the ReThinkDB, InfluxDB and MongoDB sinks.
+*   Rename ``export.query.route`` to ``sink.kcql``.
+*   Rename ``import.query.route`` to ``source.kcql``.
 
 Migration from Stream Reactor 0.2.1
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
