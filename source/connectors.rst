@@ -28,6 +28,29 @@ file.
     # cluster
     group.id=connect-cluster
 
+Schema Registry Support
+-----------------------
+
+DataMountaineer recommends all payloads in Kafka are Avro. Schema Registry provides a serving layer for your metadata.
+It provides a RESTful interface for storing and retrieving Avro schemas. It stores a versioned history of all schemas,
+provides multiple compatibility settings and allows evolution of schemas according to the configured compatibility setting.
+It provides serializers that plug into Kafka clients that handle schema storage and retrieval for Kafka messages that
+are sent in the Avro format.
+
+All our Connectors support Avro and use the Confluent provided converters to translate the Avro into Kafka Connects internal
+``Struct`` type to determine the schema and how to map onto the target sink store.
+
+We have found some of the clients have already an infrastructure where they publish pure json on the topic and obviously the jump to follow
+the best practice and use schema registry is quite an ask. So we offer support for them as well for the following Sinks:
+
+*   ReThinkDB
+*   MongoDB
+*   InfluxDB
+
+We are upgrading the remaining Connectors.
+
+This allows plain text payloads with a json string.
+
 Connectors
 ----------
 

@@ -74,7 +74,7 @@ connect to the Rest API of Kafka Connect of your container.
     connector.class=com.datamountaineer.streamreactor.connect.rethink.sink.ReThinkSinkConnector
     tasks.max=1
     topics=person_rethink
-    connect.rethink.export.route.query=INSERT INTO TABLE1 SELECT * FROM person_rethink
+    connect.rethink.sink.kcql=INSERT INTO TABLE1 SELECT * FROM person_rethink
     #task ids: 0
 
 The ``rethink-sink.properties`` file defines:
@@ -239,7 +239,7 @@ Topic Routing
 ~~~~~~~~~~~~~
 
 The Sink supports topic routing that allows mapping the messages from topics to a specific table. For example, map a
-topic called "bloomberg_prices" to a table called "prices". This mapping is set in the ``connect.rethink.export.route.query``
+topic called "bloomberg_prices" to a table called "prices". This mapping is set in the ``connect.rethink.sink.kcql``
 option.
 
 Example:
@@ -252,7 +252,7 @@ Example:
 Field Selection
 ~~~~~~~~~~~~~~~
 
-The ReThink Sink supports field selection and mapping. This mapping is set in the ``connect.rethink.export.route.query`` option.
+The ReThink Sink supports field selection and mapping. This mapping is set in the ``connect.rethink.sink.kcql`` option.
 
 
 Examples:
@@ -270,9 +270,9 @@ Examples:
 Auto Create Tables
 ~~~~~~~~~~~~~~~~~~
 
-The Sink supports auto creation of tables for each topic. This mapping is set in the ``connect.rethink.export.route.query`` option.
+The Sink supports auto creation of tables for each topic. This mapping is set in the ``connect.rethink.sink.kcql`` option.
 
-A user specified primary can be set in the ``PK`` clause for the ``connect.rethink.export.route.query`` option. Only one
+A user specified primary can be set in the ``PK`` clause for the ``connect.rethink.sink.kcql`` option. Only one
 key is supported. If more than one is set only the first is used. If no primary keys are set the default primary key
 called ``id`` is used. The value for the default key is the topic name, partition and offset of the records.
 
@@ -291,7 +291,7 @@ schema is found the table is created when the first record is received for the t
 Configurations
 --------------
 
-``connect.rethink.export.route.query``
+``connect.rethink.sink.kcql``
 
 Kafka connect query language expression. Allows for expressive topic to table routing, field selection and renaming. Fields
 to be used as the row key can be set by specifing the ``PK``. The below example uses field1 as the primary key.
@@ -378,7 +378,7 @@ Example
     connector.class=com.datamountaineer.streamreactor.connect.rethink.sink.ReThinkSinkConnector
     tasks.max=1
     topics=person_rethink
-    connect.rethink.export.route.query=INSERT INTO TABLE1 SELECT * FROM person_rethink
+    connect.rethink.sink.kcql=INSERT INTO TABLE1 SELECT * FROM person_rethink
 
 Schema Evolution
 ----------------

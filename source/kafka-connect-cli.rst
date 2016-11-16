@@ -266,7 +266,7 @@ Command: ``validate``
         }]
       }
       Validation failed.
-      Missing required configuration "connect.rethink.sink.export.route.query" which has no default value.]:
+      Missing required configuration "connect.rethink.sink.sink.kcql" which has no default value.]:
 
 Pause a Connector
 -----------------

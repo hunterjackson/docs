@@ -273,7 +273,7 @@ Example:
     #Point measurement
     INSERT INTO measureB SELECT x AS a, y AS b and z AS c FROM topicB WITHTIMESTAMP sys_time()
 
-This is set in the ``connect.influx.export.route.query`` option.
+This is set in the ``connect.influx.sink.kcql`` option.
 
 Error Polices
 ~~~~~~~~~~~~~
@@ -310,7 +310,7 @@ The length of time the Sink will retry can be controlled by using the ``connect.
 Configurations
 --------------
 
-``connect.influx.export.route.query``
+``connect.influx.sink.kcql``
 
 Kafka connect query language expression. Allows for expressive topic to table routing, field selection and renaming. For
 InfluxDB it allows either setting a default or selecting a field from the topic as the Point measurement.
@@ -417,7 +417,7 @@ Example
     connect.elastic.cluster.name=elasticsearch
     tasks.max=1
     topics=test_table
-    connect.elastic.export.route.query=INSERT INTO INDEX_1 SELECT field1, field2 FROM TOPIC1
+    connect.elastic.sink.kcql=INSERT INTO INDEX_1 SELECT field1, field2 FROM TOPIC1
 
 Schema Evolution
 ----------------

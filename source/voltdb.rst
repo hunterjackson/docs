@@ -118,7 +118,7 @@ connect to the Rest API of Kafka Connect of your container.
     max.tasks=1
     topics=sink-test
     connect.volt.connection.servers=localhost:21212
-    connect.volt.export.route.query=INSERT INTO person SELECT * FROM sink-test
+    connect.volt.sink.kcql=INSERT INTO person SELECT * FROM sink-test
     connect.volt.connection.password=
     connect.volt.connection.user=
     #task ids:
@@ -166,7 +166,7 @@ We can use the CLI to check if the connector is up but you should be able to see
     [2016-08-21 20:31:36,407] INFO VoltSinkConfig values:
         connect.volt.error.policy = THROW
         connect.volt.retry.interval = 60000
-        connect.volt.export.route.query = INSERT INTO person SELECT * FROM sink-test
+        connect.volt.sink.kcql = INSERT INTO person SELECT * FROM sink-test
         connect.volt.max.retires = 20
         connect.volt.connection.servers = localhost:21212
         connect.volt.connection.user =
@@ -267,7 +267,7 @@ Example:
     #Upsert mode, select 3 fields and rename from topicB and write to tableB
     UPSERT INTO tableB SELECT x AS a, y AS b and z AS c FROM topicB
 
-This is set in the ``connect.volt.export.route.query`` option.
+This is set in the ``connect.volt.sink.kcql`` option.
 
 Error Polices
 ~~~~~~~~~~~~~
@@ -304,7 +304,7 @@ Topic Routing
 ~~~~~~~~~~~~~
 
 The Sink supports topic routing that allows mapping the messages from topics to a specific table. For example, map a
-topic called "bloomberg_prices" to a table called "prices". This mapping is set in the ``connect.volt.export.route.query``
+topic called "bloomberg_prices" to a table called "prices". This mapping is set in the ``connect.volt.sink.kcql``
 option.
 
 Example:
@@ -350,7 +350,7 @@ Redelivery produces the same result.
 Configurations
 --------------
 
-``connect.volt.export.route.query``
+``connect.volt.sink.kcql``
 
 KCQL expression describing field selection and routes.
 

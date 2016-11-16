@@ -73,7 +73,7 @@ connect to the Rest API of Kafka Connect of your container.
     connector.class=com.datamountaineer.streamreactor.connect.rethink.source.ReThinkSourceConnector
     tasks.max=1
     connect.rethink.source.db=test
-    connect.rethink.export.route.query=INSERT INTO rethink-topic SELECT * FROM source-test
+    connect.rethink.sink.kcql=INSERT INTO rethink-topic SELECT * FROM source-test
     #task ids: 0
 
 The ``rethink-source.properties`` file defines:
@@ -82,7 +82,7 @@ The ``rethink-source.properties`` file defines:
 2.  The name of the rethink host to connect to.
 3.  The rethink port to connect to.
 4.  The Source class.
-5.  The max number of tasks the connector is allowed to created. The connector splits and groups the `connect.rethink.import.route.query`
+5.  The max number of tasks the connector is allowed to created. The connector splits and groups the `connect.rethink.source.kcql`
     by the number of tasks to ensure a distribution based on allowed number of tasks and Source tables.
 6.  The ReThinkDB database to connect to.
 7.  :ref:`The KCQL routing querying. <kcql>`
@@ -116,7 +116,7 @@ We can use the CLI to check if the connector is up but you should be able to see
     [2016-10-05 12:09:35,420] INFO ReThinkSourceConfig values:
         connect.rethink.source.port = 28015
         connect.rethink.source.host = localhost
-        connect.rethink.import.route.query = insert into rethink-topic select * from source-test
+        connect.rethink.source.kcql = insert into rethink-topic select * from source-test
         connect.rethink.source.db = test
 
 
@@ -195,7 +195,7 @@ Example:
 Configurations
 --------------
 
-``connect.rethink.import.route.query``
+``connect.rethink.source.kcql``
 
 Kafka connect query language expression. Allows for expressive topic to table routing, field selection and renaming. Fields
 to be used as the row key can be set by specifing the ``PK``. The below example uses field1 as the primary key.
@@ -236,7 +236,7 @@ Example
     connect.rethink.source.port=28015
     connector.class=com.datamountaineer.streamreactor.connect.rethink.source.ReThinkSourceConnector
     tasks.max=1
-    connect.rethink.export.route.query=INSERT INTO rethink-topic SELECT * FROM source-test
+    connect.rethink.sink.kcql=INSERT INTO rethink-topic SELECT * FROM source-test
 
 Schema Evolution
 ----------------

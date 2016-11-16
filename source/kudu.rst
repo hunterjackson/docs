@@ -92,7 +92,7 @@ connect to the Rest API of Kafka Connect of your container.
     connector.class=com.datamountaineer.streamreactor.connect.kudu.KuduSinkConnector
     tasks.max=1
     connect.kudu.master=quickstart
-    connect.kudu.export.route.query = INSERT INTO kudu_test SELECT * FROM kudu_test
+    connect.kudu.sink.kcql = INSERT INTO kudu_test SELECT * FROM kudu_test
     topics=kudu_test
     #task ids: 0
 
@@ -302,7 +302,7 @@ Topic Routing
 ~~~~~~~~~~~~~
 
 The Sink supports topic routing that allows mapping the messages from topics to a specific table. For example, map a
-topic called "bloomberg_prices" to a table called "prices". This mapping is set in the ``connect.kudu.export.route.query``
+topic called "bloomberg_prices" to a table called "prices". This mapping is set in the ``connect.kudu.sink.kcql``
 option.
 
 Example:
@@ -315,7 +315,7 @@ Example:
 Field Selection
 ~~~~~~~~~~~~~~~
 
-The Kudu Sink supports field selection and mapping. This mapping is set in the ``connect.kudu.export.route.query`` option.
+The Kudu Sink supports field selection and mapping. This mapping is set in the ``connect.kudu.sink.kcql`` option.
 
 Examples:
 
@@ -373,9 +373,9 @@ Redelivery produces the same result.
 Auto Create Tables
 ~~~~~~~~~~~~~~~~~~
 
-The Sink supports auto creation of tables for each topic. This mapping is set in the ``connect.kudu.export.route.query`` option.
+The Sink supports auto creation of tables for each topic. This mapping is set in the ``connect.kudu.sink.kcql`` option.
 
-Primary keys are set in the ``DISTRIBUTEBY`` clause of the ``connect.kudu.export.route.query``.
+Primary keys are set in the ``DISTRIBUTEBY`` clause of the ``connect.kudu.sink.kcql``.
 
 Tables are created with the Kudu hash partition strategy. The number of buckets must be specified in the ``kcql``
 statement.
@@ -395,7 +395,7 @@ schema is found the table is created when the first record is received for the t
 Auto Evolve Tables
 ~~~~~~~~~~~~~~~~~~
 
-The Sink supports auto evolution of tables for each topic. This mapping is set in the ``connect.kudu.export.route.query`` option.
+The Sink supports auto evolution of tables for each topic. This mapping is set in the ``connect.kudu.sink.kcql`` option.
 When set the Sink will identify new schemas for each topic based on the schema version from the Schema registry. New columns
 will be identified and an alter table DDL statement issued against Kudu.
 
@@ -452,7 +452,7 @@ Specifies a Kudu server.
 * Importance: high
 * Optional  : no
 
-``connect.kudu.export.route.query``
+``connect.kudu.sink.kcql``
 
 Kafka connect query language expression. Allows for expressive topic to table routing, field selection and renaming.
 
@@ -529,7 +529,7 @@ Example
     connector.class=com.datamountaineer.streamreactor.connect.kudu.KuduSinkConnector
     tasks.max=1
     connect.kudu.master=quickstart
-    connect.kudu.export.route.query=INSERT INTO kudu_test SELECT * FROM kudu_test AUTOCREATE DISTRIBUTEBY id INTO 5 BUCKETS
+    connect.kudu.sink.kcql=INSERT INTO kudu_test SELECT * FROM kudu_test AUTOCREATE DISTRIBUTEBY id INTO 5 BUCKETS
     topics=kudu_test
     connect.kudu.sink.schema.registry.url=http://myhost:8081
 

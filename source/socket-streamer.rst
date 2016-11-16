@@ -11,7 +11,7 @@ Akka Http with Reactive Kafka to stream topics to clients via Web sockets and Se
 Prerequisites
 -------------
 
-* Confluent Platform 3.0.0
+* Confluent Platform 3.0.1
 * Scala 2.11.7
 
 Setup
@@ -20,37 +20,7 @@ Setup
 Confluent Setup
 ~~~~~~~~~~~~~~~
 
-.. sourcecode:: bash
-
-    #make confluent home folder
-    mkdir confluent
-
-    #download confluent
-    wget wget http://packages.confluent.io/archive/3.0/confluent-3.0.1-2.11.tar.gz
-
-    #extract archive to confluent folder
-    tar -xvf confluent-3.0.1-2.11.tar.gz -C confluent
-
-    #setup variables
-    export CONFLUENT_HOME=~/confluent/confluent-3.0.1
-
-Enable topic deletion.
-
-In ``/etc/kafka/server.properties`` add the following to we can delete
-topics.
-
-.. sourcecode:: bash
-
-    delete.topic.enable=true
-
-Start the Confluent platform.
-
-.. sourcecode:: bash
-
-    #Start the confluent platform, we need kafka, zookeeper and the schema registry
-    bin/zookeeper-server-start etc/kafka/zookeeper.properties &
-    bin/kafka-server-start etc/kafka/server.properties &
-    bin/schema-registry-start etc/schema-registry/schema-registry.properties &
+Follow the instructions :ref:`here <install>`.
 
 QuickStart
 ----------
@@ -62,8 +32,8 @@ are available. But first we need some data in Kafka. Start the console producer 
 
     ➜   ${CONFLUENT_HOME}/bin/kafka-avro-console-producer \
       --broker-list localhost:9092 --topic socket_streamer \
-      --property value.schema='{"type":"record","name":"User","namespace":"com.datamountaineer.streamreactor.connect.redis" \
-      ,"fields":[{"name":"firstName","type":"string"},{"name":"lastName","type":"string"},{"name":"age","type":"int"}, \
+      --property value.schema='{"type":"record","name":"User","namespace":"com.datamountaineer.streamreactor.connect.redis"
+      ,"fields":[{"name":"firstName","type":"string"},{"name":"lastName","type":"string"},{"name":"age","type":"int"},
       {"name":"salary","type":"double"}]}'
 
 Paste the following in at the console producer:
@@ -89,13 +59,15 @@ loader so we can create a file called ``application.conf`` and add the following
     }
 
 To use the ``application.conf`` file, set its location as a Java property when starting the application like this
-``-Dconfig.file=path_to_file/application.conf``
+``-Dconfig.file=path_to_file/application.conf``. We have included a start script in the ``bin`` folder of the Stream Reactor
+install.
+
 
 To start the socket streamer:
 
 .. sourcecode:: bash
 
-    ➜   java -Dconfig.file=path_to_file/application.conf -jar build/libs/kafka-socket-streamer-0.1-all.jar
+    ➜   bin/start-socket-streamer
 
     2016-05-12 15:57:39,712 INFO  [main] [c.d.s.s.Main$] [delayedEndpoint$com$datamountaineer$streamreactor$socketstreamer$Main$1:32]
 
@@ -124,7 +96,7 @@ Now lets have the socket streamer push using server send event by simply calling
 
 .. sourcecode:: bash
 
-    ➜  curl 'http://localhost:8080/sse/topics?topic=socket_streamer&consumergroup=testcg'
+    ➜  curl 'http://localhost:8080/api/kafka/sse?query=SELECT+%2A+FROM+socket-streamer+WITHFORMAT+JSON+WITHGROUP+test'
 
     data:{"value":"{\"firstName\": \"John\", \"lastName\": \"Smith\", \"age\": 30, \"salary\": 4830.0}"}
     data:{"value":"{\"firstName\": \"Max\", \"Power\": \"Jones\", \"age\": 30, \"salary\": 1000000}"}
@@ -140,7 +112,7 @@ it and connect to the websocket endpoint.
 
 .. sourcecode:: bash
 
-    command:	/connect ws://localhost:8080/ws/topics?topic=socket_streamer&consumergroup=testcgws
+    command: curl 'http://localhost:8080/api/kafka/ws?query=SELECT+%2A+FROM+socket-streamer+WITHFORMAT+JSON+WITHGROUP+test'
     system:	connection established, ws://localhost:8080/ws/topics?topic=person_redis&consumergroup=testcgws
     received:	{"value":"{\"firstName\": \"John\", \"lastName\": \"Smith\", \"age\": 30, \"salary\": 4830.0}"}
 
@@ -150,7 +122,11 @@ Features
 
 1. Web Sockets
 2. Server Send Events
-3. HeartBeat Messages
+3. Limited SQL support
+4. Consumer Group Offset control
+5. Column selection
+6. Sample rows
+7. Sliding windows
 
 Configurations
 --------------
@@ -158,15 +134,15 @@ Configurations
 Endpoints
 ---------
 
-.. http:get:: /ws/topics?topic=<topic_name>&consumergroup=<consumergroup>
+.. http:get:: /api/kafka/ws?query=SELECT [*|columns] FROM [TOPIC_NAME] WITHFORMAT JSON|AVRO|BINARY [WITHGROUP $YOUR_CONSUMER_GROUP] [WITHPARTITION (partition),[(partition, offset)] [SAMPLE $RECORDS_NUMBER EVERY $SLIDE_WINDOW]
 
     **WebSocket example request**
 
     .. sourcecode:: http
 
-        GET /ws/topics?topic=orders&consumergroup=cg1 HTTP/1.1
+        GET /api/kafka/sse?query=SELECT+%2A+FROM+socket-streamer+WITHFORMAT+JSON+WITHGROUP+test
 
-    Stream via websockets the orders topic with consumer group cg1.
+     Stream via Web Sockets the socket-streamer topic with consumer group test with format json.
 
 .. http:get:: /sse/topics?topic=<topic_name>&consumergroup=<consumergroup>
 
@@ -174,9 +150,9 @@ Endpoints
 
     .. sourcecode:: http
 
-        GET /sse/topics?topic=orders&consumergroup=cg1 HTTP/1.1
+        GET /api/kafka/sse?query=SELECT+%2A+FROM+socket-streamer+WITHFORMAT+JSON+WITHGROUP+test
 
-    Stream via Send Server Events the orders topic with consumer group cg1.
+    Stream via Send Server Events the socket-streamer topic with consumer group test with format json.
 
 Deployment Guidelines
 ---------------------

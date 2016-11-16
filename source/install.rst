@@ -95,51 +95,6 @@ Within the unpacked directory you will find the following structure:
 
 .. sourcecode:: bash
 
-    `-- stream-reactor-0.2.2-3.0.1
-        |-- LICENSE
-        |-- README.md
-        |-- bin
-        |   |-- cli.sh
-        |   |-- install-ui.sh
-        |   |-- sr-cli-linux
-        |   |-- sr-cli-osx
-        |   |-- start-connect.sh
-        |   `-- start-ui.sh
-        |-- conf
-        |   |-- blockchain-source.properties
-        |   |-- bloomberg-source.properties
-        |   |-- cassandra-sink.properties
-        |   |-- cassandra-source.properties
-        |   |-- druid-sink.properties
-        |   |-- hazelcast-sink.properties
-        |   |-- hbase-sink.properties
-        |   |-- influxdb-sink.properties
-        |   |-- jms-sink.properties
-        |   |-- kudu-sink.properties
-        |   |-- mongodb-sink.properties
-        |   |-- redis-sink.properties
-        |   |-- rethink-sink.properties
-        |   |-- rethink-source.properties
-        |   |-- voltdb-sink.properties
-        |   `-- yahoo-source.properties
-        `-- libs
-            |-- kafka-connect-blockchain-0.2.2-3.0.1-all.jar
-            |-- kafka-connect-bloomberg-0.2.2-3.0.1-all.jar
-            |-- kafka-connect-cassandra-0.2.2-3.0.1-all.jar
-            |-- kafka-connect-cli-0.5-all.jar
-            |-- kafka-connect-druid-0.2.2-3.0.1-all.jar
-            |-- kafka-connect-elastic-0.2.2-3.0.1-all.jar
-            |-- kafka-connect-hazelcast-0.2.2-3.0.1-all.jar
-            |-- kafka-connect-hbase-0.2.2-3.0.1-all.jar
-            |-- kafka-connect-influxdb-0.2.2-3.0.1-all.jar
-            |-- kafka-connect-jms-0.2.2-3.0.1-all.jar
-            |-- kafka-connect-kudu-0.2.2-3.0.1-all.jar
-            |-- kafka-connect-mongodb-0.2.2-3.0.1-all.jar
-            |-- kafka-connect-redis-0.2.2-3.0.1-all.jar
-            |-- kafka-connect-rethink-0.2.2-3.0.1-all.jar
-            |-- kafka-connect-voltdb-0.2.2-3.0.1-all.jar
-            |-- kafka-connect-yahoo-0.2.2-3.0.1-all.jar
-            `-- kafka-socket-streamer-0.2.2-3.0.1-all.jar
 
 The ``libs`` folder contains all the Stream Reactor Connector jars.
 
@@ -154,6 +109,22 @@ The ``bin`` folder contains:
 *   ``start-ui.sh`` script to start the Schema Registry and Topic Browser UIs from `Landoop <https://www.landoop.com/>`__.
 
 The ``conf`` folder contains quickstart connector properties files.
+
+Release Notes
+^^^^^^^^^^^^^
+
+*   Added MongoDB Sink.
+*   Added start scripts.
+*   Added Kafka Connect and Schema Registry CLI
+*   Kafka Connect CLI now supports pause/restart/resume; checking connectors on the classpath and validating configuration of connectors.
+*   Fixes to Kudu flush calls
+*   Support for ``Struct``, ``Schema.STRING`` and ``Json`` with schema in the ReThinkDB, InfluxDB and MongoDB sinks.
+
+Migration from Stream Reactor 0.2.1
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Release 0.2.2 we have renamed the ``sink.kcql`` and ``source.kcql`` configuration options to ``sink.kcql`` and
+``source.kcql`` respectively. This means existing configurations will need updating.
 
 .. _dockers:
 
