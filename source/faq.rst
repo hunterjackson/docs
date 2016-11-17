@@ -55,11 +55,13 @@ Explicit add the relevant jar to the classpath and restart Kafka Connect
 
     export CLASSPATH=my_connector.jar
 
-You can ask a running instance of Kafka Connect what Connector classes are on the classpath with the `CLI <cli>`
+.. tip::
 
-.. sourcecode:: bash
+    You can ask a running instance of Kafka Connect what Connector classes are on the classpath with the `CLI <cli>`
 
-    bin/cli.sh loaded
+    .. sourcecode:: bash
+
+        bin/cli plugins
 
 
 Guava Version

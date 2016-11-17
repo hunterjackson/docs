@@ -52,7 +52,7 @@ The following releases are available:
 +------------------------+------------------------+
 
 Install Confluent
-~~~~~~~~~~~~~~~~~
+-----------------
 
 Confluent can be downloaded for `here <http://www.confluent.io/download/>`__
 
@@ -80,7 +80,7 @@ Start the Confluent platform.
     bin/schema-registry-start etc/schema-registry/schema-registry.properties &
 
 Stream Reactor Install
-~~~~~~~~~~~~~~~~~~~~~~
+----------------------
 
 Download the latest release from `here <https://github.com/datamountaineer/stream-reactor/releases>`__.
 
@@ -111,7 +111,7 @@ The ``bin`` folder contains:
 The ``conf`` folder contains quickstart connector properties files.
 
 Release Notes
-^^^^^^^^^^^^^
+~~~~~~~~~~~~~
 
 *   Added MongoDB Sink.
 *   Added start scripts.
@@ -123,15 +123,17 @@ Release Notes
 *   Rename ``import.query.route`` to ``source.kcql``.
 
 Migration from Stream Reactor 0.2.1
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In Release 0.2.2 we have renamed the ``sink.kcql`` and ``source.kcql`` configuration options to ``sink.kcql`` and
-``source.kcql`` respectively. This means existing configurations will need updating.
+.. warning::
+
+    In Release 0.2.2 we have renamed the ``sink.kcql`` and ``source.kcql`` configuration options to ``sink.kcql`` and
+    ``source.kcql`` respectively. This means existing configurations will need updating.
 
 .. _dockers:
 
 Docker Install
-~~~~~~~~~~~~~~
+--------------
 
 All the Stream Reactor Connectors, Confluent and UI's for Connect, Schema Registry and topic browsing are available in Dockers.
 The Docker images are available in `DockerHub <https://hub.docker.com/>`__ and maintained by our partner `Landoop <https://www.landoop.com/>`__
@@ -148,7 +150,7 @@ Pull the latest images:
     docker pull landoop/schema-registry-ui
 
 Fast Data Dev
--------------
+~~~~~~~~~~~~~
 
 This is Docker image for development.
 
@@ -187,7 +189,7 @@ localhost:8081, your Connect Distributed at localhost:8083, your ZooKeeper at lo
     :alt:
 
 Fast Data Dev Connect
----------------------
+~~~~~~~~~~~~~~~~~~~~~
 
 This docker is targeted to more advanced users and is a special case since it doesn't set-up a Kafka cluster,
 instead it expects to find a Kafka Cluster with Schema Registry up and running.
@@ -235,7 +237,7 @@ that it is important to expose Connect's port on the same port at the host. This
            landoop/fast-data-dev-connect-cluster
 
 Web Only Mode
--------------
+^^^^^^^^^^^^^
 
 This is a special mode only for Linux hosts, where only Landoop's Web UIs are started and kafka services are expected to be running on the local machine. It must be run with --net=host flag, thus the Linux only requisite:
 
@@ -248,7 +250,7 @@ This is a special mode only for Linux hosts, where only Landoop's Web UIs are st
 This is useful if you already have a cluster with Confluent's distribution install and want a fancy UI.
 
 HBase Connector
-~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^
 
 Due to some issues with dependencies, the ElasticSearch connector and the HBase connector cannot coexist. Whilst both are available,
 HBase won't work. We do provide the PREFER_HBASE environment variable which will remove ElasticSearch (and the Twitter connector)
@@ -261,7 +263,7 @@ to let HBase work:
                landoop/fast-data-dev
 
 Advanced
---------
+^^^^^^^^
 
 The container does not exit with CTRL+C. This is because we chose to pass control directly to Connect, so you check your logs via docker logs.
 You can stop it or kill it from another terminal.
