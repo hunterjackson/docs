@@ -19,7 +19,7 @@ Usually you'd run in distributed mode to get fault tolerance and better performa
 Connect on multiple hosts and they join together to form a cluster. Connectors which are then submitted are distributed
 across the cluster.
 
-For workers to join a Connect cluster, set the `group.id` in the `$CONFLUENT_HOME/etc/schema-registry/connect-avro-distributed.properties`
+For workers to join a Connect cluster, set the ``group.id`` in the ``$CONFLUENT_HOME/etc/schema-registry/connect-avro-distributed.properties``
 file.
 
 .. sourcecode:: bash

@@ -95,7 +95,7 @@ Execute the following to create the keyspace and table:
     create table orders (id int, created varchar, product varchar, qty int, price float, PRIMARY KEY (id, created))
     WITH CLUSTERING ORDER BY (created asc);
 
-Starting the Connector (Distributed)
+Starting the Connector
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Download, unpack and install the Stream Reactor. Follow the instructions :ref:`here <install>` if you haven't already done so.

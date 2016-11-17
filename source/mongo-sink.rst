@@ -129,7 +129,7 @@ The Sink requires that a database be precreated in MongoDB.
     ➜  show dbs
 
 
-Starting the Connector (Distributed)
+Starting the Connector
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Download, unpack and install the Stream Reactor. Follow the instructions :ref:`here <install>` if you haven't already done so.

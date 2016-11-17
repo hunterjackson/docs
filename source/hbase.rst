@@ -98,7 +98,7 @@ The Sink expects a precreated table in HBase. In the HBase shell create the test
      _SCOPE => '0'}
     1 row(s) in 0.0810 seconds
 
-Starting the Connector (Distributed)
+Starting the Connector
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Download, unpack and install the Stream Reactor. Follow the instructions :ref:`here <install>` if you haven't already done so.

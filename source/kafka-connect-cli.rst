@@ -14,6 +14,15 @@ status on error. Commands dealing with configuration expect or produce data in .
 
 The CLI is bundled as part of the :ref:`Stream Reactor <install>` release. It can be found in the ``bin`` folder or download from `here. <https://github.com/datamountaineer/kafka-connect-tools/releases>`__
 
+.. tip::
+
+    You can override the default endpoint by setting an environment variable ``KAFKA_CONNECT_REST``.
+
+    .. sourcecode:: bash
+
+        export KAFKA_CONNECT_REST="http://myserver:myport"
+
+
 .. sourcecode:: bash
 
     kafka-connect-cli 0.7
@@ -65,10 +74,10 @@ The CLI is bundled as part of the :ref:`Stream Reactor <install>` release. It ca
     resume the specified connector.
 
 Usage
-=====
+-----
 
 Get Active Connectors
----------------------
+~~~~~~~~~~~~~~~~~~~~~
 
 Command: ``ps``
 
@@ -78,7 +87,7 @@ Command: ``ps``
     twitter-source
 
 Get Connector Configuration
----------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Command: ``get``
 
@@ -95,7 +104,7 @@ Command: ``get``
     #task ids: 0
 
 Delete a Connector
-------------------
+~~~~~~~~~~~~~~~~~~
 
 Command: ``rm``
 
@@ -104,7 +113,7 @@ Command: ``rm``
     $ ./cli rm twitter-source
 
 Create a New Connector
-----------------------
+~~~~~~~~~~~~~~~~~~~~~~
 
 The connector cannot already exist.
 
@@ -123,7 +132,7 @@ Command: ``create``
     #task ids: 0
 
 Create or Update a Connector
-----------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Either starts a new connector if it did not exist, or update an existing connector.
 
@@ -142,7 +151,7 @@ Command: ``run``
     #task ids: 0
 
 Query Connector Status
-----------------------
+~~~~~~~~~~~~~~~~~~~~~~
 
 Shows a connector's status and the state of its tasks.
 
@@ -167,7 +176,7 @@ Command: ``status``
 
 
 Check which Plugins are on the Classpath and available in the Connect Cluster
------------------------------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
  Shows which Connector classes are available on the classpath.
 
@@ -200,7 +209,7 @@ Command: ``plugins``
     Class name: io.confluent.connect.hdfs.tools.SchemaSourceConnector
 
 Describe the configuration of a Connector
------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Describes the configuration parameters for a Connector.
 
@@ -235,7 +244,7 @@ Command: ``describe``
     ...........
 
 Validate a Connectors properties file against the required Configurations
--------------------------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Given a properties file for an instance of a Connector validate it against the Connector configuration.
 
@@ -269,7 +278,7 @@ Command: ``validate``
       Missing required configuration "connect.rethink.sink.sink.kcql" which has no default value.]:
 
 Pause a Connector
------------------
+~~~~~~~~~~~~~~~~~
 
 Command: ``pause``
 
@@ -286,7 +295,7 @@ Command: ``pause``
         workerId: 10.0.0.9:8083
 
 Resume a Connector
-------------------
+~~~~~~~~~~~~~~~~~~
 
 Command: ``resume``
 
@@ -303,7 +312,7 @@ Command: ``resume``
        workerId: 10.0.0.9:8083
 
 Restart a Connector
--------------------
+~~~~~~~~~~~~~~~~~~~
 
 Command: ``restart``
 
@@ -318,112 +327,3 @@ Command: ``restart``
      - taskId: 0
        taskState: RUNNING
        workerId: 10.0.0.9:8083
-
-
-You can override the default endpoint by setting an environment variable `KAFKA_CONNECT_REST` i.e.
-
-    export KAFKA_CONNECT_REST="http://myserver:myport"
-
-Requirements
-------------
-
--  Java 1.8
-
-To Build
---------
-
-.. sourcecode:: bash
-
-    gradle fatJar
-
-Usage
------
-
-Clone this repository, do a ``mvn package`` and run the jar in a way you
-prefer, for example with the provided ``cli`` shell script. The CLI can
-be used as follows.
-
-Get Active Connectors
-~~~~~~~~~~~~~~~~~~~~~
-
-Command: ``ps``
-
-Example:
-
-::
-
-    $ ./cli ps
-    twitter-source
-
-Get Connector Information
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Command: ``get``
-
-Example:
-
-::
-
-    $ ./cli get twitter-source
-    #Connector `twitter-source`:
-    name=twitter-source
-    tasks.max=1
-
-    (snip)
-
-    track.terms=test
-    #task ids: 0
-
-Delete a Connector
-~~~~~~~~~~~~~~~~~~
-
-Command: ``rm``
-
-Example:
-
-::
-
-    $ ./cli rm twitter-source
-
-Create a New Connector
-~~~~~~~~~~~~~~~~~~~~~~
-
-The connector cannot already exist.
-
-Command: ``create``
-
-Example:
-
-::
-
-    $ ./cli create twitter-source <twitter.properties
-    #Connector `twitter-source`:
-    name=twitter-source
-    tasks.max=1
-
-    (snip)
-
-    track.terms=test
-    #task ids: 0
-
-Create or Update a Connector
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Either starts a new connector if it did not exist, or update an existing
-connector.
-
-Command: ``run``
-
-Example:
-
-::
-
-    $ ./cli run twitter-source <twitter.properties
-    #Connector `twitter-source`:
-    name=twitter-source
-    tasks.max=1
-
-    (snip)
-
-    track.terms=test
-    #task ids: 0

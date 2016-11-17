@@ -95,7 +95,7 @@ The Sink expects a database to exist in InfluxDB. Use the InfluxDB CLI to create
     > CREATE DATABASE mydb
 
 
-Starting the Connector (Distributed)
+Starting the Connector
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Download, unpack and install the Stream Reactor. Follow the instructions :ref:`here <install>` if you haven't already done so.

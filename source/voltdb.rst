@@ -88,7 +88,7 @@ you extracted Voltdb start the ``sqlcmd`` shell and enter the following DDL stat
     Command succeeded.
     2>
 
-Starting the Connector (Distributed)
+Starting the Connector
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Download, unpack and install the Stream Reactor. Follow the instructions :ref:`here <install>` if you haven't already done so.

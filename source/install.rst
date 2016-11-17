@@ -95,6 +95,52 @@ Within the unpacked directory you will find the following structure:
 
 .. sourcecode:: bash
 
+    stream-reactor-0.2.2-3.0.1
+    |-- LICENSE
+    |-- README.md
+    |-- bin
+    |   |-- cli.sh
+    |   |-- install-ui.sh
+    |   |-- sr-cli-linux
+    |   |-- sr-cli-osx
+    |   |-- start-connect.sh
+    |   `-- start-ui.sh
+    |-- conf
+    |   |-- blockchain-source.properties
+    |   |-- bloomberg-source.properties
+    |   |-- cassandra-sink.properties
+    |   |-- cassandra-source.properties
+    |   |-- druid-sink.properties
+    |   |-- hazelcast-sink.properties
+    |   |-- hbase-sink.properties
+    |   |-- influxdb-sink.properties
+    |   |-- jms-sink.properties
+    |   |-- kudu-sink.properties
+    |   |-- mongodb-sink.properties
+    |   |-- redis-sink.properties
+    |   |-- rethink-sink.properties
+    |   |-- rethink-source.properties
+    |   |-- voltdb-sink.properties
+    |   `-- yahoo-source.properties
+    `-- libs
+        |-- kafka-connect-blockchain-0.2.2-3.0.1-all.jar
+        |-- kafka-connect-bloomberg-0.2.2-3.0.1-all.jar
+        |-- kafka-connect-cassandra-0.2.2-3.0.1-all.jar
+        |-- kafka-connect-cli-0.5-all.jar
+        |-- kafka-connect-druid-0.2.2-3.0.1-all.jar
+        |-- kafka-connect-elastic-0.2.2-3.0.1-all.jar
+        |-- kafka-connect-hazelcast-0.2.2-3.0.1-all.jar
+        |-- kafka-connect-hbase-0.2.2-3.0.1-all.jar
+        |-- kafka-connect-influxdb-0.2.2-3.0.1-all.jar
+        |-- kafka-connect-jms-0.2.2-3.0.1-all.jar
+        |-- kafka-connect-kudu-0.2.2-3.0.1-all.jar
+        |-- kafka-connect-mongodb-0.2.2-3.0.1-all.jar
+        |-- kafka-connect-redis-0.2.2-3.0.1-all.jar
+        |-- kafka-connect-rethink-0.2.2-3.0.1-all.jar
+        |-- kafka-connect-voltdb-0.2.2-3.0.1-all.jar
+        |-- kafka-connect-yahoo-0.2.2-3.0.1-all.jar
+        `-- kafka-socket-streamer-0.2.2-3.0.1-all.jar
+
 
 The ``libs`` folder contains all the Stream Reactor Connector jars.
 
@@ -209,15 +255,15 @@ The developer can then use this docker image to setup a connect-distributed clus
 
 Things to look out for in configuration options:
 
-1. It is important to give a full URL (including schema —http://) for schema registry.
+1.  It is important to give a full URL (including schema —http://) for schema registry.
 
-2. ID should be unique to the Connect cluster you setup, for current and old instances. This is because Connect stores
-data in Brokers and Schema Registry. Thus even if you destroyed a Connect cluster, its data remain in your Kafka setup.
+2.  ID should be unique to the Connect cluster you setup, for current and old instances. This is because Connect stores
+    data in Brokers and Schema Registry. Thus even if you destroyed a Connect cluster, its data remain in your Kafka setup.
 
 3.  HOST should be set to an IP address or domain name that other connect instances and clients can use to reach the
-current instance. We chose not to try to autodetect this IP because such a feat would fail more often than not.
-Good choices are your local network ip (e.g 10.240.0.2) if you work inside a local network, your public ip (if you have
-one and want to use it) or a domain name that is resolvable by all the hosts you will use to talk to Connect.
+    current instance. We chose not to try to autodetect this IP because such a feat would fail more often than not.
+    Good choices are your local network ip (e.g 10.240.0.2) if you work inside a local network, your public ip (if you have
+    one and want to use it) or a domain name that is resolvable by all the hosts you will use to talk to Connect.
 
 If you don't want to run with --net=host you have to expose Connect's port which at default settings is 8083.
 There a PORT option, that allows you to set Connect's port explicitly if you can't use the default 8083. Please remember

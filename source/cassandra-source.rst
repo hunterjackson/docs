@@ -126,7 +126,7 @@ Execute the following:
 
     (3 rows)
 
-Starting the Connector (Distributed)
+Starting the Connector
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Download, unpack and install the Stream Reactor. Follow the instructions :ref:`here <install>` if you haven't already done so.

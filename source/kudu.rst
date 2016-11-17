@@ -65,7 +65,7 @@ Lets create a table in Kudu via Impala. The Sink does support auto creation of t
 .. note:: The Sink will fail to start if the tables matching the topics do not already exist and the Sink is not in auto create mode.
 
 
-Starting the Connector (Distributed)
+Starting the Connector
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Download, unpack and install the Stream Reactor. Follow the instructions :ref:`here <install>` if you haven't already done so.
