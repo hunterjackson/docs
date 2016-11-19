@@ -56,7 +56,7 @@ Once the connector has started we can now use the kafka-connect-tools cli to pos
 
     #Connector `blockchain-source`:
     name=blockchain-source
-    connector.class=com.datamountaineeer.streamreactor.connect.blockchain.source.BlockchainSourceConnector
+    connector.class=com.datamountaineer.streamreactor.connect.blockchain.source.BlockchainSourceConnector
     max.tasks=1
     connect.blockchain.source.kafka.topic = blockchain-test
     max.tasks=1
