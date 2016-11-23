@@ -41,6 +41,7 @@ There are two paths supported by this DSL. One is the INSERT and take the follow
            [CLUSTERBY cola[,colb]]
            [TIMESTAMP cola|sys_current]
            [WITHFORMAT TEXT|JSON|AVRO|BINARY]
+           [STOREAS $YOUR_TYPE([key=value, .....])]
 
 If you follow our connectors @Datamountaineer you will find depending on the Connect Sink only some of the the options
 are used. You will find all our documentation here
