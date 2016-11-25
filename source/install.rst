@@ -126,7 +126,7 @@ Within the unpacked directory you will find the following structure:
         |-- kafka-connect-blockchain-0.2.2-3.0.1-all.jar
         |-- kafka-connect-bloomberg-0.2.2-3.0.1-all.jar
         |-- kafka-connect-cassandra-0.2.2-3.0.1-all.jar
-        |-- kafka-connect-cli-0.5-all.jar
+        |-- kafka-connect-cli-0.8-all.jar
         |-- kafka-connect-druid-0.2.2-3.0.1-all.jar
         |-- kafka-connect-elastic-0.2.2-3.0.1-all.jar
         |-- kafka-connect-hazelcast-0.2.2-3.0.1-all.jar

@@ -12,7 +12,8 @@ The CLI is meant to behave as a good unix citizen: input from ``stdin``; output 
 status on error. Commands dealing with configuration expect or produce data in .properties style: ``key=value`` lines and comments start with a
 ``#``.
 
-The CLI is bundled as part of the :ref:`Stream Reactor <install>` release. It can be found in the ``bin`` folder or download from `here. <https://github.com/datamountaineer/kafka-connect-tools/releases>`__
+The CLI is bundled as part of the :ref:`Stream Reactor <install>` release. It can be found in the ``bin`` folder or
+download from `here. <https://github.com/datamountaineer/kafka-connect-tools/releases>`__
 
 .. tip::
 
@@ -25,7 +26,7 @@ The CLI is bundled as part of the :ref:`Stream Reactor <install>` release. It ca
 
 .. sourcecode:: bash
 
-    kafka-connect-cli 0.7
+    kafka-connect-cli 0.8
     Usage: kafka-connect-cli [ps|get|rm|create|run|status|plugins|describe|validate|restart|pause|resume] [options] [<connector-name>]
 
       --help
