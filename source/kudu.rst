@@ -110,7 +110,7 @@ Create a file called ``kudu-sink.properties`` with the contents below:
 .. sourcecode:: bash
 
     name=kudu-sink
-    connector.class=com.datamountaineer.streamreactor.connect.kudu.KuduSinkConnector
+    connector.class=com.datamountaineer.streamreactor.connect.kudu.sink.KuduSinkConnector
     tasks.max=1
     connect.kudu.export.route.query = INSERT INTO kudu_test SELECT * FROM kudu_test
     connect.kudu.master=quickstart
@@ -165,7 +165,7 @@ Once the connector has started lets use the kafka-connect-tools cli to post in o
 
     ➜  java -jar build/libs/kafka-connect-cli-0.6-all.jar create kudu-sink < kudu-sink.properties
     #Connector name=kudu-sink
-    connector.class=com.datamountaineer.streamreactor.connect.kudu.KuduSinkConnector
+    connector.class=com.datamountaineer.streamreactor.connect.kudu.sink.KuduSinkConnector
     tasks.max=1
     connect.kudu.master=quickstart
     connect.kudu.export.route.query = INSERT INTO kudu_test SELECT * FROM kudu_test
@@ -585,7 +585,7 @@ Example
 .. sourcecode:: bash
 
     name=kudu-sink
-    connector.class=com.datamountaineer.streamreactor.connect.kudu.KuduSinkConnector
+    connector.class=com.datamountaineer.streamreactor.connect.kudu.sink.KuduSinkConnector
     tasks.max=1
     connect.kudu.master=quickstart
     connect.kudu.export.route.query=INSERT INTO kudu_test SELECT * FROM kudu_test AUTOCREATE DISTRIBUTEBY id INTO 5 BUCKETS
