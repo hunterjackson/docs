@@ -338,16 +338,6 @@ The interval, in milliseconds between retries if the Sink is using ``connect.haz
 * Optional: yes
 * Default : 60000 (1 minute)
 
-``connect.hazelcast.sink.batch.size``
-
-Specifies how many records to insert together at one time. If the connect framework provides less records when it is
-calling the Sink it won't wait to fulfill this value but rather execute it.
-
-* Type : int
-* Importance : medium
-* Optional: yes
-* Defaults : 1000
-
 ``connect.hazelcast.sink.cluster.members``
 
 Address List is the initial list of cluster addresses to which the client will connect. The client uses this list to
