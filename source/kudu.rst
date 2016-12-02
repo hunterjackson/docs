@@ -89,7 +89,7 @@ connect to the Rest API of Kafka Connect of your container.
 
     ➜  bin/cli.sh create kudu-sink < conf/quickstarts/kudu-sink.properties
     #Connector name=kudu-sink
-    connector.class=com.datamountaineer.streamreactor.connect.kudu.KuduSinkConnector
+    connector.class=com.datamountaineer.streamreactor.connect.kudu.sink.KuduSinkConnector
     tasks.max=1
     connect.kudu.master=quickstart
     connect.kudu.sink.kcql = INSERT INTO kudu_test SELECT * FROM kudu_test
@@ -526,7 +526,7 @@ Example
 .. sourcecode:: bash
 
     name=kudu-sink
-    connector.class=com.datamountaineer.streamreactor.connect.kudu.KuduSinkConnector
+    connector.class=com.datamountaineer.streamreactor.connect.kudu.sink.KuduSinkConnector
     tasks.max=1
     connect.kudu.master=quickstart
     connect.kudu.sink.kcql=INSERT INTO kudu_test SELECT * FROM kudu_test AUTOCREATE DISTRIBUTEBY id INTO 5 BUCKETS

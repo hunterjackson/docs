@@ -3,10 +3,10 @@
 Stream Reactor
 ==============
 
-The Stream Reactor is a set of components to build a reference architecture for streaming data platforms. At it's core
+The Stream Reactor is a set of components to build a reference architecture for streaming data platforms. At its core
 is Kafka, with Kafka Connect providing a unified way to stream data in and out of the system.
 
-The actual processing if left to streaming engines and libraries such as Spark Streaming,  Apache Flink, Storm and Kafka
+The actual processing if left to streaming engines and libraries such as Spark Streaming, Apache Flink, Storm and Kafka
 Streams.
 
 DataMountaineer provides a range of supporting components to the main technologies, mainly Kafka, Kafka Connect and the
