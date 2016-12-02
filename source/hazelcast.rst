@@ -2,7 +2,7 @@ Kafka Connect HazelCast
 =======================
 
 A Connector and Sink to write events from Kafka to HazelCast. The connector takes the value from the Kafka Connect
-SinkRecords and inserts a new entry to a HazelCast reliable topic. The Sink only supports writing to reliable topics.
+SinkRecords and inserts a new entry to a HazelCast reliable topic. The Sink only supports writing to reliable topics and ring buffers.
 
 The Sink supports:
 
@@ -11,6 +11,7 @@ The Sink supports:
 2. Topic to table routing via KCQL.
 3. Error policies for handling failures.
 4. Storing as JSON or Avro in Hazelcast via KCQL.
+5. Support for writing to reliable topics and ring buffers via KCQL.
 
 Prerequisites
 -------------
@@ -103,7 +104,7 @@ connect to the Rest API of Kafka Connect of your container.
     connect.hazelcast.sink.cluster.members=locallhost
     connect.hazelcast.sink.group.name=dev
     connect.hazelcast.sink.group.password=dev-pass
-    connect.hazelcast.sink.kcql=INSERT INTO sink-test SELECT * FROM sink-test WITHFORMAT JSON BATCH 100
+    connect.hazelcast.sink.kcql=INSERT INTO sink-test SELECT * FROM sink-test WITHFORMAT JSON STOREAS RELIABLE_TOPIC
     #task ids: 0
 
 The ``hazelcast-sink.properties`` configuration defines:
@@ -115,7 +116,7 @@ The ``hazelcast-sink.properties`` configuration defines:
 5.  The name of the HazelCast host to connect to.
 6.  The name of the group to connect to.
 7.  The password for the group.
-8.  :ref:`The KCQL routing querying. <kcql>`
+8.  :ref:`The KCQL routing querying. <kcql>`, storing as JSON in a RING BUFFER.
 
 If you switch back to the terminal you started the Connector in you should see the Hazelcast Sink being accepted and the
 task starting.
@@ -166,7 +167,7 @@ We can use the CLI to check if the connector is up but you should be able to see
         connect.hazelcast.sink.group.name = dev
         connect.hazelcast.sink.cluster.members = [192.168.99.100]
         connect.hazelcast.sink.error.policy = THROW
-        connect.hazelcast.sink.kcql = INSERT INTO sink-test SELECT * FROM sink-test WITHFORMAT JSON BATCH 100
+        connect.hazelcast.sink.kcql = INSERT INTO sink-test SELECT * FROM sink-test WITHFORMAT JSON STOREAS RING_BUFFER
         connect.hazelcast.connection.timeout = 5000
      (com.datamountaineer.streamreactor.connect.hazelcast.config.HazelCastSinkConfig:178)
     Aug 20, 2016 4:45:39 PM com.hazelcast.core.LifecycleService
@@ -236,7 +237,7 @@ The HazelCast Sink supports the following:
 
 .. sourcecode:: bash
 
-    INSERT INTO <reliable topic> SELECT <fields> FROM <source topic> <STOREDAS> JSON|AVRO <BATCH> BATCH_SIZE
+    INSERT INTO <reliable topic> SELECT <fields> FROM <source topic> WITHFORMAT <JSON|AVRO> STOREAS <RELIABLE_TOPIC|RING_BUFFER>
 
 Example:
 
@@ -245,8 +246,8 @@ Example:
     #Insert mode, select all fields from topicA and write to tableA
     INSERT INTO tableA SELECT * FROM topicA
 
-    #Insert mode, select 3 fields and rename from topicB and write to tableB, store as serialized avro encoded byte arrays, write in batches of 100
-    INSERT INTO tableB SELECT x AS a, y AS b and z AS c FROM topicB WITHFORMAT avro BATCH 100
+    #Insert mode, select 3 fields and rename from topicB and write to tableB, store as serialized avro encoded byte arrays into a ringbuffer
+    INSERT INTO tableB SELECT x AS a, y AS b and z AS c FROM topicB WITHFORMAT avro STOREAS RING_BUFFER
 
 This is set in the ``connect.hazelcast.sink.kcql`` option.
 
