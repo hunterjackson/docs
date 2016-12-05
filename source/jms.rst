@@ -167,13 +167,13 @@ Example:
     INSERT INTO jmsA SELECT * FROM topicA
 
     #select 3 fields and rename from topicB and write to jmsB and store as avro
-    INSERT INTO jmsB SELECT x AS a, y AS b and z AS c FROM topicB StoreAS AVRO
+    INSERT INTO jmsB SELECT x AS a, y AS b and z AS c FROM topicB WITHFORMAT AVRO
 
 
 JMS Payload
 ~~~~~~~~~~~
 
-When a message is sent to a JMS target it can be one of the following defined in the KCQL StoreAs clause:
+When a message is sent to a JMS target it can be one of the following defined in the KCQL WITHFORMAT clause:
 
 1.  JSON -   Send a TextMessage;
 2.  AVRO -   Send a BytesMessage;
@@ -192,7 +192,7 @@ Example:
 .. sourcecode:: sql
 
     //Select all
-    INSERT INTO jms1 SELECT * FROM topic1; INSERT INTO jms3 SELECT * FROM topicCConfigurations
+    INSERT INTO jms1 SELECT * FROM topic1; INSERT INTO jms3 SELECT * FROM topicCConfigurations WITHFORMAT AVRO
 
 Configurations
 --------------
