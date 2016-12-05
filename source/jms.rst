@@ -1,8 +1,8 @@
 Kafka Connect JMS
 =======================
 
-The JMS Sink connector allows you to extract entries from a Kafka topic with the CQL driver and pass them to a JMS topic/queue.
-The connector allows you to specify the payload type sent to the JMS target:
+The JMS Sink connector allows you to extract entries from a Kafka topic and pass them to a JMS topic/queue.
+The connector allows you to specify the payload type sent to the JMS target via KCQL:
 
 1. JSON
 2. AVRO
@@ -75,7 +75,6 @@ connect to the Rest API of Kafka Connect of your container.
     connect.jms.sink.url=tcp://somehost:61616
     connect.jms.sink.connection.factory=org.apache.activemq.ActiveMQConnectionFactory
     connect.jms.sink.sink.kcql=INSERT INTO topic_1 SELECT * FROM person_jms
-    connect.jms.sink.message.type=AVRO
     connect.jms.error.policy=THROW
     connect.jms.sink.export.route.topics=topic_1
     #task ids: 0
@@ -89,9 +88,8 @@ The ``jms-sink.properties`` file defines:
 5.  The JMS url.
 6.  The factory class for the JSM endpoint.
 7.  :ref:`The KCQL routing querying. <kcql>`
-8.  The message type storage format.
-9.  The error policy.
-10. The list of target topics (must match the targets set in ``connect.jms.sink.sink.kcql``
+8.  The error policy.
+9. The list of target topics (must match the targets set in ``connect.jms.sink.sink.kcql``
 
 If you switch back to the terminal you started the Connector in you should see the JMS Sink being accepted and the
 task starting.
@@ -168,14 +166,14 @@ Example:
     #select all fields from topicA and write to jmsA
     INSERT INTO jmsA SELECT * FROM topicA
 
-    #select 3 fields and rename from topicB and write to jmsB
-    INSERT INTO jmsB SELECT x AS a, y AS b and z AS c FROM topicB
+    #select 3 fields and rename from topicB and write to jmsB and store as avro
+    INSERT INTO jmsB SELECT x AS a, y AS b and z AS c FROM topicB StoreAS AVRO
 
 
 JMS Payload
 ~~~~~~~~~~~
 
-When a message is sent to a JMS target it can be one of the following:
+When a message is sent to a JMS target it can be one of the following defined in the KCQL StoreAs clause:
 
 1.  JSON -   Send a TextMessage;
 2.  AVRO -   Send a BytesMessage;
@@ -254,15 +252,6 @@ Lists all the jms target queues.
 * Data Type: list (comma separated strings)
 * Importance: medium
 * Optional : yes
-
-``connect.jms.sink.message.type``
-
-Specifies the JMS payload. If JSON is chosen it will send a TextMessage.
-
-* Data Type: string
-* Importance: medium
-* Optional : yes
-* Default : AVRO
 
 ``connect.jms.sink.error.policy``
 
