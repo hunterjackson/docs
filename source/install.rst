@@ -62,7 +62,7 @@ Confluent can be downloaded for `here <http://www.confluent.io/download/>`__
     ➜  mkdir confluent
 
     #download confluent
-    ➜  wget http://packages.confluent.io/archive/3.0/confluent-3.0.1-2.11.tar.gz
+    ➜  wget http://packages.confluent.io/archive/3.0.1/confluent-3.0.1-2.11.tar.gz
 
     #extract archive to confluent folder
     ➜  tar -xvf confluent-3.0.1-2.11.tar.gz -C confluent

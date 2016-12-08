@@ -51,7 +51,7 @@ the ``bin`` folder. Alternatively the Jar can be pulled from our GitHub
 
 
 Starting the Connector
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
 
 Download, unpack and install the Stream Reactor. Follow the instructions :ref:`here <install>` if you haven't already done so.
 All paths in the quickstart are based in the location you installed the Stream Reactor.
