@@ -182,7 +182,7 @@ Once the connector worker has started lets post the start the Mqtt source connec
 If you switch back to the terminal you started the Connector in you should see the Mqtt source being accepted and the
 task starting.
 
-    .. sourcecode:: bash
+.. sourcecode:: bash
 
     [2016-12-20 16:51:08,058] INFO
      ____        _        __  __                   _        _
@@ -503,7 +503,8 @@ Maven:
 Then all you have to do is implement `com.datamountaineer.streamreactor.connect.converters.source.Converter`.
 Here is our BytesConverter class code:
 
-.. sourcecode::scala
+.. sourcecode:: scala
+
     class BytesConverter extends Converter {
       override def convert(kafkaTopic: String, sourceTopic: String, messageId: Int, bytes: Array[Byte]): SourceRecord = {
         new SourceRecord(Collections.singletonMap(Converter.TopicKey, sourceTopic),
