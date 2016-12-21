@@ -103,7 +103,7 @@ The ``kudu-sink.properties`` file defines:
 2.  The Sink class.
 3.  The max number of tasks the connector is allowed to created. Should not be greater than the number of partitions in
     the Source topics otherwise tasks will be idle.
-4. T he Kudu master host.
+4.  The Kudu master host.
 5.  :ref:`The KCQL routing querying. <kcql>`
 6.  The Source kafka topics to take events from.
 

@@ -104,7 +104,7 @@ This configuration defines:
 
 1.  The name of the source.
 2.  The name number of tasks.
-3.  To clean the mqtt connection.
+3.  Clean the mqtt connection.
 4.  The Kafka Connect Query statements to read from json and avro topics and insert into Kafka kjson and kavro topics.
 5.  Setting the time window to emit keep alive pings
 6.  Set the converters for each of the Mqtt topics. If a source doesn't get a converter set it will default to BytesConverter
