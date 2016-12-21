@@ -47,9 +47,7 @@ the best practice and use schema registry is quite an ask. So we offer support f
 *   MongoDB
 *   InfluxDB
 
-We are upgrading the remaining Connectors.
-
-This allows plain text payloads with a json string.
+We are upgrading the remaining Connectors. This allows plain text payloads with a json string.
 
 Connectors
 ----------

@@ -118,7 +118,7 @@ The ``redis-sink.properties`` file defines:
 
     Don't set the value to empty if no password is required.
 
-If you switch back to the terminal you started the Connector in you should see the Redis Sink being accepted and the
+If you switch back to the terminal you started Kafka Connect in you should see the Redis Sink being accepted and the
 task starting.
 
 We can use the CLI to check if the connector is up but you should be able to see this in logs as-well.

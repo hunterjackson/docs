@@ -69,7 +69,7 @@ The ``blockchain-source.properties`` file defines:
 3.  The max number of tasks the connector is allowed to created (1 task only).
 4.  The topics to write to.
 
-If you switch back to the terminal you started the Connector in you should see the Blockchain Source being accepted and the
+If you switch back to the terminal you started Kafka Connect in you should see the Blockchain Source being accepted and the
 task starting.
 
 We can use the CLI to check if the connector is up but you should be able to see this in logs as-well.

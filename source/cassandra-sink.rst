@@ -146,7 +146,7 @@ The ``cassandra-sink.properties`` file defines:
 9.  The username.
 10. The password.
 
-If you switch back to the terminal you started the Connector in you should see the Cassandra Sink being accepted and the
+If you switch back to the terminal you started Kafka Connect in you should see the Cassandra Sink being accepted and the
 task starting.
 
 We can use the CLI to check if the connector is up but you should be able to see this in logs as-well.

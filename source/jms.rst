@@ -93,7 +93,7 @@ The ``jms-sink.properties`` file defines:
 9.  The error policy.
 10. The list of target topics (must match the targets set in ``connect.jms.sink.export.route.query``
 
-If you switch back to the terminal you started the Connector in you should see the JMS Sink being accepted and the
+If you switch back to the terminal you started Kafka Connect in you should see the JMS Sink being accepted and the
 task starting.
 
 We can use the CLI to check if the connector is up but you should be able to see this in logs as-well.

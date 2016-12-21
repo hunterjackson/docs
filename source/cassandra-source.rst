@@ -206,7 +206,7 @@ We can use the CLI to check if the connector is up but you should be able to see
     ....
 
 
-If you switch back to the terminal you started the Connector in you should see the Cassandra Source being accepted and
+If you switch back to the terminal you started Kafka Connect in you should see the Cassandra Source being accepted and
 the task starting and processing the 3 existing rows.
 
 .. sourcecode:: bash

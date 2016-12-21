@@ -93,7 +93,7 @@ The ``elastic-sink.properties`` file defines:
 5. The Source topic to get records from.
 6. :ref:`The KCQL routing querying. <kcql>`
 
-If you switch back to the terminal you started the Connector in you should see the Elastic Sink being accepted and the
+If you switch back to the terminal you started Kafka Connect in you should see the Elastic Sink being accepted and the
 task starting.
 
 We can use the CLI to check if the connector is up but you should be able to see this in logs as-well.

@@ -165,7 +165,7 @@ connect to the Rest API of Kafka Connect of your container.
 
     #task ids: 0
 
-If you switch back to the terminal you started the Connector in you should see the Mongo Sink being accepted and the
+If you switch back to the terminal you started Kafka Connect in you should see the Mongo Sink being accepted and the
 task starting.
 
 We can use the CLI to check if the connector is up but you should be able to see this in logs as-well.
@@ -315,7 +315,7 @@ and start the new Sink with the json properties files to read from the a differe
      #start the connector for mongo
     ➜   bin/cli.sh create mongo-sink-orders-json < mongo-sink-orders-json.properties
 
-You should see in the terminal where you started the connector the following entries in the log:
+You should see in the terminal where you started Kafka Connect the following entries in the log:
 
 .. sourcecode:: bash
 
