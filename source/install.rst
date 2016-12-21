@@ -9,6 +9,7 @@ optionally the Schema Registry provided by this distribution.
 The following releases are available:
 
 -  `0.2.3 <https://github.com/datamountaineer/stream-reactor/releases/tag/v0.2.3>`__
+-  `0.2.2 <https://github.com/datamountaineer/stream-reactor/releases/tag/v0.2.2>`__
 
 +------------------------+------------------------+
 | Connector              | Versions               |
