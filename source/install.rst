@@ -8,7 +8,7 @@ optionally the Schema Registry provided by this distribution.
 
 The following releases are available:
 
--  `0.2.2 <https://github.com/datamountaineer/stream-reactor/releases/tag/v0.2.2>`__
+-  `0.2.3 <https://github.com/datamountaineer/stream-reactor/releases/tag/v0.2.3>`__
 
 +------------------------+------------------------+
 | Connector              | Versions               |
@@ -85,8 +85,8 @@ Unpack the archive:
 
 .. sourcecode:: bash
 
-    #Stream reactor release 0.2.2
-    tar xvf -C stream-reactor-0.2.2-cp-3.0.1.jar stream-reactor
+    #Stream reactor release 0.2.3
+    tar xvf -C stream-reactor-0.2.3-cp-3.0.1.jar stream-reactor
 
 Within the unpacked directory you will find the following structure:
 
@@ -99,7 +99,7 @@ Within the unpacked directory you will find the following structure:
     |   |-- cli.sh
     |   `-- start-connect.sh
     `-- libs
-        |-- kafka-connect-cli-0.5-all.jar
+        |-- kafka-connect-cli-0.9-all.jar
         |-- kafka-connect-blockchain-0.2-3.0.1-all.jar
         |-- kafka-connect-bloomberg-0.2-3.0.1-all.jar
         |-- kafka-connect-cassandra-0.2-3.0.1-all.jar
