@@ -1,3 +1,5 @@
+.. _sources:
+
 Source Connectors
 =================
 
@@ -11,4 +13,5 @@ Source connectors load or stream data from external systems into Kafka.
    cassandra-source
    rethink-source
    yahoo
+   mqtt
 

@@ -15,13 +15,16 @@ Confluent Platform.
 .. figure:: ../images/stream-reactor-1.jpg
    :alt: 
 
-Download `here <https://github.com/datamountaineer/stream-reactor/releases/tag/v0.2>`__
+Download `here. <https://github.com/datamountaineer/stream-reactor/releases/tag/v0.2>`__
 
-Components:
+Components
+==========
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 1
 
+   install
    connectors
    tools
    socket-streamer
+   faq

@@ -2,17 +2,18 @@ Kafka Connect Blockchain
 ========================
 
 A Connector to hook into the live streaming providing a real time feed for new bitcoin blocks and transactions provided by
-`www.blochain.info <http://www.blockchain.info/>`__ The connector subscribe to notification on blocks, transactions or an address
+`www.blockhain.info <http://www.blockchain.info/>`__ The connector subscribe to notification on blocks, transactions or an address
 and receive JSON objects describing a transaction or block when an event occurs. This json is then pushed via kafka connect
-to a kafka topic and therefore can be consumed either by a sink or have a live stream processing using for example kafka streaming.
+to a kafka topic and therefore can be consumed either by a Sink or have a live stream processing using
+for example Kafka Streams.
 
-Since is a direct websocket connection the source will only ever use one connector task at any point. there is no point spawning more
+Since is a direct websocket connection the Source will only ever use one connector task at any point. There is no point spawning more
 and then have duplicate data.
 
 One thing to remember is the subscription API from blockchain doesn't offer an option to start from a given timestam. This means
 if the connect worker is down then you will miss some data.
 
-The sink connects to unconfirmed transaction!! Read more about the live data `here <https://blockchain.info/api/>`__
+The Sink connects to unconfirmed transaction!! Read more about the live data `here <https://blockchain.info/api/>`__
 
 Prerequisites
 -------------
@@ -21,121 +22,37 @@ Prerequisites
 - Java 1.8
 - Scala 2.11
 
-Setup
------
+Confluent Setup
+~~~~~~~~~~~~~~~
 
-Blockchain Setup
-~~~~~~~~~~~~~~~~
-All you need is having the confluent platform installed. Here is how you would install it
-
-.. sourcecode:: bash
-
-    #make confluent home folder
-    ➜  mkdir confluent
-
-    #download confluent
-    ➜  wget http://packages.confluent.io/archive/3.0/confluent-3.0.1-2.11.tar.gz
-
-    #extract archive to confluent folder
-    ➜  tar -xvf confluent-3.0.1-2.11.tar.gz -C confluent
-
-    #setup variables
-    ➜  export CONFLUENT_HOME=~/confluent/confluent-3.0.1
-
-Start the Confluent platform.
-
-.. sourcecode:: bash
-
-    #Start the confluent platform, we need kafka, zookeeper and the schema registry
-    ➜  bin/zookeeper-server-start etc/kafka/zookeeper.properties &
-    ➜  bin/kafka-server-start etc/kafka/server.properties &
-    ➜  bin/schema-registry-start etc/schema-registry/schema-registry.properties &
-
-Build the Connector and CLI
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The prebuilt jars can be taken from `here <https://github.com/datamountaineer/stream-reactor/releases>`__ and
-`here <https://github.com/datamountaineer/kafka-connect-tools/releases>`__
-or from `Maven <http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22kafka-connect-cli%22>`__
-
-If you want to build the connector, clone the repo and build the jar.
-
-.. sourcecode:: bash
-
-    ##Build the connectors
-    ➜  git clone https://github.com/datamountaineer/stream-reactor
-    ➜  cd stream-reactor
-    ➜  gradle fatJar
-
-    ##Build the CLI for interacting with Kafka connectors
-    ➜  git clone https://github.com/datamountaineer/kafka-connect-tools
-    ➜  cd kafka-connect-tools
-    ➜  gradle fatJar
+Follow the instructions :ref:`here <install>`.
 
 Source Connector QuickStart
 ---------------------------
 
-Next we will start the connector in distributed mode. Connect has two modes, standalone where the tasks run on only one host
-and distributed mode. Usually you'd run in distributed mode to get fault tolerance and better performance. In distributed mode
-you start Connect on multiple hosts and they join together to form a cluster. Connectors which are then submitted are
-distributed across the cluster.
-
-Before we can start the connector we need to setup it's configuration. In standalone mode this is done by creating a
-properties file and passing this to the connector at startup. In distributed mode you can post in the configuration as
-json to the Connectors HTTP endpoint. Each connector exposes a rest endpoint for stopping, starting and updating the
-configuration.
-
-Source Connector Configuration
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Create a file called ``blockchain-source.properties`` with the contents below:
-
-.. sourcecode:: bash
-
-    name=blockchain-source
-    connector.class=com.datamountaineeer.streamreactor.connect.blockchain.source.BlockchainSourceConnector
-    max.tasks=1
-    connect.blockchain.source.kafka.topic = blockchain-test
-
-This configuration defines:
-
-1.  The name of the source.
-2.  The source class.
-3.  The max number of tasks the connector is allowed to created (1 task only).
-4.  The topics to write to
+We will start the connector in distributed mode. Each connector exposes a rest endpoint for stopping, starting and updating the configuration. We have developed
+a Command Line Interface to make interacting with the Connect Rest API easier. The CLI can be found in the Stream Reactor download under
+the ``bin`` folder. Alternatively the Jar can be pulled from our GitHub
+`releases <https://github.com/datamountaineer/kafka-connect-tools/releases>`__ page.
 
 
 Starting the Connector (Distributed)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Connectors can be deployed distributed mode. In this mode one or many connectors are started on the same or different
-hosts with the same cluster id. The cluster id can be found in ``etc/schema-registry/connect-avro-distributed.properties.``
+Download, unpack and install the Stream Reactor. Follow the instructions :ref:`here <install>` if you haven't already done so.
+All paths in the quickstart are based in the location you installed the Stream Reactor.
+
+Start Kafka Connect in distributed more by running the ``start-connect.sh`` script in the ``bin`` folder.
 
 .. sourcecode:: bash
 
-    # The group ID is a unique identifier for the set of workers that form a single Kafka Connect
-    # cluster
-    group.id=connect-cluster
+    ➜ bin/start-connect.sh
 
-Now start the connector in distributed mode. We only give it one properties file for the kafka, zookeeper and
-schema registry configurations.
-
-First add the connector jar to the CLASSPATH and then start Connect.
+Once the connector has started we can now use the kafka-connect-tools cli to post in our distributed properties file for BlockChain.
 
 .. sourcecode:: bash
 
-    #Add the Connector to the class path
-    ➜  export CLASSPATH=kafka-connect-blockchain-0.2-cp-3.0.1.all.jar
-
-.. sourcecode:: bash
-
-    ➜  confluent-3.0.1/bin/connect-distributed confluent-3.0.1/etc/schema-registry/connect-avro-distributed.properties
-
-Once the connector has started lets use the kafka-connect-tools cli to post in our distributed properties file.
-
-.. sourcecode:: bash
-
-    ➜  java -jar build/libs/kafka-connect-cli-0.6-all.jar create blockchain-source < blockchain-source.properties
+    ➜  bin/cli.sh create blockchain-source < conf/blockchain-source.properties
 
     #Connector `blockchain-source`:
     name=blockchain-source
@@ -145,7 +62,14 @@ Once the connector has started lets use the kafka-connect-tools cli to post in o
     max.tasks=1
     #task ids:
 
-If you switch back to the terminal you started the Connector in you should see the Blockchain source being accepted and the
+The ``blockchain-source.properties`` file defines:
+
+1.  The name of the source.
+2.  The Source class.
+3.  The max number of tasks the connector is allowed to created (1 task only).
+4.  The topics to write to.
+
+If you switch back to the terminal you started the Connector in you should see the Blockchain Source being accepted and the
 task starting.
 
 We can use the CLI to check if the connector is up but you should be able to see this in logs as-well.
@@ -153,7 +77,7 @@ We can use the CLI to check if the connector is up but you should be able to see
 .. sourcecode:: bash
 
     #check for running connectors with the CLI
-    ➜ java -jar build/libs/kafka-connect-cli-0.6-all.jar ps
+    ➜ bin/cli.sh ps
     blockchain-source
 
 .. sourcecode:: bash
@@ -198,3 +122,4 @@ TroubleShooting
 ---------------
 
 TODO
+

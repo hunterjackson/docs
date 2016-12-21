@@ -3,6 +3,13 @@ Kafka Connect Cassandra Source
 
 Kafka Connect Cassandra is a Source Connector for reading data from Cassandra and writing to Kafka.
 
+The Source supports:
+
+1. :ref:`The KCQL routing querying <kcql>` - Allows for table to topic routing.
+2. Incremental mode
+3. Bulk mode
+4. Error policies for handling failures.
+
 Prerequisites
 -------------
 
@@ -43,60 +50,18 @@ cluster available.
 Confluent Setup
 ~~~~~~~~~~~~~~~
 
-.. sourcecode:: bash
-
-    #make confluent home folder
-    ➜  mkdir confluent
-
-    #download confluent
-    ➜  wget http://packages.confluent.io/archive/3.0/confluent-3.0.1-2.11.tar.gz
-
-    #extract archive to confluent folder
-    ➜  tar -xvf confluent-3.0.1-2.11.tar.gz -C confluent
-
-    #setup variables
-    ➜  export CONFLUENT_HOME=~/confluent/confluent-3.0.1
-
-Start the Confluent platform.
-
-.. sourcecode:: bash
-
-    #Start the confluent platform, we need kafka, zookeeper and the schema registry
-    bin/zookeeper-server-start etc/kafka/zookeeper.properties &
-    bin/kafka-server-start etc/kafka/server.properties &
-    bin/schema-registry-start etc/schema-registry/schema-registry.properties &
-
-Build the Connector and CLI
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The prebuilt jars can be taken from `here <https://github.com/datamountaineer/stream-reactor/releases>`__ and
-`here <https://github.com/datamountaineer/kafka-connect-tools/releases>`__
-or from `Maven <http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22kafka-connect-cli%22>`__
-
-If you want to build the connector, clone the repo and build the jar.
-
-.. sourcecode:: bash
-
-    ##Build the connectors
-    git clone https://github.com/datamountaineer/stream-reactor
-    cd stream-reactor
-    gradle fatJar
-
-    ##Build the CLI for interacting with Kafka connectors
-    git clone https://github.com/datamountaineer/kafka-connect-tools
-    cd kafka-connect-tools
-    gradle fatJar
+Follow the instructions :ref:`here <install>`.
 
 Source Connector
 ----------------
 
-The Cassandra source connector allows you to extract entries from Cassandra with the CQL driver and write them into a
+The Cassandra Source connector allows you to extract entries from Cassandra with the CQL driver and write them into a
 Kafka topic.
 
 Each table specified in the configuration is polled periodically and each record from the result is converted to a Kafka
 Connect record. These records are then written to Kafka by the Kafka Connect framework.
 
-The source connector operates in two modes:
+The Source connector operates in two modes:
 
 1. Bulk - Each table is selected in full each time it is polled.
 2. Incremental - Each table is querying with lower and upper bounds to
@@ -114,15 +79,10 @@ ALLOW\_FILTERING can also be supplied as an configuration.
 Source Connector QuickStart
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Next we will start the connector in distributed mode. Connect has two modes, standalone where the tasks run on only one host
-and distributed mode. Usually you'd run in distributed mode to get fault tolerance and better performance. In distributed mode
-you start Connect on multiple hosts and they join together to form a cluster. Connectors which are then submitted are
-distributed across the cluster.
-
-Before we can start the connector we need to setup it's configuration. In standalone mode this is done by creating a
-properties file and passing this to the connector at startup. In distributed mode you can post in the configuration as
-json to the Connectors HTTP endpoint. Each connector exposes a rest endpoint for stopping, starting and updating the
-configuration.
+We will start the connector in distributed mode. Each connector exposes a rest endpoint for stopping, starting and updating the configuration. We have developed
+a Command Line Interface to make interacting with the Connect Rest API easier. The CLI can be found in the Stream Reactor download under
+the ``bin`` folder. Alternatively the Jar can be pulled from our GitHub
+`releases <https://github.com/datamountaineer/kafka-connect-tools/releases>`__ page.
 
 Test data
 ^^^^^^^^^
@@ -166,23 +126,42 @@ Execute the following:
 
     (3 rows)
 
-Source Connector Configuration
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Starting the Connector (Distributed)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Create a file called ``cassandra-source-bulk-orders.properties`` with the contents below:
+Download, unpack and install the Stream Reactor. Follow the instructions :ref:`here <install>` if you haven't already done so.
+All paths in the quickstart are based in the location you installed the Stream Reactor.
+
+Start Kafka Connect in distributed more by running the ``start-connect.sh`` script in the ``bin`` folder.
 
 .. sourcecode:: bash
 
+    ➜ bin/start-connect.sh
+
+Once the connector has started we can now use the kafka-connect-tools cli to post in our distributed properties file for Cassandra.
+If you are using the :ref:`dockers <dockers>` you will have to set the following environment variable to for the CLI to
+connect to the Rest API of Kafka Connect of your container.
+
+.. sourcecode:: bash
+
+   export KAFKA_CONNECT_REST="http://myserver:myport"
+
+.. sourcecode:: bash
+
+    ➜  bin/cli.sh create cassandra-source-orders < cassandra-source-incr-orders.properties
+
+    #Connector `cassandra-source-orders`:
     name=cassandra-source-orders
     connector.class=com.datamountaineer.streamreactor.connect.cassandra.source.CassandraSourceConnector
     connect.cassandra.key.space=demo
-    connect.cassandra.import.route.query=INSERT INTO orders-topic SELECT * FROM orders
+    connect.cassandra.import.route.query=INSERT INTO orders-topic SELECT * FROM orders PK created
     connect.cassandra.import.mode=incremental
     connect.cassandra.contact.points=localhost
     connect.cassandra.username=cassandra
     connect.cassandra.password=cassandra
+    #task ids: 0
 
-This configuration defines:
+The ``cassandra-source.properties`` file defines:
 
 1. The name of the connector, must be unique.
 2. The name of the connector class.
@@ -195,48 +174,12 @@ This configuration defines:
 6. The ip or host name of the nodes in the Cassandra cluster to connect to.
 7. Username and password, ignored unless you have set Cassandra to use the PasswordAuthenticator.
 
-Starting the Connector (Distributed)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Connectors can be deployed distributed mode. In this mode one or many connectors are started on the same or different
-hosts with the same cluster id. The cluster id can be found in ``etc/schema-registry/connect-avro-distributed.properties``.
-
-.. sourcecode:: bash
-
-    # The group ID is a unique identifier for the set of workers that form a single Kafka Connect
-    # cluster
-    group.id=connect-cluster
-
-Now start the connector in distributed mode, this time we only give it one properties file for the kafka, zookeeper
-and schema registry configurations.
-
-.. sourcecode:: bash
-
-    ➜  confluent-3.0.1/bin/connect-distributed confluent-3.0.1/etc/schema-registry/connect-avro-distributed.properties
-
-Once the connector has started lets use the kafka-connect-tools cli to post in our incremental properties file.
-
-.. sourcecode:: bash
-
-    ➜  java -jar build/libs/kafka-connect-cli-0.6-all.jar create cassandra-source-orders < cassandra-source-incr-orders.properties
-
-    #Connector `cassandra-source-orders`:
-    connect.cassandra.key.space=demo
-    name=cassandra-source-orders
-    connect.cassandra.import.mode=incremental
-    connector.class=com.datamountaineer.streamreactor.connect.cassandra.source.CassandraSourceConnector
-    connect.cassandra.contact.points=localhost
-    connect.cassandra.username=cassandra
-    connect.cassandra.password=cassandra
-    connect.cassandra.import.route.query=INSERT INTO orders-topic SELECT * FROM orders PK created
-    #task ids: 0
-
 We can use the CLI to check if the connector is up but you should be able to see this in logs as-well.
 
 .. sourcecode:: bash
 
     #check for running connectors with the CLI
-    ➜ java -jar build/libs/kafka-connect-cli-0.6-all.jar ps
+    ➜ bin/cli.sh ps
     cassandra-sink
 
 .. sourcecode:: bash
@@ -288,7 +231,7 @@ Check Kafka, 3 rows as before.
     {"id":{"int":2},"created":{"string":"Thu May 05 13:26:21 CEST 2016"},"price":{"float":99.5},"product":{"string":"OP-DAX-C-20150201-100"},"qty":{"int":100}}
     {"id":{"int":3},"created":{"string":"Thu May 05 13:26:44 CEST 2016"},"price":{"float":150.0},"product":{"string":"FU-KOSPI-C-20150201-100"},"qty":{"int":200}}
 
-The source tasks will continue to poll but not pick up any new rows yet.
+The Source tasks will continue to poll but not pick up any new rows yet.
 
 .. code-block::bash
 
@@ -364,17 +307,10 @@ Both connectors support **K** afka **C** onnect **Q** uery **L** anguage found h
 `GitHub repo <https://github.com/datamountaineer/kafka-connector-query-language>`_ allows for routing and mapping using
 a SQL like syntax, consolidating typically features in to one configuration option.
 
-Source Connector
-~~~~~~~~~~~~~~~~
-
-The source uses Cassandra's executeAysnc functionality. This is non blocking. For the source,
-the when the result returns it is iterated over and rows added to a internal queue. This queue is then drained by the
-connector and written to Kafka.
-
 Data Types
 ^^^^^^^^^^
 
-The source connector supports copying tables in bulk and incrementally to Kafka.
+The Source connector supports copying tables in bulk and incrementally to Kafka.
 
 The following CQL data types are supported:
 
@@ -435,7 +371,7 @@ The following CQL data types are supported:
 Modes
 ^^^^^
 
-The source connector runs in both bulk and incremental mode.
+The Source connector runs in both bulk and incremental mode.
 
 Each mode has a polling interval. This interval determines how often the readers execute queries against the Cassandra
 tables. It applies to both incremental and bulk modes. The ``cassandra.import.mode`` setting controls the import behaviour.
@@ -471,14 +407,14 @@ In ``bulk`` mode the connector extracts the full table, no where clause is attac
 Topic Routing
 ^^^^^^^^^^^^^
 
-The sink supports topic routing that allows mapping the messages from topics to a specific table. For example map
+The Sink supports topic routing that allows mapping the messages from topics to a specific table. For example map
 a topic called "bloomberg_prices" to a table called "prices". This mapping is set in the
 ``connect.cassandra.import.route.query`` option.
 
 Error Polices
 ~~~~~~~~~~~~~
 
-The sink has three error policies that determine how failed writes to the target database are handled. The error policies
+The Sink has three error policies that determine how failed writes to the target database are handled. The error policies
 affect the behaviour of the schema evolution characteristics of the sink. See the schema evolution section for more
 information.
 
@@ -494,7 +430,7 @@ Any error on write to the target database is ignored and processing continues.
 .. warning::
 
     This can lead to missed errors if you don't have adequate monitoring. Data is not lost as it's still in Kafka
-    subject to Kafka's retention policy. The sink currently does **not** distinguish between integrity constraint
+    subject to Kafka's retention policy. The Sink currently does **not** distinguish between integrity constraint
     violations and or other expections thrown by drivers..
 
 **Retry**
@@ -504,7 +440,7 @@ Kafka connect framework to pause and replay the message. Offsets are not committ
 it will cause a write failure, the message can be replayed. With the Retry policy the issue can be fixed without stopping
 the sink.
 
-The length of time the sink will retry can be controlled by using the ``connect.cassandra.source.max.retries`` and the
+The length of time the Sink will retry can be controlled by using the ``connect.cassandra.source.max.retries`` and the
 ``connect.cassandra.source.retry.interval``.
 
 Configurations
@@ -643,7 +579,7 @@ The size of the queue for buffering resultset records before write to Kafka.
 
 ``connect.cassandra.source.task.batch.size``
 
-The number of records the source  task should drain from the reader queue.
+The number of records the Source  task should drain from the reader queue.
 
 * Data type : int
 * Optional  : yes
@@ -673,7 +609,7 @@ The maximum number of times a message is retried. Only valid when the ``connect.
 
 ``connect.cassandra.source.retry.interval``
 
-The interval, in milliseconds between retries if the sink is using ``connect.cassandra.source.error.policy`` set to **RETRY**.
+The interval, in milliseconds between retries if the Sink is using ``connect.cassandra.source.error.policy`` set to **RETRY**.
 
 * Type: int
 * Importance: medium

@@ -8,6 +8,13 @@ tables in Cassandra.
 .. note:: The table and keyspace must be created before hand!
 .. note:: If the target table has TimeUUID fields the payload string the corresponding field in Kafka must be a UUID.
 
+The Sink supports:
+
+1. :ref:`The KCQL routing querying <kcql>` - Kafka topic payload field selection is supported, allowing you to have choose selection of fields
+   or all fields written to Cassandra.
+2. Topic to table routing via KCQL.
+3. Error policies for handling failures.
+
 Prerequisites
 -------------
 
@@ -46,71 +53,23 @@ cluster available.
     #Start Cassandra
     sudo sh ~/cassandra/bin/cassandra
 
-
 Confluent Setup
 ~~~~~~~~~~~~~~~
 
-.. sourcecode:: bash
-
-    #make confluent home folder
-    ➜  mkdir confluent
-
-    #download confluent
-    ➜  wget http://packages.confluent.io/archive/3.0/confluent-3.0.1-2.11.tar.gz
-
-    #extract archive to confluent folder
-    ➜  tar -xvf confluent-3.0.1-2.11.tar.gz -C confluent
-
-    #setup variables
-    ➜  export CONFLUENT_HOME=~/confluent/confluent-3.0.1
-
-Start the Confluent platform.
-
-.. sourcecode:: bash
-
-    #Start the confluent platform, we need kafka, zookeeper and the schema registry
-    bin/zookeeper-server-start etc/kafka/zookeeper.properties &
-    bin/kafka-server-start etc/kafka/server.properties &
-    bin/schema-registry-start etc/schema-registry/schema-registry.properties &
-
-Build the Connector and CLI
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The prebuilt CLI jar can be taken from `here <https://github.com/datamountaineer/kafka-connect-tools/releases>`__
-or from `Maven <http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22kafka-connect-cli%22>`__
-
-If you want to build the connector, clone the repo and build the jar.
-
-.. sourcecode:: bash
-
-    ##Build the connectors
-    git clone https://github.com/datamountaineer/stream-reactor
-    cd stream-reactor
-    gradle fatJar
-
-    ##Build the CLI for interacting with Kafka connectors
-    git clone https://github.com/datamountaineer/kafka-connect-tools
-    cd kafka-connect-tools
-    gradle fatJar
-
+Follow the instructions :ref:`here <install>`.
 
 Sink Connector QuickStart
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Next we will start the connector in distributed mode. Connect has two modes, standalone where the tasks run on only one host
-and distributed mode. Usually you'd run in distributed mode to get fault tolerance and better performance. In distributed mode
-you start Connect on multiple hosts and they join together to form a cluster. Connectors which are then submitted are
-distributed across the cluster.
-
-Before we can start the connector we need to setup it's configuration. In standalone mode this is done by creating a
-properties file and passing this to the connector at startup. In distributed mode you can post in the configuration as
-json to the Connectors HTTP endpoint. Each connector exposes a rest endpoint for stopping, starting and updating the
-configuration.
+We will start the connector in distributed mode. Each connector exposes a rest endpoint for stopping, starting and updating the configuration. We have developed
+a Command Line Interface to make interacting with the Connect Rest API easier. The CLI can be found in the Stream Reactor download under
+the ``bin`` folder. Alternatively the Jar can be pulled from our GitHub
+`releases <https://github.com/datamountaineer/kafka-connect-tools/releases>`__ page.
 
 Test data
 ^^^^^^^^^
 
-The sink currently expects precreated tables and keyspaces. So lets create a keyspace and table in Cassandra via the CQL
+The Sink currently expects precreated tables and keyspaces. So lets create a keyspace and table in Cassandra via the CQL
 shell first.
 
 Once you have installed and started Cassandra create a table to write records to. This snippet creates a table called
@@ -136,46 +95,29 @@ Execute the following to create the keyspace and table:
     create table orders (id int, created varchar, product varchar, qty int, price float, PRIMARY KEY (id, created))
     WITH CLUSTERING ORDER BY (created asc);
 
-Sink Connector Configuration
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Starting the Connector (Distributed)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Create a file called cassandra-sink-distributed-orders.properties with contents below.
+Download, unpack and install the Stream Reactor. Follow the instructions :ref:`here <install>` if you haven't already done so.
+All paths in the quickstart are based in the location you installed the Stream Reactor.
 
-.. sourcecode:: bash
-
-    name=cassandra-sink-orders
-    connector.class=com.datamountaineer.streamreactor.connect.cassandra.sink.CassandraSinkConnector
-    tasks.max=1
-    topics=orders-topic
-    connect.cassandra.export.route.query=INSERT INTO orders SELECT * FROM orders-topic
-    connect.cassandra.contact.points=localhost
-    connect.cassandra.port=9042
-    connect.cassandra.key.space=demo
-    connect.cassandra.username=cassandra
-    connect.cassandra.password=cassandra
-
-.. note:: All tables must be in the same keyspace.
-
-Starting the Sink Connector (Distributed)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-We will start Kafka Connect in distributed mode.
+Start Kafka Connect in distributed more by running the ``start-connect.sh`` script in the ``bin`` folder.
 
 .. sourcecode:: bash
 
-    #Add the Connector to the class path
-    ➜  export CLASSPATH=kafka-connect-cassandra-0.2-cp-3.0.1-all.jar
+    ➜ bin/start-connect.sh
+
+Once the connector has started we can now use the kafka-connect-tools cli to post in our distributed properties file for Cassandra.
+If you are using the :ref:`dockers <dockers>` you will have to set the following environment variable to for the CLI to
+connect to the Rest API of Kafka Connect of your container.
 
 .. sourcecode:: bash
 
-    ➜  confluent-3.0.1/bin/connect-distributed etc/schema-registry/connect-avro-distributed.properties
-
-Once the connector has started lets use the kafka-connect-tools cli to post in our distributed properties file. You can
-download the CLI from `here <http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22kafka-connect-cli%22>`__
+   export KAFKA_CONNECT_REST="http://myserver:myport"
 
 .. sourcecode:: bash
 
-    ➜  java -jar kafka-connect-cli-0.6-all.jar create cassandra-sink-orders < cassandra-sink-distributed-orders.properties
+    ➜  bin/cli.sh create cassandra-sink-orders < conf/cassandra-sink.properties
 
     #Connector `cassandra-sink-orders`:
     name=cassandra-sink-orders
@@ -191,7 +133,20 @@ download the CLI from `here <http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22k
     connect.cassandra.password=cassandra
     #task ids: 0
 
-If you switch back to the terminal you started the Connector in you should see the Cassandra sink being accepted and the
+The ``cassandra-sink.properties`` file defines:
+
+1.  The name of the sink.
+2.  The Sink class.
+3.  The max number of tasks the connector is allowed to created (1 task only).
+4.  The topics to read from.
+5.  :ref:`The KCQL routing querying. <kcql>`
+6.  The Cassandra host.
+7.  The Cassandra port.
+8.  The Cassandra Keyspace.
+9.  The username.
+10. The password.
+
+If you switch back to the terminal you started the Connector in you should see the Cassandra Sink being accepted and the
 task starting.
 
 We can use the CLI to check if the connector is up but you should be able to see this in logs as-well.
@@ -199,7 +154,7 @@ We can use the CLI to check if the connector is up but you should be able to see
 .. sourcecode:: bash
 
     #check for running connectors with the CLI
-    ➜ java -jar build/libs/kafka-connect-cli-0.6-all.jar ps
+    ➜ bin/cli.sh ps
     cassandra-sink
 
 
@@ -244,7 +199,7 @@ Start the producer and pass in a schema to register in the Schema Registry. The 
 
 .. sourcecode:: bash
 
-    bin/kafka-avro-console-producer \
+    ${CONFLUENT_HOME}/bin/kafka-avro-console-producer \
      --broker-list localhost:9092 --topic orders-topic \
      --property value.schema='{"type":"record","name":"myrecord","fields":[{"name":"id","type":"int"},{"name":"created","type":"string"},{"name":"product","type":"string"},{"name":"price","type":"double"}]}'
 
@@ -284,18 +239,11 @@ Bingo, our 4 rows!
 Features
 --------
 
-The sink connector uses Cassandra's `JSON <http://www.datastax.com/dev/blog/whats-new-in-cassandra-2-2-json-support>`__
+The Sink connector uses Cassandra's `JSON <http://www.datastax.com/dev/blog/whats-new-in-cassandra-2-2-json-support>`__
 insert functionality. The SinkRecord from Kafka Connect is converted to JSON and feed into the prepared statements for
 inserting into Cassandra.
 
 See Cassandra's `documentation <http://cassandra.apache.org/doc/cql3/CQL-2.2.html#insertJson>`__ for type mapping.
-
-The sink supports:
-
-1. Field selection - Kafka topic payload field selection is supported, allowing you to have choose selection of fields
-   or all fields written to Cassandra.
-2. Topic to table routing.
-3. Error policies for handling failures.
 
 Kafka Connect Query Language
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -303,7 +251,7 @@ Kafka Connect Query Language
 **K** afka **C** onnect **Q** uery **L** anguage found here `GitHub repo <https://github.com/datamountaineer/kafka-connector-query-language>`_
 allows for routing and mapping using a SQL like syntax, consolidating typically features in to one configuration option.
 
-The Cassandra sink supports the following:
+The Cassandra Sink supports the following:
 
 .. sourcecode:: bash
 
@@ -323,7 +271,7 @@ Example:
 Error Polices
 ~~~~~~~~~~~~~
 
-The sink has three error policies that determine how failed writes to the target database are handled. The error policies
+The Sink has three error policies that determine how failed writes to the target database are handled. The error policies
 affect the behaviour of the schema evolution characteristics of the sink. See the schema evolution section for more
 information.
 
@@ -339,7 +287,7 @@ Any error on write to the target database is ignored and processing continues.
 .. warning::
 
     This can lead to missed errors if you don't have adequate monitoring. Data is not lost as it's still in Kafka
-    subject to Kafka's retention policy. The sink currently does **not** distinguish between integrity constraint
+    subject to Kafka's retention policy. The Sink currently does **not** distinguish between integrity constraint
     violations and or other expections thrown by drivers..
 
 **Retry**
@@ -349,20 +297,20 @@ Kafka connect framework to pause and replay the message. Offsets are not committ
 it will cause a write failure, the message can be replayed. With the Retry policy the issue can be fixed without stopping
 the sink.
 
-The length of time the sink will retry can be controlled by using the ``connect.cassandra.sink.max.retries`` and the
+The length of time the Sink will retry can be controlled by using the ``connect.cassandra.sink.max.retries`` and the
 ``connect.cassandra.sink.retry.interval``.
 
 Topic Routing
 ^^^^^^^^^^^^^
 
-The sink supports topic routing that allows mapping the messages from topics to a specific table. For example map
+The Sink supports topic routing that allows mapping the messages from topics to a specific table. For example map
 a topic called "bloomberg_prices" to a table called "prices". This mapping is set in the
 ``connect.cassandra.export.route.query`` option.
 
 Field Selection
 ^^^^^^^^^^^^^^^
 
-The sink supports selecting fields from the source topic or selecting all fields and mapping of these fields to columns
+The Sink supports selecting fields from the Source topic or selecting all fields and mapping of these fields to columns
 in the target table. For example, map a field called "qty"  in a topic to a column called "quantity" in the target
 table.
 
@@ -374,7 +322,7 @@ source topic.
 Configurations
 --------------
 
-Configurations common to both sink and source are:
+Configurations common to both Sink and Source are:
 
 ``connect.cassandra.contact.points``
 
@@ -488,7 +436,7 @@ The maximum number of times a message is retried. Only valid when the ``connect.
 
 ``connect.cassandra.sink.retry.interval``
 
-The interval, in milliseconds between retries if the sink is using ``connect.cassandra.sink.error.policy`` set to **RETRY**.
+The interval, in milliseconds between retries if the Sink is using ``connect.cassandra.sink.error.policy`` set to **RETRY**.
 
 * Type: int
 * Importance: medium
@@ -519,7 +467,7 @@ Upstream changes to schemas are handled by Schema registry which will validate t
 data type changes and if defaults are set. The Schema Registry enforces Avro schema evolution rules. More information
 can be found `here <http://docs.confluent.io/3.0.1/schema-registry/docs/api.html#compatibility>`_.
 
-For the Sink connector, if columns are add to the target Cassandra table and not present in the source topic they will be
+For the Sink connector, if columns are add to the target Cassandra table and not present in the Source topic they will be
 set to null by Cassandras Json insert functionality. Columns which are omitted from the JSON value map are treated as a
 null insert (which results in an existing value being deleted, if one is present), if a record with the same key is
 inserted again.

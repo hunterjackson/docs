@@ -1,31 +1,44 @@
 Kafka Connect Mongo Sink
-============================
+========================
 
 The Mongo Sink allows you to write events from Kafka to your MongoDB instance. The connector converts the value from the Kafka
-Connect SinkRecords to Mongo Document and will do an insert or upsert depending on the configuration you chose. It is expected the
-database is created upfront; the targeted Mongo collections will be created if they don't exist
+Connect SinkRecords to MongoDB Document and will do an insert or upsert depending on the configuration you chose. It is expected the
+database is created upfront; the targeted MongoDB collections will be created if they don't exist
 
 The Sink supports three Kafka payloads type:
-- Connect entry with Schema.Struct and payload Struct:If you follow the best practice while producing the events, each message should carry its schema information. Best option
-is to send Avro. Your connect configurations should be set to  `value.converter=io.confluent.connect.avro.AvroConverter`. You can fnd an example here
-`https://github.com/confluentinc/kafka-connect-blog/blob/master/etc/connect-avro-standalone.properties`. To see how easy is to have your producer serialize to Avro have a look at this:
-`http://docs.confluent.io/3.0.1/schema-registry/docs/serializer-formatter.html?highlight=kafkaavroserializer`. This requires SchemaRegistry which is open source thanks to Confluent!
-Alternatively you can send Json + Schema. In this case your connect configuration should read `value.converter=org.apache.kafka.connect.json.JsonConverter`. The difference would be
-to point your serialization to `org.apache.kafka.connect.json.JsonSerializer`. This doesn't require the SchemaRegistry.
 
-- Connect entry with Schema.String and payload json String. Sometimes the producer would find it easier, despite sending Avro to produce a GenericRecord, to just send a message with Schema.String
-and the json string.
+**Connect entry with Schema.Struct and payload Struct.** If you follow the best practice while producing the events, each
+message should carry its schema information. Best option is to send Avro. Your connect configurations should be set to
+``value.converter=io.confluent.connect.avro.AvroConverter``.
+You can fnd an example `here <https://github.com/confluentinc/kafka-connect-blog/blob/master/etc/connect-avro-standalone.properties>`__.
+To see how easy is to have your producer serialize to Avro have a look at
+`this <http://docs.confluent.io/3.0.1/schema-registry/docs/serializer-formatter.html?highlight=kafkaavroserializer>`__.
+This requires SchemaRegistry which is open source thanks to Confluent! Alternatively you can send Json + Schema.
+In this case your connect configuration should read ``value.converter=org.apache.kafka.connect.json.JsonConverter``.
+The difference would be to point your serialization to ``org.apache.kafka.connect.json.JsonSerializer``. This doesn't
+require the SchemaRegistry.
 
-- Connect entry without a schema and the payload json String. There are many existing systems which are publishing json over Kafka and bringing them in line with best practices is
-quite a challenge. Hence we added the support
+**Connect entry with Schema.String and payload json String.** Sometimes the producer would find it easier, despite sending
+Avro to produce a GenericRecord, to just send a message with Schema.String and the json string.
+
+**Connect entry without a schema and the payload json String.** There are many existing systems which are publishing json
+over Kafka and bringing them in line with best practices is quite a challenge. Hence we added the support
 
 .. note:: The database needs to be created upfront!
+
+The Sink supports:
+
+1. :ref:`The KCQL routing querying <kcql>` - Topic to measure mapping and Field selection.
+2. Schema registry support for Connect/Avro with a schema
+3. Schema registry support for Connect and not schema (schema set to Schema.String)
+4. Json payload support, no Schema Registry.
+5. Error policies.
 
 Prerequisites
 -------------
 
 -  MongoDB 3.2.10
--  Confluent 3.0.0
+-  Confluent 3.0.1
 -  Java 1.8
 -  Scala 2.11
 
@@ -63,6 +76,41 @@ follow the details https://docs.mongodb.com/v3.2/administration/install-communit
     #Start MongoDb
     ➜  bin/mongod --dbpath data/db
 
+Confluent Setup
+~~~~~~~~~~~~~~~
+
+Follow the instructions :ref:`here <install>`.
+
+Sink Connector QuickStart
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+We will start the connector in distributed mode. Each connector exposes a rest endpoint for stopping, starting and updating the configuration. We have developed
+a Command Line Interface to make interacting with the Connect Rest API easier. The CLI can be found in the Stream Reactor download under
+the ``bin`` folder. Alternatively the Jar can be pulled from our GitHub
+`releases <https://github.com/datamountaineer/kafka-connect-tools/releases>`__ page.
+
+The important configuration for Connect is related to the key and value deserializer. In the first example we default to the
+best practice where the source sends Avro messages to a Kafka topic. It is not enough to just be Avro messages but also the producer
+must work with the Schema Registry to create the schema if it doesn't exist and set the schema id in the message.
+Every message sent will have a magic byte followed by the Avro schema id and then the actual Avro record in binary format.
+
+Here are the entries in the config setting all the above. The are placed in the ``connect-properties`` file Kafka Connect is started with.
+Of course if your SchemaRegistry runs on a different machine or you have multiple instances of it you will have to amend the configuration.
+
+.. sourcecode:: bash
+
+    key.converter=io.confluent.connect.avro.AvroConverter
+    key.converter.schema.registry.url=http://localhost:8081
+    value.converter=io.confluent.connect.avro.AvroConverter
+    value.converter.schema.registry.url=http://localhost:8081
+
+Test Database
+~~~~~~~~~~~~~
+
+The Sink requires that a database be precreated in MongoDB.
+
+.. sourcecode:: bash
+
     #from a new terminal
     ➜  cd ~/mongodb/bin
 
@@ -80,135 +128,30 @@ follow the details https://docs.mongodb.com/v3.2/administration/install-communit
     #list all dbs
     ➜  show dbs
 
-Confluent Setup
-~~~~~~~~~~~~~~~
+
+Starting the Connector
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Download, unpack and install the Stream Reactor. Follow the instructions :ref:`here <install>` if you haven't already done so.
+All paths in the quickstart are based in the location you installed the Stream Reactor.
+
+Start Kafka Connect in distributed more by running the ``start-connect.sh`` script in the ``bin`` folder.
 
 .. sourcecode:: bash
 
-    #make confluent home folder
-    ➜  mkdir confluent
+    ➜ bin/start-connect.sh
 
-    #download confluent
-    ➜  wget http://packages.confluent.io/archive/3.0/confluent-3.0.1-2.11.tar.gz
-
-    #extract archive to confluent folder
-    ➜  tar -xvf confluent-3.0.1-2.11.tar.gz -C confluent
-
-    #setup variables
-    ➜  export CONFLUENT_HOME=~/confluent/confluent-3.0.1
-
-Start the Confluent platform.
+Once the connector has started we can now use the kafka-connect-tools cli to post in our distributed properties file for Kudu.
+If you are using the :ref:`dockers <dockers>` you will have to set the following environment variable to for the CLI to
+connect to the Rest API of Kafka Connect of your container.
 
 .. sourcecode:: bash
 
-    #Start the confluent platform, we need kafka, zookeeper and the schema registry
-    ➜  cd CONFLUENT_HOME
-    ➜  bin/zookeeper-server-start etc/kafka/zookeeper.properties &
-    ➜  bin/kafka-server-start etc/kafka/server.properties &
-    ➜  bin/schema-registry-start etc/schema-registry/schema-registry.properties &
-
-Get the Sink and CLI
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The prebuilt CLI jar can be taken from `here <https://github.com/datamountaineer/kafka-connect-tools/releases>`__
-
-Grab the Mongo artifact link from the latest release `here https://github.com/datamountaineer/stream-reactor/releases`.
+   export KAFKA_CONNECT_REST="http://myserver:myport"
 
 .. sourcecode:: bash
 
-   #create a folder for the sink
-   ➜  mkdir $CONFLUENT_HOME/share/java/kafka-connect-mongo
-
-   #move into that directory
-   ➜  cd $CONFLUENT_HOME/share/java/kafka-connect-mongo
-
-   #download the latest mongosink. use the link copied earlier; the one below is a template
-   ➜  wget https://github.com/datamountaineer/stream-reactor/releases/download/v0.x.x/kafka-connect-mongodb-0.x-3.0.1-all.tar.gz
-
-   #unpack the tar
-   ➜  tar xvf kafka-connect-mongodb-0.x-3.0.1-all.tar.gz
-
-   #remove the archive
-   ➜  rm kafka-connect-mongodb-0.x-3.0.1-all.tar.gz
-
-
-Sink Connector QuickStart
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Next we will start the connector in distributed mode. Connect has two modes, standalone where the tasks run on only one host
-and distributed mode. Usually you'd run in distributed mode to get fault tolerance and better performance. In distributed mode
-you start Connect on multiple hosts and they join together to form a cluster. Connectors which are then submitted are
-distributed across the cluster.
-
-The important configuration for connect is related to the key and value deserializer. In the first example we default to the
-best practice where the source sends Avro messages to a Kafka topic. This is not enough to just be Avro messages but work with
-the schema registry to create the schema if it doesn't exist. Every message sent will have a magic byte followed by the Avro schema id
-and then the actual Avro record in binary format.
-
-Here are the entries in the config setting all the above. Of course if your SchemaRegistry runs on a different machine or you have
-multiple instances of it you will have to amend the configuration
-
-.. sourcecode:: bash
-    key.converter=io.confluent.connect.avro.AvroConverter
-    key.converter.schema.registry.url=http://localhost:8081
-    value.converter=io.confluent.connect.avro.AvroConverter
-    value.converter.schema.registry.url=http://localhost:8081
-
-Before we can start the connector we need to setup it's configuration. In standalone mode this is done by creating a
-properties file and passing this to the connector at startup. In distributed mode you can post in the configuration as
-json to the Connectors HTTP endpoint. Each connector exposes a rest endpoint for stopping, starting and updating the
-configuration.
-
-
-Sink Connector Configuration
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-
-Create a file called mongo-sink-distributed.properties with contents below.
-
-.. sourcecode:: bash
-
-    name=mongo-sink-orders
-    connector.class=com.datamountaineer.streamreactor.connect.mongodb.sink.MongoSinkConnector
-    tasks.max=1
-    topics=orders-topic
-    connect.mongo.sink.kqcl=INSERT INTO orders SELECT * FROM orders-topic
-    connect.mongo.database=connect
-    connect.mongo.hosts=localhost:27017
-    connect.mongo.sink.batch.size=10
-
-
-
-Starting the Sink Connector (Distributed)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-We will start Kafka Connect in distributed mode.
-
-.. sourcecode:: bash
-
-    #Add the Connector to the class path
-    # Start the connect in distributed mode
-    ➜   $CONFLUENT_HOME/bin/connect-distributed etc/schema-registry/connect-avro-distributed.properties
-
-    # Once the connector has started lets use the kafka-connect-tools cli to post in our distributed properties file.
-    # Let's download the CLI
-    ➜   wget https://github.com/datamountaineer/kafka-connect-tools/releases/download/v0.5/kafka-connect-cli-0.5-all.jar
-
-    #create the configuation
-    ➜   echo "" > mongo-sink-orders.properties
-    ➜   cat <<EOF >> mongo-sink-orders.properties
-        name=mongo-sink-orders
-        connector.class=com.datamountaineer.streamreactor.connect.mongodb.sink.MongoSinkConnector
-        tasks.max=1
-        topics=orders-topic
-        connect.mongo.sink.kqcl=INSERT INTO orders SELECT * FROM orders-topic
-        connect.mongo.database=connect
-        connect.mongo.hosts=localhost:27017
-        connect.mongo.sink.batch.size=10
-        EOF
-
-    #start the connector for mongo
-    ➜   java -jar kafka-connect-cli-0.5-all.jar create mongo-sink-orders < mongo-sink-orders.properties
+     ➜  bin/cli.sh create mogo-sink < conf/quickstarts/mongo-sink.properties
 
     #Connector `mongo-sink-orders`:
     name=mongo-sink-orders
@@ -222,7 +165,7 @@ We will start Kafka Connect in distributed mode.
 
     #task ids: 0
 
-If you switch back to the terminal you started the Connector in you should see the Mongo sink being accepted and the
+If you switch back to the terminal you started Kafka Connect in you should see the Mongo Sink being accepted and the
 task starting.
 
 We can use the CLI to check if the connector is up but you should be able to see this in logs as-well.
@@ -230,7 +173,7 @@ We can use the CLI to check if the connector is up but you should be able to see
 .. sourcecode:: bash
 
     #check for running connectors with the CLI
-    ➜ java -jar kafka-connect-cli-0.5-all.jar ps
+    ➜ bin/cli.sh ps
     mongo-sink
 
 
@@ -263,16 +206,16 @@ We can use the CLI to check if the connector is up but you should be able to see
 Test Records
 ^^^^^^^^^^^^
 
-Now we need to put some records it to the orders-topic. We can use the ``kafka-avro-console-producer`` to do this.
-
-Start the producer and pass in a schema to register in the Schema Registry. The schema matches the table created earlier.
-
 .. hint::
 
     If your input topic doesn't match the target use Kafka Streams to transform in realtime the input. Also checkout the
     `Plumber <https://github.com/rollulus/kafka-streams-plumber>`__, which allows you to inject a Lua script into
     `Kafka Streams <http://www.confluent.io/blog/introducing-kafka-streams-stream-processing-made-simple>`__ to do this,
     no Java or Scala required!
+
+Now we need to put some records it to the orders-topic. We can use the ``kafka-avro-console-producer`` to do this.
+
+Start the producer and pass in a schema to register in the Schema Registry. The schema matches the table created earlier.
 
 .. sourcecode:: bash
 
@@ -290,7 +233,7 @@ Now the producer is waiting for input. Paste in the following (each on a line se
     {"id": 3, "created": "2016-05-06 13:55:00", "product": "FU-DATAMOUNTAINEER-20150201-100", "price": 10000}
     {"id": 4, "created": "2016-05-06 13:56:00", "product": "FU-KOSPI-C-20150201-100", "price": 150}
 
-Now if we check the logs of the connector we should see 2 records being inserted to Elastic Search:
+Now if we check the logs of the connector we should see 2 records being inserted to MongoDB:
 
 .. sourcecode:: bash
 
@@ -320,9 +263,9 @@ Bingo, our 4 rows!
 
 
 Legacy topics (plain text payload with a json string)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-We have found some of the clients have already an infrastructure where they publish pure json on the topic and obviousely the jump to follow
+We have found some of the clients have already an infrastructure where they publish pure json on the topic and obviously the jump to follow
 the best practice and use schema registry is quite an ask. So we offer support for them as well.
 
 This time we need to start the connect with a different set of settings.
@@ -334,44 +277,45 @@ This time we need to start the connect with a different set of settings.
       ➜ vi etc/schema-registry/connect-avro-distributed-json.properties
 
 Replace the following 4 entries in the config
+
+.. sourcecode:: bash
+
       key.converter=io.confluent.connect.avro.AvroConverter
       key.converter.schema.registry.url=http://localhost:8081
       value.converter=io.confluent.connect.avro.AvroConverter
       value.converter.schema.registry.url=http://localhost:8081
 
-      with the following
+with the following
+
+.. sourcecode:: bash
+
       key.converter=org.apache.kafka.connect.json.JsonConverter
       key.converter.schemas.enable=false
       value.converter=org.apache.kafka.connect.json.JsonConverter
       value.converter.schemas.enable=false
 
 Now let's restart the connect instance:
+
 .. sourcecode:: bash
 
       #start a new instance of connect
-      ➜   $CONFLUENT_HOME/bin/connect-distributed etc/schema-registry/connect-avro-distributed-json.properties
+      ➜   $bin/start-connect.sh
 
 
-In a new terminal we will create a new sink configurations:
+Use the ``CLI`` to remove the old MongoDB Sink:
 
 .. sourcecode:: bash
-    #create the configuation
-    ➜   echo "" > mongo-sink-orders-json.properties
-    ➜   cat <<EOF >> mongo-sink-orders-json.properties
-        name=mongo-sink-orders-json
-        connector.class=com.datamountaineer.streamreactor.connect.mongodb.sink.MongoSinkConnector
-        tasks.max=1
-        topics=orders-topic-json
-        connect.mongo.sink.kqcl=UPSERT INTO orders_json SELECT id, product as product_name, price as value FROM orders-topic-json PK id
-        connect.mongo.database=connect
-        connect.mongo.hosts=localhost:27017
-        connect.mongo.sink.batch.size=10
-        EOF
+
+    ➜ bin/cli.sh rm  mongo-sink
+
+and start the new Sink with the json properties files to read from the a different topic with json as the payload.
+
+.. sourcecode:: bash
 
      #start the connector for mongo
-    ➜   java -jar kafka-connect-cli-0.5-all.jar create mongo-sink-orders-json < mongo-sink-orders-json.properties
+    ➜   bin/cli.sh create mongo-sink-orders-json < mongo-sink-orders-json.properties
 
-You should see in the terminal where you started the connector the following entries in the log:
+You should see in the terminal where you started Kafka Connect the following entries in the log:
 
 .. sourcecode:: bash
 
@@ -403,23 +347,25 @@ Now it's time to produce some records. This time we will use the simple kafka-co
 
 .. sourcecode:: bash
 
-    ➜ ./bin/kafka-console-producer --broker-list localhost:9092 --topic orders-topic-json
+    ➜ ${CONFLUENT_HOME}/bin/kafka-console-producer --broker-list localhost:9092 --topic orders-topic-json
 
-{"id": 1, "created": "2016-05-06 13:53:00", "product": "OP-DAX-P-20150201-95.7", "price": 94.2}
-{"id": 2, "created": "2016-05-06 13:54:00", "product": "OP-DAX-C-20150201-100", "price": 99.5}
-{"id": 3, "created": "2016-05-06 13:55:00", "product": "FU-DATAMOUNTAINEER-20150201-100", "price":10000}
+    {"id": 1, "created": "2016-05-06 13:53:00", "product": "OP-DAX-P-20150201-95.7", "price": 94.2}
+    {"id": 2, "created": "2016-05-06 13:54:00", "product": "OP-DAX-C-20150201-100", "price": 99.5}
+    {"id": 3, "created": "2016-05-06 13:55:00", "product": "FU-DATAMOUNTAINEER-20150201-100", "price":10000}
 
 Following the command you should have something similar to this in the logs for your connect:
 
 .. sourcecode:: bash
 
-[2016-11-07 00:08:30,200] INFO Setting newly assigned partitions [orders-topic-json-0] for group connect-mongo-sink-orders-json (org.apache.kafka.clients.consumer.internals.ConsumerCoordinator:231)
-[2016-11-07 00:08:30,324] INFO Opened connection [connectionId{localValue:3, serverValue:9}] to localhost:27017 (org.mongodb.driver.connection:71)
+    [2016-11-07 00:08:30,200] INFO Setting newly assigned partitions [orders-topic-json-0] for group connect-mongo-sink-orders-json (org.apache.kafka.clients.consumer.internals.ConsumerCoordinator:231)
+    [2016-11-07 00:08:30,324] INFO Opened connection [connectionId{localValue:3, serverValue:9}] to localhost:27017 (org.mongodb.driver.connection:71)
 
 
 Let's check the mongo db database for the new records:
+
 .. sourcecode:: bash
-    #Open a new terminal and navigate to the mongodb instalation folder
+
+    #Open a new terminal and navigate to the mongodb installation folder
     ➜ ./bin/mongo
         > show databases
             connect  0.000GB
@@ -461,14 +407,14 @@ The sink supports:
 Kafka Connect Query Language
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**K** afka **C** onnect **Q** uery **L** anguage found here `GitHub repo <https://github.com/datamountaineer/kafka-connector-query-language>`_
-allows for routing and mapping using a SQL like syntax, consolidating typically features in to one configuration option.
+**K** afka **C** onnect **Q** uery **L**, :ref:`KCQL <kcql>` allows for routing and mapping using a SQL like syntax,
+consolidating typically features in to one configuration option.
 
 MongoDb sink supports the following:
 
 .. sourcecode:: bash
 
-    INSERT INTO <database>.<target collection> SELECT <fields> FROM <source topic>
+    INSERT INTO <database>.<target collection> SELECT <fields> FROM <source topic> <PK field name>
 
 Example:
 
@@ -477,8 +423,8 @@ Example:
     #Insert mode, select all fields from topicA and write to tableA
     INSERT INTO collectionA SELECT * FROM topicA
 
-    #Insert mode, select 3 fields and rename from topicB and write to tableB
-    INSERT INTO tableB SELECT x AS a, y AS b and z AS c FROM topicB
+    #Insert mode, select 3 fields and rename from topicB and write to tableB with primary key as the field id from the topic
+    INSERT INTO tableB SELECT x AS a, y AS b and z AS c FROM topicB PK id
 
 
 Error Polices
@@ -530,16 +476,31 @@ Field Selection
 ^^^^^^^^^^^^^^^
 
 The sink supports selecting fields from the source topic or selecting all. There is an option to rename a field as well.
- All of this can be easily epxress with KCQL:
- -  select all fields from topic `fx_prices` and insert into the `fx` collection: `INSERT INTO fx SELECT * FROM fx_prices`
- -  select all fields from topic `fx_prices` and upsert into the `fx` collection: `UPSERT INTO fx SELECT * FROM fx_prices PK ticker`
-The assumption is there will be a ticker field in the incoming json
- -  select specific fields from the topic 'sample_topic' and insert into the `sample' collection: `INSERT INTO sample SELECT field1,field2,field3 FROM sample_fopic`
- -  select specific fields from the topic 'sample_topic' and upsert into the `sample' collection: `UPSERT INTO sample SELECT field1,field2,field3 FROM sample_fopic PK field1`
- -  rename some fields while selecting all from the topic 'sample_topic' and insert into the `sample' collection: `INSERT INTO sample SELECT *, field1 as new_name1,field2 as new_name2 FROM sample_fopic`
- -  rename some fields while selecting all from the topic 'sample_topic' and upsert into the `sample' collection: `UPSERT INTO sample SELECT *, field1 as new_name1,field2 as new_name2 FROM sample_fopic PK new_name1`
- -  select specific fields and rename some of them from the topic 'sample_topic' and insert into the `sample' collection: `INSERT INTO sample SELECT field1 as new_name1,field2, field3 as new_name3 FROM sample_fopic`
- -  select specific fields and rename some of them from the topic 'sample_topic' and upsert into the `sample' collection: `INSERT INTO sample SELECT field1 as new_name1,field2, field3 as new_name3 FROM sample_fopic PK new_name3`
+All of this can be easily expressed with KCQL:
+
+ -  Select all fields from topic fx_prices and insert into the fx collection: ``INSERT INTO fx SELECT * FROM fx_prices``.
+
+ -  Select all fields from topic fx_prices and upsert into the fx collection, The assumption is there will be a ticker field in the incoming json:
+    ``UPSERT INTO fx SELECT * FROM fx_prices PK ticker``.
+
+
+ -  Select specific fields from the topic sample_topic and insert into the sample collection:
+    ``INSERT INTO sample SELECT field1,field2,field3 FROM sample_topic``.
+
+ -  Select specific fields from the topic sample_topic and upsert into the sample collection:
+    ``UPSERT INTO sample SELECT field1,field2,field3 FROM sample_fopic PK field1``.
+
+ -  Rename some fields while selecting all from the topic sample_topic and insert into the sample collection:
+    ``INSERT INTO sample SELECT *, field1 as new_name1,field2 as new_name2 FROM sample_topic``.
+
+ -  Rename some fields while selecting all from the topic sample_topic and upsert into the sample collection:
+    ``UPSERT INTO sample SELECT *, field1 as new_name1,field2 as new_name2 FROM sample_topic PK new_name1``.
+
+ -  Select specific fields and rename some of them from the topic sample_topic and insert into the sample collection:
+    ``INSERT INTO sample SELECT field1 as new_name1,field2, field3 as new_name3 FROM sample_topic``.
+
+ -  Select specific fields and rename some of them from the topic sample_topic and upsert into the sample collection:
+    ``INSERT INTO sample SELECT field1 as new_name1,field2, field3 as new_name3 FROM sample_fopic PK new_name3``.
 
 
 Configurations

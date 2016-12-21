@@ -4,6 +4,14 @@ Kafka Connect ReThink
 A Connector and Source to write events from ReThinkDB to Kafka. The connector subscribes to changefeeds on tables and
 streams the records to Kafka.
 
+The Source supports:
+
+1. :ref:`The KCQL routing querying <kcql>` - Table to topic routing
+2. Initialization (Read feed from start) via KCQL.
+3. ReThinkDB type (add, delete, update).
+4. ReThinkDB initial states.
+
+
 Prerequisites
 -------------
 
@@ -25,140 +33,39 @@ operating system.
 Confluent Setup
 ~~~~~~~~~~~~~~~
 
-.. sourcecode:: bash
-
-    #make confluent home folder
-    ➜  mkdir confluent
-
-    #download confluent
-    ➜  wget http://packages.confluent.io/archive/3.0/confluent-3.0.1-2.11.tar.gz
-
-    #extract archive to confluent folder
-    ➜  tar -xvf confluent-3.0.1-2.11.tar.gz -C confluent
-
-    #setup variables
-    ➜  export CONFLUENT_HOME=~/confluent/confluent-3.0.1
-
-Start the Confluent platform.
-
-.. sourcecode:: bash
-
-    #Start the confluent platform, we need kafka, zookeeper and the schema registry
-    ➜  bin/zookeeper-server-start etc/kafka/zookeeper.properties &
-    ➜  bin/kafka-server-start etc/kafka/server.properties &
-    ➜  bin/schema-registry-start etc/schema-registry/schema-registry.properties &
-
-Build the Connector and CLI
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The prebuilt jars can be taken from `here <https://github.com/datamountaineer/stream-reactor/releases>`__ and
-`here <https://github.com/datamountaineer/kafka-connect-tools/releases>`__
-or from `Maven <http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22kafka-connect-cli%22>`__
-
-If you want to build the connector, clone the repo and build the jar.
-
-.. sourcecode:: bash
-
-    ##Build the connectors
-    ➜  git clone https://github.com/datamountaineer/stream-reactor
-    ➜  cd stream-reactor
-    ➜  gradle fatJar
-
-    ##Build the CLI for interacting with Kafka connectors
-    ➜  git clone https://github.com/datamountaineer/kafka-connect-tools
-    ➜  cd kafka-connect-tools
-    ➜  gradle fatJar
+Follow the instructions :ref:`here <install>`.
 
 Sink Connector QuickStart
 -------------------------
 
-Next we will start the connector in distributed mode. Connect has two modes, standalone where the tasks run on only one host
-and distributed mode. Usually you'd run in distributed mode to get fault tolerance and better performance. In distributed mode
-you start Connect on multiple hosts and they join together to form a cluster. Connectors which are then submitted are
-distributed across the cluster.
-
-Before we can start the connector we need to setup it's configuration. In standalone mode this is done by creating a
-properties file and passing this to the connector at startup. In distributed mode you can post in the configuration as
-json to the Connectors HTTP endpoint. Each connector exposes a rest endpoint for stopping, starting and updating the
-configuration.
-
-Sink Connector Configuration
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Create a file called ``rethinkdb-sink.properties`` with the contents below:
-
-.. sourcecode:: bash
-
-    name=rethink-source
-    connect.rethink.source.host=localhost
-    connect.rethink.source.port=28015
-    connector.class=com.datamountaineer.streamreactor.connect.rethink.source.ReThinkSourceConnector
-    tasks.max=1
-    connect.rethink.source.db=localhost
-    connect.rethink.export.route.query=INSERT INTO rethink-topic SELECT * FROM source-test
-
-This configuration defines:
-
-1.  The name of the source.
-2.  The name of the rethink host to connect to.
-3.  The rethink port to connect to.
-4.  The source class.
-5.  The max number of tasks the connector is allowed to created. The connector splits and groups the `connect.rethink.import.route.query`
-    by the number of tasks to ensure a distribution based on allowed number of tasks and source tables.
-6.  The ReThinkDB database to connect to.
-7.  The KCQL statement for topic routing.
+We will start the connector in distributed mode. Each connector exposes a rest endpoint for stopping, starting and updating the configuration. We have developed
+a Command Line Interface to make interacting with the Connect Rest API easier. The CLI can be found in the Stream Reactor download under
+the ``bin`` folder. Alternatively the Jar can be pulled from our GitHub
+`releases <https://github.com/datamountaineer/kafka-connect-tools/releases>`__ page.
 
 Starting the Connector (Distributed)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Connectors can be deployed distributed mode. In this mode one or many connectors are started on the same or different
-hosts with the same cluster id. The cluster id can be found in ``etc/schema-registry/connect-avro-distributed.properties.``
+Download, unpack and install the Stream Reactor. Follow the instructions :ref:`here <install>` if you haven't already done so.
+All paths in the quickstart are based in the location you installed the Stream Reactor.
+
+Start Kafka Connect in distributed more by running the ``start-connect.sh`` script in the ``bin`` folder.
 
 .. sourcecode:: bash
 
-    # The group ID is a unique identifier for the set of workers that form a single Kafka Connect
-    # cluster
-    group.id=connect-cluster
+    ➜ bin/start-connect.sh
 
-Now start the connector in distributed mode. We only give it one properties file for the kafka, zookeeper and
-schema registry configurations.
-
-First add the connector jar to the CLASSPATH and then start Connect.
-
-.. note::
-
-    You need to add the connector to your classpath or you can create a folder in ``share/java`` of the Confluent
-    install location like, kafka-connect-myconnector and the start scripts provided by Confluent will pick it up.
-    The start script looks for folders beginning with kafka-connect.
+Once the connector has started we can now use the kafka-connect-tools cli to post in our distributed properties file for ReThinkDB.
+If you are using the :ref:`dockers <dockers>` you will have to set the following environment variable to for the CLI to
+connect to the Rest API of Kafka Connect of your container.
 
 .. sourcecode:: bash
 
-    #Add the Connector to the class path
-    ➜  export CLASSPATH=kafka-connect-rethink-0.2-cp-3.0.1.all.jar
+   export KAFKA_CONNECT_REST="http://myserver:myport"
 
 .. sourcecode:: bash
 
-    ➜  confluent-3.0.1/bin/connect-distributed confluent-3.0.1/etc/schema-registry/connect-avro-distributed.properties
-
-Once the connector has started lets use the kafka-connect-tools cli to post in our distributed properties file.
-
-.. sourcecode:: bash
-
-    ➜  java -jar build/libs/kafka-connect-cli-0.6-all.jar create rethink-sink < rethink-sink.properties
-
-
-If you switch back to the terminal you started the Connector in you should see the ReThinkDB Sink being accepted and the
-task starting.
-
-We can use the CLI to check if the connector is up but you should be able to see this in logs as-well.
-
-.. sourcecode:: bash
-
-    #check for running connectors with the CLI
-    ➜ java -jar build/libs/kafka-connect-cli-0.6-all.jar ps
-    rethink-sink
-
-    ➜ java -jar build/libs/kafka-connect-cli-0.6-all.jar get rethink-sink
+    ➜  bin/cli.sh create rethink-source < conf/rethink-source.properties
     #Connector name=`rethink-source`
     name=rethink-source
     connect.rethink.source.host=localhost
@@ -169,9 +76,32 @@ We can use the CLI to check if the connector is up but you should be able to see
     connect.rethink.export.route.query=INSERT INTO rethink-topic SELECT * FROM source-test
     #task ids: 0
 
+The ``rethink-source.properties`` file defines:
+
+1.  The name of the source.
+2.  The name of the rethink host to connect to.
+3.  The rethink port to connect to.
+4.  The Source class.
+5.  The max number of tasks the connector is allowed to created. The connector splits and groups the `connect.rethink.import.route.query`
+    by the number of tasks to ensure a distribution based on allowed number of tasks and Source tables.
+6.  The ReThinkDB database to connect to.
+7.  :ref:`The KCQL routing querying. <kcql>`
+
+If you switch back to the terminal you started the Connector in you should see the ReThinkDB Sink being accepted and the
+task starting.
+
+We can use the CLI to check if the connector is up but you should be able to see this in logs as-well.
+
 .. sourcecode:: bash
 
-    [2016-10-05 12:09:35,414] INFO     ____        __        __  ___                  __        _
+    #check for running connectors with the CLI
+    ➜ bin/cli.sh ps
+    rethink-source
+
+.. sourcecode:: bash
+
+    [2016-10-05 12:09:35,414] INFO
+        ____        __        __  ___                  __        _
        / __ \____ _/ /_____ _/  |/  /___  __  ______  / /_____ _(_)___  ___  ___  _____
       / / / / __ `/ __/ __ `/ /|_/ / __ \/ / / / __ \/ __/ __ `/ / __ \/ _ \/ _ \/ ___/
      / /_/ / /_/ / /_/ /_/ / /  / / /_/ / /_/ / / / / /_/ /_/ / / / / /  __/  __/ /
@@ -230,7 +160,7 @@ Check Kafka with the console consumer
 Features
 --------
 
-The ReThinkDb source writes change feed records from RethinkDb to Kafka.
+The ReThinkDb Source writes change feed records from RethinkDb to Kafka.
 
 The Source supports:
 

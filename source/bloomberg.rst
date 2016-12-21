@@ -3,13 +3,13 @@ Kafka Connect Bloomberg
 
 **DOCS ARE WORKING IN PROGRESS**
 
-Kafka Connect Bloomberg is a source connector to subscribe to Bloomberg feeds via the Bloomberg labs open API and write to Kafka.
+Kafka Connect Bloomberg is a Source connector to subscribe to Bloomberg feeds via the Bloomberg labs open API and write to Kafka.
 
 Prerequisites
 -------------
 
 -  Bloomberg subscription
--  Confluent 2.0
+-  Confluent 3.0.1
 -  Java 1.8
 -  Scala 2.11
 
@@ -19,79 +19,40 @@ Setup
 Confluent Setup
 ~~~~~~~~~~~~~~~
 
-.. sourcecode:: bash
-
-    #make confluent home folder
-    ➜  mkdir confluent
-
-    #download confluent
-    ➜  wget http://packages.confluent.io/archive/3.0/confluent-3.0.1-2.11.tar.gz
-
-    #extract archive to confluent folder
-    ➜  tar -xvf confluent-3.0.1-2.11.tar.gz -C confluent
-
-    #setup variables
-    ➜  export CONFLUENT_HOME=~/confluent/confluent-3.0.1
-
-Start the Confluent platform.
-
-.. sourcecode:: bash
-
-    #Start the confluent platform, we need kafka, zookeeper and the schema registry
-    bin/zookeeper-server-start etc/kafka/zookeeper.properties &
-    bin/kafka-server-start etc/kafka/server.properties &
-    bin/schema-registry-start etc/schema-registry/schema-registry.properties &
-
-Build the Connector and CLI
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The prebuilt jars can be taken from `here <https://github.com/datamountaineer/stream-reactor/releases>`__ and
-`here <https://github.com/datamountaineer/kafka-connect-tools/releases>`__
-or from `Maven <http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22kafka-connect-cli%22>`__
-
-If you want to build the connector, clone the repo and build the jar.
-
-.. sourcecode:: bash
-
-    ##Build the connectors
-    git clone https://github.com/datamountaineer/stream-reactor
-    cd stream-reactor
-    gradle fatJar
-
-    ##Build the CLI for interacting with Kafka connectors
-    git clone https://github.com/datamountaineer/kafka-connect-tools
-    cd kafka-connect-tools
-    gradle fatJar
-
-Source Connector
-----------------
+Follow the instructions :ref:`here <install>`.
 
 Source Connector QuickStart
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Test data
-^^^^^^^^^
+We will start the connector in distributed mode. Each connector exposes a rest endpoint for stopping, starting and updating the configuration. We have developed
+a Command Line Interface to make interacting with the Connect Rest API easier. The CLI can be found in the Stream Reactor download under
+the ``bin`` folder. Alternatively the Jar can be pulled from our GitHub
+`releases <https://github.com/datamountaineer/kafka-connect-tools/releases>`__ page.
 
-Source Connector Configuration
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Starting the Connector (Distributed)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Next we start the connector in standalone mode. This useful for testing
-and one of jobs, usually you'd run in distributed mode to get fault
-tolerance and better performance.
+Download, unpack and install the Stream Reactor. Follow the instructions :ref:`here <install>` if you haven't already done so.
+All paths in the quickstart are based in the location you installed the Stream Reactor.
 
-Before we can start the connector we need to setup it's configuration.
-In standalone mode this is done by creating a properties file and
-passing this to the connector at startup. In distributed mode you can
-post in the configuration as json to the Connectors HTTP endpoint. Each
-connector exposes a rest endpoint for stopping, starting and updating the
-configuration.
-
-Since we are in standalone mode we'll create a file called
-bloomberg-source.properties with the contents below:
+Start Kafka Connect in distributed more by running the ``start-connect.sh`` script in the ``bin`` folder.
 
 .. sourcecode:: bash
 
-    name=bloomberg-source
+    ➜ bin/start-connect.sh
+
+Once the connector has started we can now use the kafka-connect-tools cli to post in our distributed properties file for Redis.
+If you are using the :ref:`dockers <dockers>` you will have to set the following environment variable to for the CLI to
+connect to the Rest API of Kafka Connect of your container.
+
+.. sourcecode:: bash
+
+   export KAFKA_CONNECT_REST="http://myserver:myport"
+
+.. sourcecode:: bash
+
+    ➜  bin/cli.sh create bloomberg-source < conf/bloomberg-source.properties
+    #Connector name=name=`bloomberg-source`
     connector.class=com.datamountaineer.streamreactor.connect.bloomberg.BloombergSourceConnector
     tasks.max=1
     connect.bloomberg.server.host=localhost
@@ -100,8 +61,9 @@ bloomberg-source.properties with the contents below:
     connect.bloomberg.subscriptions=AAPL US Equity:LAST_PRICE,BID,ASK;IBM US Equity:BID,ASK,HIGH,LOW,OPEN
     kafka.topic=bloomberg
     connect.bloomberg.buffer.size=4096
+    #task ids: 0
 
-This configuration defines:
+The ``bloomberg-source.properties`` file defines:
 
 1. The connector name.
 2. The class containing the connector.
@@ -113,94 +75,34 @@ This configuration defines:
 8. The topic to write to.
 9. The buffer size for the Bloomberg API to buffer events in.
 
-Starting the Source Connector (Standalone)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Now we are ready to start the Bloomberg Source Connector in standalone mode.
-
-.. note::
-
-    You need to add the connector to your classpath or you can create a folder in share/java like
-    kafka-connect-myconnector and the start scripts provided by Confluent will pick it up. The start script looks for
-    folders beginning with kafka-connect.
-
-.. sourcecode:: bash
-
-    #Add the Connector to the class path
-    ➜  export CLASSPATH=kafka-connect-bloomberg-0.1-all.jar
-    #Start the connector in standalone mode, passing in two properties files, the first for the schema registry, kafka
-    #and zookeeper and the second with the connector properties.
-    ➜  bin/connect-standalone etc/schema-registry/connect-avro-standalone.properties bloomberg-source.properties
+If you switch back to the terminal you started the Connector in you should see the Bloomberg Source being accepted and the
+task starting.
 
 We can use the CLI to check if the connector is up but you should be able to see this in logs as-well.
 
 .. sourcecode:: bash
 
-    ➜ java -jar build/libs/kafka-connect-cli-0.6-all.jar get bloomberg-source
+    #check for running connectors with the CLI
+    ➜ bin/cli.sh ps
+    bloomberg-source
 
+Test Records
+^^^^^^^^^^^^
 
-Check for Source Records in Kafka
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Now check the logs of the connector you should see this
-
-... sourcecode:: bash
-
-
-We can then use the kafka-avro-console-consumer to see what's in the kafka topic we have routed the subscription to.
-
-... sourcecode:: bash
-
-Now stop the connector.
-
-Starting the Connector (Distributed)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Connectors can be deployed distributed mode. In this mode one or many
-connectors are started on the same or different hosts with the same cluster id.
-The cluster id can be found in ``etc/schema-registry/connect-avro-distributed.properties.``
+Now we need to see records pushed on the topic. We can use the ``kafka-avro-console-producer`` to do this.
 
 .. sourcecode:: bash
 
-    # The group ID is a unique identifier for the set of workers that form a single Kafka Connect
-    # cluster
-    group.id=connect-cluster
+    $ ./bin/kafka-avro-console-consumer --topic blockchain-test \
+         --zookeeper localhost:2181 \
+         --from-beginning
 
-For this quick-start we will just use one host.
-
-Now start the connector in distributed mode, this time we only give it
-one properties file for the kafka, zookeeper and schema registry
-configurations.
-
-.. sourcecode:: bash
-
-    ➜  confluent-3.0.1/bin/connect-distributed confluent-3.0.1/etc/schema-registry/connect-avro-distributed.properties
-
-Once the connector has started lets use the kafka-connect-tools cli to
-post in our distributed properties file.
-
-.. sourcecode:: bash
-
-    ➜  java -jar build/libs/kafka-connect-cli-0.6-all.jar create bloomberg-source < bloomberg-source.properties
-
-If you switch back to the terminal you started the Connector in you
-should see the Bloomberg Source being accepted and the task starting.
-
-Check the logs.
-
-Check Kafka.
-
-
+Now the console is reading blockchain transaction data which would print on the terminal.
 
 Features
 --------
 
-Source Connector
-~~~~~~~~~~~~~~~~
-
-Data Types
-^^^^^^^^^^
-
+The Source Connector allows subscriptions to BPipe mkdata and refdata endpoints to feed data into Kafka.
 
 Configurations
 --------------
