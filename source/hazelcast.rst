@@ -7,17 +7,17 @@ SinkRecords and inserts a new entry to a HazelCast reliable topic. The Sink only
 The Sink supports:
 
 1. :ref:`The KCQL routing querying <kcql>` - Kafka topic payload field selection is supported, allowing you to have choose selection of fields
-   or all fields written to Hazelcast.
+   or all fields written to .
 2. Topic to table routing via KCQL.
 3. Error policies for handling failures.
-4. Storing as JSON or Avro in Hazelcast via KCQL.
+4. Storing as JSON or Avro in  via KCQL.
 5. Support for writing to reliable topics and ring buffers via KCQL.
 
 Prerequisites
 -------------
 
 - Confluent 3.0.1
-- Hazelcast 3.6.4
+-  3.6.4
 - Java 1.8
 - Scala 2.11
 
@@ -29,13 +29,13 @@ HazelCast Setup
 
 Download and install HazelCast from `here <https://hazelcast.org/staging-dl/>`__
 
-When you download and extract the Hazelcast ZIP or TAR.GZ package, you will see 3 scripts under the ``/bin`` folder which
+When you download and extract the  ZIP or TAR.GZ package, you will see 3 scripts under the ``/bin`` folder which
 provide basic functionality for member and cluster management.
 
 The following are the names and descriptions of each script:
 
-- start.sh  - Starts a Hazelcast member with default configuration in the working directory.
-- stop.sh   - Stops the Hazelcast member that was started in the current working directory.
+- start.sh  - Starts a  member with default configuration in the working directory.
+- stop.sh   - Stops the  member that was started in the current working directory.
 
 Start HazelCast:
 
@@ -57,7 +57,7 @@ Start HazelCast:
     Aug 16, 2016 2:43:07 PM com.hazelcast.core.LifecycleService
     INFO: [10.128.137.102]:5701 [dev] [3.6.4] Address[10.128.137.102]:5701 is STARTED
 
-This will start Hazelcast with a default group called *dev* and password *dev-pass*
+This will start  with a default group called *dev* and password *dev-pass*
 
 Confluent Setup
 ~~~~~~~~~~~~~~~
@@ -118,7 +118,7 @@ The ``hazelcast-sink.properties`` configuration defines:
 7.  The password for the group.
 8.  :ref:`The KCQL routing querying. <kcql>`, storing as JSON in a RING BUFFER.
 
-If you switch back to the terminal you started the Connector in you should see the Hazelcast Sink being accepted and the
+If you switch back to the terminal you started the Connector in you should see the  Sink being accepted and the
 task starting.
 
 We can use the CLI to check if the connector is up but you should be able to see this in logs as-well.
@@ -171,9 +171,9 @@ We can use the CLI to check if the connector is up but you should be able to see
         connect.hazelcast.connection.timeout = 5000
      (com.datamountaineer.streamreactor.connect.hazelcast.config.HazelCastSinkConfig:178)
     Aug 20, 2016 4:45:39 PM com.hazelcast.core.LifecycleService
-    INFO: HazelcastClient[dev-kafka-connect-05e64989-41d9-433e-ad21-b54894486384][3.6.4] is STARTING
+    INFO: Client[dev-kafka-connect-05e64989-41d9-433e-ad21-b54894486384][3.6.4] is STARTING
     Aug 20, 2016 4:45:39 PM com.hazelcast.core.LifecycleService
-    INFO: HazelcastClient[dev-kafka-connect-05e64989-41d9-433e-ad21-b54894486384][3.6.4] is STARTED
+    INFO: Client[dev-kafka-connect-05e64989-41d9-433e-ad21-b54894486384][3.6.4] is STARTED
     Aug 20, 2016 4:45:39 PM com.hazelcast.client.spi.impl.ClientMembershipListener
     INFO:
 
@@ -182,7 +182,7 @@ We can use the CLI to check if the connector is up but you should be able to see
     }
 
     Aug 20, 2016 4:45:39 PM com.hazelcast.core.LifecycleService
-    INFO: HazelcastClient[dev-kafka-connect-05e64989-41d9-433e-ad21-b54894486384][3.6.4] is CLIENT_CONNECTED
+    INFO: Client[dev-kafka-connect-05e64989-41d9-433e-ad21-b54894486384][3.6.4] is CLIENT_CONNECTED
 
 Test Records
 ^^^^^^^^^^^^
@@ -286,7 +286,7 @@ The length of time the Sink will retry can be controlled by using the ``connect.
 With Format
 ~~~~~~~~~~~
 
-Hazelcast requires that data stored in collections and topics is serializable. The Sink offers two modes to store data.
+ requires that data stored in collections and topics is serializable. The Sink offers two modes to store data.
 
 *Avro* In this mode the Sink converts the SinkRecords from Kafka to Avro encoded byte arrays.
 *Json* In this mode the Sink converts the SinkRecords from Kafka to Json strings and stores the resulting bytes.
@@ -351,7 +351,7 @@ communicate with each other),it is recommended that you give the addresses for a
 
 ``connect.hazelcast.sink.group.name``
 
-The group name of the connector in the target Hazelcast cluster.
+The group name of the connector in the target  cluster.
 
 * Data type : string
 * Importance : high
@@ -429,7 +429,7 @@ or fields, data type changes and if defaults are set. The Schema Registry enforc
 More information can be found `here <http://docs.confluent.io/3.0.1/schema-registry/docs/api.html#compatibility>`_.
 
 The Sink serializes either an Avro or Json representation of the Sink record to the target reliable topic in Hazelcaset.
-Hazelcast is agnostic to the schema.
+ is agnostic to the schema.
 
 Deployment Guidelines
 ---------------------
