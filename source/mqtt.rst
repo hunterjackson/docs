@@ -89,8 +89,8 @@ connect to the Rest API of Kafka Connect of your container.
     connect.mqtt.connection.timeout=1000
     connect.mqtt.source.kcql=INSERT INTO kjson SELECT * FROM /mjson;INSERT INTO kavro SELECT * FROM /mavro
     connect.mqtt.connection.keep.alive=1000
-    connect.mqtt.source.converters=mjson=com.datamountaineer.streamreactor.connect.converters.source.JsonSimpleConverter;mavro=com.datamountaineer.streamreactor.connect.converters.source.AvroConverter
-    connect.source.converter.avro.schemas=mavro=$PATH_TO/temperaturemeasure.avro
+    connect.mqtt.source.converters=/mjson=com.datamountaineer.streamreactor.connect.converters.source.JsonSimpleConverter;/mavro=com.datamountaineer.streamreactor.connect.converters.source.AvroConverter
+    connect.source.converter.avro.schemas=/mavro=$PATH_TO/temperaturemeasure.avro
     connect.mqtt.client.id=dm_source_id,
     connect.mqtt.converter.throw.on.error=true
     connect.mqtt.hosts=tcp://127.0.0.1:11883
@@ -462,8 +462,8 @@ Example
     connect.mqtt.connection.timeout=1000
     connect.mqtt.source.kcql=INSERT INTO kjson SELECT * FROM /mjson;INSERT INTO kavro SELECT * FROM /mavro
     connect.mqtt.connection.keep.alive=1000
-    connect.mqtt.source.converters=mjson=com.datamountaineer.streamreactor.connect.converters.source.JsonSimpleConverter;mavro=com.datamountaineer.streamreactor.connect.converters.source.AvroConverter
-    connect.source.converter.avro.schemas=mavro=$PATH_TO/temperaturemeasure.avro
+    connect.mqtt.source.converters=/mjson=com.datamountaineer.streamreactor.connect.converters.source.JsonSimpleConverter;/mavro=com.datamountaineer.streamreactor.connect.converters.source.AvroConverter
+    connect.source.converter.avro.schemas=/mavro=$PATH_TO/temperaturemeasure.avro
     connect.mqtt.client.id=dm_source_id,
     connect.mqtt.converter.throw.on.error=true
     connect.mqtt.hosts=tcp://127.0.0.1:11883
