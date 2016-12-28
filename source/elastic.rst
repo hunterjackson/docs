@@ -81,7 +81,7 @@ connect to the Rest API of Kafka Connect of your container.
     connect.elastic.cluster.name=elasticsearch
     tasks.max=1
     topics=TOPIC1
-    connect.elastic.export.route.query=INSERT INTO INDEX_1 SELECT field1, field2 FROM TOPIC1
+    connect.elastic.sink.kcql=INSERT INTO INDEX_1 SELECT field1, field2 FROM TOPIC1
     #task ids: 0
 
 The ``elastic-sink.properties`` file defines:
@@ -224,7 +224,7 @@ Example:
     #Insert mode, select 3 fields and rename from topicB and write to indexB
     INSERT INTO indexB SELECT x AS a, y AS b and z AS c FROM topicB PK y
 
-This is set in the ``connect.elastic.export.route.query`` option.
+This is set in the ``connect.elastic.sink.kcql`` option.
 
 Auto Index Creation
 ~~~~~~~~~~~~~~~~~~~
@@ -251,7 +251,7 @@ Port of the Elastic cluster.
 * Importance: high
 * Optional  : no
 
-``connect.elastic.export.route.query``
+``connect.elastic.sink.kcql``
 
 Kafka connect query language expression. Allows for expressive table to topic routing, field selection and renaming.
 
@@ -276,7 +276,7 @@ Example
     connect.elastic.cluster.name=elasticsearch
     tasks.max=1
     topics=test_table
-    connect.elastic.export.route.query=INSERT INTO INDEX_1 SELECT field1, field2 FROM TOPIC1
+    connect.elastic.sink.kcql=INSERT INTO INDEX_1 SELECT field1, field2 FROM TOPIC1
 
 Schema Evolution
 ----------------

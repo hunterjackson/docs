@@ -74,7 +74,7 @@ connect to the Rest API of Kafka Connect of your container.
     topics=person_jms
     connect.jms.sink.url=tcp://somehost:61616
     connect.jms.sink.connection.factory=org.apache.activemq.ActiveMQConnectionFactory
-    connect.jms.sink.export.route.query=INSERT INTO topic_1 SELECT * FROM person_jms
+    connect.jms.sink.sink.kcql=INSERT INTO topic_1 SELECT * FROM person_jms
     connect.jms.sink.message.type=AVRO
     connect.jms.error.policy=THROW
     connect.jms.sink.export.route.topics=topic_1
@@ -91,7 +91,7 @@ The ``jms-sink.properties`` file defines:
 7.  :ref:`The KCQL routing querying. <kcql>`
 8.  The message type storage format.
 9.  The error policy.
-10. The list of target topics (must match the targets set in ``connect.jms.sink.export.route.query``
+10. The list of target topics (must match the targets set in ``connect.jms.sink.sink.kcql``
 
 If you switch back to the terminal you started the Connector in you should see the JMS Sink being accepted and the
 task starting.
@@ -179,7 +179,7 @@ Topic Routing
 ~~~~~~~~~~~~~
 
 The Sink supports topic routing that allows mapping the messages from topics to a specific jms target. For example, map a
-topic called "bloomberg_prices" to a jms target named "prices". This mapping is set in the ``connect.jms.sink.export.route.query``
+topic called "bloomberg_prices" to a jms target named "prices". This mapping is set in the ``connect.jms.sink.sink.kcql``
 option.
 
 Example:
@@ -224,7 +224,7 @@ Provides the full class name for the ConnectionFactory implementation to use.
 * Importance: high
 * Optional : no
 
-``connect.jms.sink.export.route.query``
+``connect.jms.sink.sink.kcql``
 
 KCQL expression describing field selection and routes.
 

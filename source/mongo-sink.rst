@@ -5,6 +5,17 @@ The Mongo Sink allows you to write events from Kafka to your MongoDB instance. T
 Connect SinkRecords to MongoDB Document and will do an insert or upsert depending on the configuration you chose. It is expected the
 database is created upfront; the targeted MongoDB collections will be created if they don't exist
 
+.. note:: The database needs to be created upfront!
+
+The Sink supports:
+
+1. :ref:`The KCQL routing querying <kcql>` - Topic to measure mapping and Field selection.
+2. Schema registry support for Connect/Avro with a schema
+3. Schema registry support for Connect and not schema (schema set to Schema.String)
+4. Json payload support, no Schema Registry.
+5. Error policies.
+6. Schema.Struct and payload Struct, Schema.String and Json payload and Json payload with no schema
+
 The Sink supports three Kafka payloads type:
 
 **Connect entry with Schema.Struct and payload Struct.** If you follow the best practice while producing the events, each
@@ -24,16 +35,6 @@ Avro to produce a GenericRecord, to just send a message with Schema.String and t
 **Connect entry without a schema and the payload json String.** There are many existing systems which are publishing json
 over Kafka and bringing them in line with best practices is quite a challenge. Hence we added the support
 
-.. note:: The database needs to be created upfront!
-
-The Sink supports:
-
-1. :ref:`The KCQL routing querying <kcql>` - Topic to measure mapping and Field selection.
-2. Schema registry support for Connect/Avro with a schema
-3. Schema registry support for Connect and not schema (schema set to Schema.String)
-4. Json payload support, no Schema Registry.
-5. Error policies.
-
 Prerequisites
 -------------
 
@@ -46,6 +47,11 @@ Setup
 -----
 
 Before we can do anything, including the QuickStart we need to install MongoDb and the Confluent platform.
+
+Confluent Setup
+~~~~~~~~~~~~~~~
+
+Follow the instructions :ref:`here <install>`.
 
 MongoDb Setup
 ~~~~~~~~~~~~~~~
@@ -75,11 +81,6 @@ follow the details https://docs.mongodb.com/v3.2/administration/install-communit
 
     #Start MongoDb
     ➜  bin/mongod --dbpath data/db
-
-Confluent Setup
-~~~~~~~~~~~~~~~
-
-Follow the instructions :ref:`here <install>`.
 
 Sink Connector QuickStart
 ~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -12,6 +12,26 @@ The Sink supports:
    used via KCQL.
 4. RethinkDB write modes via KCQL.
 5. Error policies for handling failures.
+6. Schema.Struct and payload Struct, Schema.String and Json payload and Json payload with no schema
+
+The Sink supports three Kafka payloads type:
+
+**Connect entry with Schema.Struct and payload Struct.** If you follow the best practice while producing the events, each
+message should carry its schema information. Best option is to send Avro. Your connect configurations should be set to
+``value.converter=io.confluent.connect.avro.AvroConverter``.
+You can fnd an example `here <https://github.com/confluentinc/kafka-connect-blog/blob/master/etc/connect-avro-standalone.properties>`__.
+To see how easy is to have your producer serialize to Avro have a look at
+`this <http://docs.confluent.io/3.0.1/schema-registry/docs/serializer-formatter.html?highlight=kafkaavroserializer>`__.
+This requires SchemaRegistry which is open source thanks to Confluent! Alternatively you can send Json + Schema.
+In this case your connect configuration should read ``value.converter=org.apache.kafka.connect.json.JsonConverter``.
+The difference would be to point your serialization to ``org.apache.kafka.connect.json.JsonSerializer``. This doesn't
+require the SchemaRegistry.
+
+**Connect entry with Schema.String and payload json String.** Sometimes the producer would find it easier, despite sending
+Avro to produce a GenericRecord, to just send a message with Schema.String and the json string.
+
+**Connect entry without a schema and the payload json String.** There are many existing systems which are publishing json
+over Kafka and bringing them in line with best practices is quite a challenge. Hence we added the support
 
 Prerequisites
 -------------
@@ -74,7 +94,7 @@ connect to the Rest API of Kafka Connect of your container.
     connector.class=com.datamountaineer.streamreactor.connect.rethink.sink.ReThinkSinkConnector
     tasks.max=1
     topics=person_rethink
-    connect.rethink.export.route.query=INSERT INTO TABLE1 SELECT * FROM person_rethink
+    connect.rethink.sink.kcql=INSERT INTO TABLE1 SELECT * FROM person_rethink
     #task ids: 0
 
 The ``rethink-sink.properties`` file defines:
@@ -232,7 +252,7 @@ Topic Routing
 ~~~~~~~~~~~~~
 
 The Sink supports topic routing that allows mapping the messages from topics to a specific table. For example, map a
-topic called "bloomberg_prices" to a table called "prices". This mapping is set in the ``connect.rethink.export.route.query``
+topic called "bloomberg_prices" to a table called "prices". This mapping is set in the ``connect.rethink.sink.kcql``
 option.
 
 Example:
@@ -245,7 +265,7 @@ Example:
 Field Selection
 ~~~~~~~~~~~~~~~
 
-The ReThink Sink supports field selection and mapping. This mapping is set in the ``connect.rethink.export.route.query`` option.
+The ReThink Sink supports field selection and mapping. This mapping is set in the ``connect.rethink.sink.kcql`` option.
 
 
 Examples:
@@ -263,9 +283,9 @@ Examples:
 Auto Create Tables
 ~~~~~~~~~~~~~~~~~~
 
-The Sink supports auto creation of tables for each topic. This mapping is set in the ``connect.rethink.export.route.query`` option.
+The Sink supports auto creation of tables for each topic. This mapping is set in the ``connect.rethink.sink.kcql`` option.
 
-A user specified primary can be set in the ``PK`` clause for the ``connect.rethink.export.route.query`` option. Only one
+A user specified primary can be set in the ``PK`` clause for the ``connect.rethink.sink.kcql`` option. Only one
 key is supported. If more than one is set only the first is used. If no primary keys are set the default primary key
 called ``id`` is used. The value for the default key is the topic name, partition and offset of the records.
 
@@ -284,7 +304,7 @@ schema is found the table is created when the first record is received for the t
 Configurations
 --------------
 
-``connect.rethink.export.route.query``
+``connect.rethink.sink.kcql``
 
 Kafka connect query language expression. Allows for expressive topic to table routing, field selection and renaming. Fields
 to be used as the row key can be set by specifing the ``PK``. The below example uses field1 as the primary key.
@@ -371,7 +391,7 @@ Example
     connector.class=com.datamountaineer.streamreactor.connect.rethink.sink.ReThinkSinkConnector
     tasks.max=1
     topics=person_rethink
-    connect.rethink.export.route.query=INSERT INTO TABLE1 SELECT * FROM person_rethink
+    connect.rethink.sink.kcql=INSERT INTO TABLE1 SELECT * FROM person_rethink
 
 Schema Evolution
 ----------------

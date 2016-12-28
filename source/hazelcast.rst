@@ -23,6 +23,11 @@ Prerequisites
 Setup
 -----
 
+Confluent Setup
+~~~~~~~~~~~~~~~
+
+Follow the instructions :ref:`here <install>`.
+
 HazelCast Setup
 ~~~~~~~~~~~~~~~
 
@@ -58,10 +63,6 @@ Start HazelCast:
 
 This will start Hazelcast with a default group called *dev* and password *dev-pass*
 
-Confluent Setup
-~~~~~~~~~~~~~~~
-
-Follow the instructions :ref:`here <install>`.
 
 Sink Connector QuickStart
 -------------------------
@@ -103,7 +104,7 @@ connect to the Rest API of Kafka Connect of your container.
     connect.hazelcast.sink.cluster.members=locallhost
     connect.hazelcast.sink.group.name=dev
     connect.hazelcast.sink.group.password=dev-pass
-    connect.hazelcast.export.route.query=INSERT INTO sink-test SELECT * FROM sink-test WITHFORMAT JSON BATCH 100
+    connect.hazelcast.sink.kcql=INSERT INTO sink-test SELECT * FROM sink-test WITHFORMAT JSON BATCH 100
     #task ids: 0
 
 The ``hazelcast-sink.properties`` configuration defines:
@@ -166,7 +167,7 @@ We can use the CLI to check if the connector is up but you should be able to see
         connect.hazelcast.sink.group.name = dev
         connect.hazelcast.sink.cluster.members = [192.168.99.100]
         connect.hazelcast.sink.error.policy = THROW
-        connect.hazelcast.export.route.query = INSERT INTO sink-test SELECT * FROM sink-test WITHFORMAT JSON BATCH 100
+        connect.hazelcast.sink.kcql = INSERT INTO sink-test SELECT * FROM sink-test WITHFORMAT JSON BATCH 100
         connect.hazelcast.connection.timeout = 5000
      (com.datamountaineer.streamreactor.connect.hazelcast.config.HazelCastSinkConfig:178)
     Aug 20, 2016 4:45:39 PM com.hazelcast.core.LifecycleService
@@ -229,7 +230,7 @@ The HazelCast Sink supports the following:
 
 .. sourcecode:: bash
 
-    INSERT INTO <reliable topic> SELECT <fields> FROM <source topic> <STOREDAS> JSON|AVRO <BATCH> BATCH_SIZE
+    INSERT INTO <reliable topic> SELECT <fields> FROM <source topic> WITHFORMAT <JSON|AVRO> STOREAS <RELIABLE_TOPIC|RING_BUFFER> BATCH BATCH_SIZE
 
 Example:
 
@@ -239,9 +240,9 @@ Example:
     INSERT INTO tableA SELECT * FROM topicA
 
     #Insert mode, select 3 fields and rename from topicB and write to tableB, store as serialized avro encoded byte arrays, write in batches of 100
-    INSERT INTO tableB SELECT x AS a, y AS b and z AS c FROM topicB WITHFORMAT avro BATCH 100
+    INSERT INTO tableB SELECT x AS a, y AS b and z AS c FROM topicB WITHFORMAT avro STOREAS RING_BUFFER BATCH 100
 
-This is set in the ``connect.hazelcast.export.route.query`` option.
+This is set in the ``connect.hazelcast.sink.kcql`` option.
 
 Error Polices
 ~~~~~~~~~~~~~
@@ -283,13 +284,13 @@ Hazelcast requires that data stored in collections and topics is serializable. T
 *Avro* In this mode the Sink converts the SinkRecords from Kafka to Avro encoded byte arrays.
 *Json* In this mode the Sink converts the SinkRecords from Kafka to Json strings and stores the resulting bytes.
 
-This behaviour is controlled by the KCQL statement in the ``connect.hazelcast.export.route.query`` option. The default
+This behaviour is controlled by the KCQL statement in the ``connect.hazelcast.sink.kcql`` option. The default
 is JSON.
 
 Configurations
 --------------
 
-``connect.hazelcast.export.route.query``
+``connect.hazelcast.sink.kcql``
 
 KCQL expression describing field selection and routes.
 

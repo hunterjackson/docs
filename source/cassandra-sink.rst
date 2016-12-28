@@ -14,6 +14,26 @@ The Sink supports:
    or all fields written to Cassandra.
 2. Topic to table routing via KCQL.
 3. Error policies for handling failures.
+4. Schema.Struct and payload Struct, Schema.String and Json payload and Json payload with no schema
+
+The Sink supports three Kafka payloads type:
+
+**Connect entry with Schema.Struct and payload Struct.** If you follow the best practice while producing the events, each
+message should carry its schema information. Best option is to send Avro. Your connect configurations should be set to
+``value.converter=io.confluent.connect.avro.AvroConverter``.
+You can fnd an example `here <https://github.com/confluentinc/kafka-connect-blog/blob/master/etc/connect-avro-standalone.properties>`__.
+To see how easy is to have your producer serialize to Avro have a look at
+`this <http://docs.confluent.io/3.0.1/schema-registry/docs/serializer-formatter.html?highlight=kafkaavroserializer>`__.
+This requires SchemaRegistry which is open source thanks to Confluent! Alternatively you can send Json + Schema.
+In this case your connect configuration should read ``value.converter=org.apache.kafka.connect.json.JsonConverter``.
+The difference would be to point your serialization to ``org.apache.kafka.connect.json.JsonSerializer``. This doesn't
+require the SchemaRegistry.
+
+**Connect entry with Schema.String and payload json String.** Sometimes the producer would find it easier, despite sending
+Avro to produce a GenericRecord, to just send a message with Schema.String and the json string.
+
+**Connect entry without a schema and the payload json String.** There are many existing systems which are publishing json
+over Kafka and bringing them in line with best practices is quite a challenge. Hence we added the support
 
 Prerequisites
 -------------
@@ -124,7 +144,7 @@ connect to the Rest API of Kafka Connect of your container.
     connector.class=com.datamountaineer.streamreactor.connect.cassandra.sink.CassandraSinkConnector
     tasks.max=1
     topics=orders-topic
-    connect.cassandra.export.route.query=INSERT INTO orders SELECT * FROM orders-topic
+    connect.cassandra.sink.kcql=INSERT INTO orders SELECT * FROM orders-topic
     connect.cassandra.contact.points=localhost
     connect.cassandra.port=9042
     connect.cassandra.key.space=demo
@@ -305,7 +325,7 @@ Topic Routing
 
 The Sink supports topic routing that allows mapping the messages from topics to a specific table. For example map
 a topic called "bloomberg_prices" to a table called "prices". This mapping is set in the
-``connect.cassandra.export.route.query`` option.
+``connect.cassandra.sink.kcql`` option.
 
 Field Selection
 ^^^^^^^^^^^^^^^
@@ -314,7 +334,7 @@ The Sink supports selecting fields from the Source topic or selecting all fields
 in the target table. For example, map a field called "qty"  in a topic to a column called "quantity" in the target
 table.
 
-All fields can be selected by using "*" in the field part of ``connect.cassandra.export.route.query``.
+All fields can be selected by using "*" in the field part of ``connect.cassandra.sink.kcql``.
 
 Leaving the column name empty means trying to map to a column in the target table with the same name as the field in the
 source topic.
@@ -433,7 +453,7 @@ Path to keystore.
 * Optional : yes
 
 
-``connect.cassandra.export.route.query``
+``connect.cassandra.sink.kcql``
 
 Kafka connect query language expression. Allows for expressive topic to table routing, field selection and renaming.
 
@@ -486,7 +506,7 @@ Example
     connector.class=com.datamountaineer.streamreactor.connect.cassandra.sink.CassandraSinkConnector
     tasks.max=1
     topics=orders-topic
-    connect.cassandra.export.route.query = INSERT INTO TABLE1 SELECT * FROM TOPIC1;INSERT INTO TABLE2 SELECT field1,
+    connect.cassandra.sink.kcql = INSERT INTO TABLE1 SELECT * FROM TOPIC1;INSERT INTO TABLE2 SELECT field1,
     field2, field3 as renamedField FROM TOPIC2
     connect.cassandra.contact.points=localhost
     connect.cassandra.port=9042

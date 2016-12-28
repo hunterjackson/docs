@@ -8,6 +8,26 @@ The Sink supports:
 
 1. :ref:`The KCQL routing querying <kcql>` - Topic to index mapping and Field selection.
 2. Auto mapping of the Kafka topic schema to the index.
+3. Schema.Struct and payload Struct, Schema.String and Json payload and Json payload with no schema
+
+The Sink supports three Kafka payloads type:
+
+**Connect entry with Schema.Struct and payload Struct.** If you follow the best practice while producing the events, each
+message should carry its schema information. Best option is to send Avro. Your connect configurations should be set to
+``value.converter=io.confluent.connect.avro.AvroConverter``.
+You can fnd an example `here <https://github.com/confluentinc/kafka-connect-blog/blob/master/etc/connect-avro-standalone.properties>`__.
+To see how easy is to have your producer serialize to Avro have a look at
+`this <http://docs.confluent.io/3.0.1/schema-registry/docs/serializer-formatter.html?highlight=kafkaavroserializer>`__.
+This requires SchemaRegistry which is open source thanks to Confluent! Alternatively you can send Json + Schema.
+In this case your connect configuration should read ``value.converter=org.apache.kafka.connect.json.JsonConverter``.
+The difference would be to point your serialization to ``org.apache.kafka.connect.json.JsonSerializer``. This doesn't
+require the SchemaRegistry.
+
+**Connect entry with Schema.String and payload json String.** Sometimes the producer would find it easier, despite sending
+Avro to produce a GenericRecord, to just send a message with Schema.String and the json string.
+
+**Connect entry without a schema and the payload json String.** There are many existing systems which are publishing json
+over Kafka and bringing them in line with best practices is quite a challenge. Hence we added the support
 
 Prerequisites
 -------------
@@ -265,7 +285,7 @@ Example:
     #Point measurement
     INSERT INTO measureB SELECT x AS a, y AS b and z AS c FROM topicB WITHTIMESTAMP sys_time()
 
-This is set in the ``connect.influx.export.route.query`` option.
+This is set in the ``connect.influx.sink.kcql`` option.
 
 Error Polices
 ~~~~~~~~~~~~~
@@ -302,7 +322,7 @@ The length of time the Sink will retry can be controlled by using the ``connect.
 Configurations
 --------------
 
-``connect.influx.export.route.query``
+``connect.influx.sink.kcql``
 
 Kafka connect query language expression. Allows for expressive topic to table routing, field selection and renaming. For
 InfluxDB it allows either setting a default or selecting a field from the topic as the Point measurement.
@@ -409,7 +429,7 @@ Example
     connect.elastic.cluster.name=elasticsearch
     tasks.max=1
     topics=test_table
-    connect.elastic.export.route.query=INSERT INTO INDEX_1 SELECT field1, field2 FROM TOPIC1
+    connect.elastic.sink.kcql=INSERT INTO INDEX_1 SELECT field1, field2 FROM TOPIC1
 
 Schema Evolution
 ----------------

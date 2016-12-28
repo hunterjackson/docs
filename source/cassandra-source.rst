@@ -154,7 +154,7 @@ connect to the Rest API of Kafka Connect of your container.
     name=cassandra-source-orders
     connector.class=com.datamountaineer.streamreactor.connect.cassandra.source.CassandraSourceConnector
     connect.cassandra.key.space=demo
-    connect.cassandra.import.route.query=INSERT INTO orders-topic SELECT * FROM orders PK created
+    connect.cassandra.source.kcql=INSERT INTO orders-topic SELECT * FROM orders PK created
     connect.cassandra.import.mode=incremental
     connect.cassandra.contact.points=localhost
     connect.cassandra.username=cassandra
@@ -409,7 +409,7 @@ Topic Routing
 
 The Sink supports topic routing that allows mapping the messages from topics to a specific table. For example map
 a topic called "bloomberg_prices" to a table called "prices". This mapping is set in the
-``connect.cassandra.import.route.query`` option.
+``connect.cassandra.source.kcql`` option.
 
 Error Polices
 ~~~~~~~~~~~~~
@@ -542,7 +542,7 @@ Either bulk or incremental.
 * Optional  : no
 
 
-``connect.cassandra.import.route.query``
+``connect.cassandra.source.kcql``
 
 Kafka connect query language expression. Allows for expressive table to topic routing, field selection and renaming.
 In incremental mode the timestampColumn can be specified by ``PK colName``.
@@ -625,7 +625,7 @@ Bulk Example
     name=cassandra-source-orders-bulk
     connector.class=com.datamountaineer.streamreactor.connect.cassandra.source.CassandraSourceConnector
     connect.cassandra.key.space=demo
-    connect.cassandra.import.route.query=INSERT INTO TABLE_X SELECT * FROM TOPIC_Y
+    connect.cassandra.source.kcql=INSERT INTO TABLE_X SELECT * FROM TOPIC_Y
     connect.cassandra.import.mode=bulk
     connect.cassandra.contact.points=localhost
     connect.cassandra.username=cassandra
@@ -639,7 +639,7 @@ Incremental Example
     name=cassandra-source-orders-incremental
     connector.class=com.datamountaineer.streamreactor.connect.cassandra.source.CassandraSourceConnector
     connect.cassandra.key.space=demo
-    connect.cassandra.import.route.query=INSERT INTO TABLE_X SELECT * FROM TOPIC_Y PK created
+    connect.cassandra.source.kcql=INSERT INTO TABLE_X SELECT * FROM TOPIC_Y PK created
     connect.cassandra.import.mode=incremental
     connect.cassandra.contact.points=localhost
     connect.cassandra.username=cassandra

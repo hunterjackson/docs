@@ -93,7 +93,7 @@ connect to the Rest API of Kafka Connect of your container.
     connector.class=com.datamountaineer.streamreactor.connect.redis.sink.RedisSinkConnector
     tasks.max=1
     topics=person_redis
-    connect.redis.export.route.query=INSERT INTO TABLE1 SELECT * FROM person_redis
+    connect.redis.sink.kcql=INSERT INTO TABLE1 SELECT * FROM person_redis
     #task ids: 0
 
 The ``redis-sink.properties`` file defines:
@@ -234,7 +234,7 @@ Example:
     #Insert mode, select 3 fields and rename from topicB and write to tableB, use field y from the topic as the primary key
     INSERT INTO tableB SELECT x AS a, y AS b and z AS c FROM topicB PK y
 
-This is set in the ``connect.redis.export.route.query`` option.
+This is set in the ``connect.redis.sink.kcql`` option.
 
 Error Polices
 ~~~~~~~~~~~~~
@@ -271,7 +271,7 @@ The length of time the Sink will retry can be controlled by using the ``connect.
 Configurations
 --------------
 
-``connect.redis.export.route.query``
+``connect.redis.sink.kcql``
 
 Kafka connect query language expression. Allows for expressive topic to table routing, field selection and renaming. Fields
 to be used as the row key can be set by specifing the ``PK``. The below example uses field1 as the primary key.
@@ -363,7 +363,7 @@ Example
     connector.class=com.datamountaineer.streamreactor.connect.redis.sink.RedisSinkConnector
     tasks.max=1
     topics=person_redis
-    connect.redis.export.route.query=INSERT INTO TABLE1 SELECT * FROM person_redis
+    connect.redis.sink.kcql=INSERT INTO TABLE1 SELECT * FROM person_redis
 
 Schema Evolution
 ----------------
@@ -375,7 +375,7 @@ More information can be found `here <http://docs.confluent.io/3.0.1/schema-regis
 The Redis Sink will automatically write and update the Redis table if new fields are added to the Source topic,
 if fields are removed the Kafka Connect framework will return the default value for this field, dependent of the
 compatibility settings of the Schema registry. This value will be put into the Redis column family cell based on the
-``connect.redis.export.route.query`` mappings.
+``connect.redis.sink.kcql`` mappings.
 
 Deployment Guidelines
 ---------------------

@@ -128,7 +128,7 @@ connect to the Rest API of Kafka Connect of your container.
     tasks.max=1
     topics=TOPIC1
     connect.hbase.sink.column.family=d
-    connect.hbase.export.route.query=INSERT INTO person_hbase SELECT * FROM TOPIC1
+    connect.hbase.sink.kcql=INSERT INTO person_hbase SELECT * FROM TOPIC1
     #task ids: 0
 
 This ``hbase-sink.properties`` configuration defines:
@@ -254,7 +254,7 @@ Example:
     #Insert mode, select 3 fields and rename from topicB and write to tableB, use field y from the topic as the row key
     INSERT INTO tableB SELECT x AS a, y AS b and z AS c FROM topicB PK y
 
-This is set in the ``connect.hbase.export.route.query`` option.
+This is set in the ``connect.hbase.sink.kcql`` option.
 
 Error Polices
 ~~~~~~~~~~~~~
@@ -300,7 +300,7 @@ The hbase column family.
 * Importance: high
 * Optional: no
 
-``connect.hbase.export.route.query``
+``connect.hbase.sink.kcql``
 
 Kafka connect query language expression. Allows for expressive topic to table routing, field selection and renaming. Fields
 to be used as the row key can be set by specifing the ``PK``. The below example uses field1 and field2 are the row key.
@@ -357,7 +357,7 @@ Example
 .. sourcecode:: bash
 
     connect.hbase.sink.column.family=d
-    connect.hbase.export.route.query=INSERT INTO person_hbase SELECT * FROM TOPIC1
+    connect.hbase.sink.kcql=INSERT INTO person_hbase SELECT * FROM TOPIC1
     connector.class=com.datamountaineer.streamreactor.connect.hbase.HbaseSinkConnector
     tasks.max=1
     topics=TOPIC1
