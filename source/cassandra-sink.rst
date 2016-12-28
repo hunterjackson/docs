@@ -319,6 +319,41 @@ All fields can be selected by using "*" in the field part of ``connect.cassandra
 Leaving the column name empty means trying to map to a column in the target table with the same name as the field in the
 source topic.
 
+
+Legacy topics (plain text payload with a json string)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+We have found some of the clients have already an infrastructure where they publish pure json on the topic and obviously the jump to follow
+the best practice and use schema registry is quite an ask. So we offer support for them as well.
+
+This time we need to start the connect with a different set of settings.
+
+.. sourcecode:: bash
+
+      #create a new configuration for connect
+      ➜ cp  etc/schema-registry/connect-avro-distributed.properties etc/schema-registry/connect-distributed-json.properties
+      ➜ vi etc/schema-registry/connect-distributed-json.properties
+
+Replace the following 4 entries in the config
+.. sourcecode:: bash
+      key.converter=io.confluent.connect.avro.AvroConverter
+      key.converter.schema.registry.url=http://localhost:8081
+      value.converter=io.confluent.connect.avro.AvroConverter
+      value.converter.schema.registry.url=http://localhost:8081
+
+      with the following
+.. sourcecode:: bash
+      key.converter=org.apache.kafka.connect.json.JsonConverter
+      key.converter.schemas.enable=false
+      value.converter=org.apache.kafka.connect.json.JsonConverter
+      value.converter.schemas.enable=false
+
+Now let's restart the connect instance:
+.. sourcecode:: bash
+
+      #start a new instance of connect
+      ➜   $CONFLUENT_HOME/bin/connect-distributed etc/schema-registry/connect-distributed-json.properties
+
 Configurations
 --------------
 
