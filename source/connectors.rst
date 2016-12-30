@@ -46,6 +46,7 @@ the best practice and use schema registry is quite an ask. So we offer support f
 *   ReThinkDB
 *   MongoDB
 *   InfluxDB
+*   DSE Cassandra Sink
 
 We are upgrading the remaining Connectors. This allows plain text payloads with a json string.
 

@@ -27,4 +27,6 @@ Components
    connectors
    tools
    socket-streamer
+   ui
+   python
    faq

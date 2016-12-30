@@ -341,7 +341,7 @@ source topic.
 
 
 Legacy topics (plain text payload with a json string)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 We have found some of the clients have already an infrastructure where they publish pure json on the topic and obviously the jump to follow
 the best practice and use schema registry is quite an ask. So we offer support for them as well.
@@ -355,7 +355,9 @@ This time we need to start the connect with a different set of settings.
       ➜ vi etc/schema-registry/connect-distributed-json.properties
 
 Replace the following 4 entries in the config
+
 .. sourcecode:: bash
+
       key.converter=io.confluent.connect.avro.AvroConverter
       key.converter.schema.registry.url=http://localhost:8081
       value.converter=io.confluent.connect.avro.AvroConverter
@@ -363,6 +365,7 @@ Replace the following 4 entries in the config
 
       with the following
 .. sourcecode:: bash
+
       key.converter=org.apache.kafka.connect.json.JsonConverter
       key.converter.schemas.enable=false
       value.converter=org.apache.kafka.connect.json.JsonConverter

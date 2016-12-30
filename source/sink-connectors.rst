@@ -7,6 +7,7 @@ Sink connectors stream data from Kafka into external systems.
    :maxdepth: 1
 
    cassandra-sink
+   coap-sink
    druid
    elastic
    hazelcast
@@ -14,7 +15,7 @@ Sink connectors stream data from Kafka into external systems.
    influx
    jms
    kudu
-   mongo
+   mongo-sink
    redis
    rethink
    voltdb
