@@ -159,9 +159,9 @@ connect to the Rest API of Kafka Connect of your container.
     connector.class=com.datamountaineer.streamreactor.connect.mongodb.sink.MongoSinkConnector
     tasks.max=1
     topics=orders-topic
-    connect.mongo.sink.kqcl=INSERT INTO orders SELECT * FROM orders-topic
+    connect.mongo.sink.kcql=INSERT INTO orders SELECT * FROM orders-topic
     connect.mongo.database=connect
-    connect.mongo.hosts=localhost:27017
+    connect.mongo.connection=mongodb://localhost:27017
     connect.mongo.sink.batch.size=10
 
     #task ids: 0
@@ -182,8 +182,8 @@ We can use the CLI to check if the connector is up but you should be able to see
 
     [2016-11-06 22:25:29,354] INFO MongoConfig values:
         connect.mongo.retry.interval = 60000
-        connect.mongo.sink.kqcl = INSERT INTO orders SELECT * FROM orders-topic
-        connect.mongo.hosts = localhost:27017
+        connect.mongo.sink.kcql = INSERT INTO orders SELECT * FROM orders-topic
+        connect.mongo.connection = mongodb://localhost:27017
         connect.mongo.error.policy = THROW
         connect.mongo.database = connect
         connect.mongo.sink.batch.size = 10
@@ -322,8 +322,8 @@ You should see in the terminal where you started Kafka Connect the following ent
 
         [2016-11-06 23:53:09,881] INFO MongoConfig values:
             connect.mongo.retry.interval = 60000
-            connect.mongo.sink.kqcl = UPSERT INTO orders_json SELECT id, product as product_name, price as value FROM orders-topic-json PK id
-            connect.mongo.hosts = localhost:27017
+            connect.mongo.sink.kcql = UPSERT INTO orders_json SELECT id, product as product_name, price as value FROM orders-topic-json PK id
+            connect.mongo.connection = mongodb://localhost:27017
             connect.mongo.error.policy = THROW
             connect.mongo.database = connect
             connect.mongo.sink.batch.size = 10
@@ -401,7 +401,7 @@ The sink supports:
 
 .. sourcecode:: bash
 
-    connect.mongo.sink.kqcl = INSERT INTO orders SELECT * FROM orders-topic; UPSERT INTO customers SELECT * FROM customer-topic PK customer_id; UPSERT INTO invoiceid as invoice_id, customerid as customer_id, value a SELECT invoice_id, FROM invoice-topic
+    connect.mongo.sink.kcql = INSERT INTO orders SELECT * FROM orders-topic; UPSERT INTO customers SELECT * FROM customer-topic PK customer_id; UPSERT INTO invoiceid as invoice_id, customerid as customer_id, value a SELECT invoice_id, FROM invoice-topic
 
 3. Error policies for handling failures.
 
@@ -471,7 +471,7 @@ For example your configuration in this case:
 
 .. sourcecode:: bash
 
-    connect.mongo.sink.kqcl = INSERT INTO orders SELECT * FROM orders-topic; UPSERT INTO customers SELECT * FROM customer-topic PK customer_id; UPSERT INTO invoiceid as invoice_id, customerid as customer_id, value a SELECT invoice_id, FROM invoice-topic
+    connect.mongo.sink.kcql = INSERT INTO orders SELECT * FROM orders-topic; UPSERT INTO customers SELECT * FROM customer-topic PK customer_id; UPSERT INTO invoiceid as invoice_id, customerid as customer_id, value a SELECT invoice_id, FROM invoice-topic
 
 Field Selection
 ^^^^^^^^^^^^^^^
@@ -531,7 +531,7 @@ The number of records the sink would push to mongo at once (improved performance
 * Optional : yes
 * Default: 100
 
-``connect.mongo.sink.kqcl``
+``connect.mongo.sink.kcql``
 
 Kafka connect query language expression. Allows for expressive topic to collectionrouting, field selection and renaming.
 
@@ -584,9 +584,9 @@ Example
     connector.class=com.datamountaineer.streamreactor.connect.mongodb.sink.MongoSinkConnector
     tasks.max=1
     topics=orders-topic
-    connect.mongo.sink.kqcl=INSERT INTO orders SELECT * FROM orders-topic
+    connect.mongo.sink.kcql=INSERT INTO orders SELECT * FROM orders-topic
     connect.mongo.database=connect
-    connect.mongo.hosts=localhost:27017
+    connect.mongo.connection=mongodb://localhost:27017
     connect.mongo.sink.batch.size=10
 
 Schema Evolution
