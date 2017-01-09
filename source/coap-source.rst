@@ -76,7 +76,7 @@ connect to the Rest API of Kafka Connect of your container.
     tasks = 1
     connector.class = com.datamountaineer.streamreactor.connect.coap.source.CoapSourceConnector
     connect.coap.source.uri = coap://californium.eclipse.org:5683
-    connect.coap.source.kcql = INSERT INTO coap_test SELECT * FROM obs-pumping-non
+    connect.coap.kcql = INSERT INTO coap_test SELECT * FROM obs-pumping-non
     #task ids: 0
 
 The ``coap-source.properties`` file defines:
@@ -113,17 +113,16 @@ We can use the CLI to check if the connector is up but you should be able to see
         \____/\____/\__,_/ .___/____/\____/\__,_/_/   \___/\___/
                         /_/ (com.datamountaineer.streamreactor.connect.coap.source.CoapSourceTask:54)
     [2017-01-09 20:42:44,830] INFO CoapConfig values:
-        connect.coap.source.uri = coap://californium.eclipse.org:5683
-        connect.coap.max.retires = 20
-        connect.coap.retry.interval = 60000
-        connect.coap.source.truststore.pass = [hidden]
-        connect.coap.source.truststore.path =
-        connect.coap.source.certs = []
-        connect.coap.error.policy = THROW
-        connect.coap.source.keystore.pass = [hidden]
-        connect.coap.source.cert.chain.key = client
-        connect.coap.source.kcql = INSERT INTO coap_test SELECT * FROM obs-pumping-non
-        connect.coap.source.keystore.path =
+        connect.coap.source.uri = coap://californium.eclipse.org:5683/obs-pumping-non
+        connect.coap.source.bind.port = 0
+        connect.coap.truststore.pass = [hidden]
+        connect.coap.cert.chain.key = client
+        connect.coap.keystore.path =
+        connect.coap.kcql = INSERT INTO coap_test SELECT * FROM obs-pumping-non
+        connect.coap.truststore.path =
+        connect.coap.certs = []
+        connect.coap.keystore.pass = [hidden]
+        connect.coap.source.bind.host = localhost
      (com.datamountaineer.streamreactor.connect.coap.configs.CoapConfig:178)
     [2017-01-09 20:42:44,831] INFO Source task WorkerSourceTask{id=coap-source-0} finished initialization and start (org.apache.kafka.connect.runtime.WorkerSourceTask:138)
     [2017-01-09 20:42:45,927] INFO Discovered resources /.well-known/core (com.datamountaineer.streamreactor.connect.coap.source.CoapReader:60)
