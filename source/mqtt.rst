@@ -21,6 +21,11 @@ Prerequisites
 Setup
 -----
 
+Confluent Setup
+~~~~~~~~~~~~~~~
+
+Follow the instructions :ref:`here <install>`.
+
 Mqtt Setup
 ~~~~~~~~~~
 
@@ -44,11 +49,6 @@ You should see the following outcome:
 
 
 The server has started but no records have been published yet. More on this later once we start the source.
-
-Confluent Setup
-~~~~~~~~~~~~~~~
-
-Follow the instructions :ref:`here <install>`.
 
 Source Connector QuickStart
 ---------------------------
@@ -80,7 +80,7 @@ connect to the Rest API of Kafka Connect of your container.
 
 .. sourcecode:: bash
 
-    ➜  bin/cli.sh create mqtt-source < conf/quickstarts/mqtt-source.properties
+    ➜  bin/cli.sh create mqtt-source < conf/source.kcql/mqtt-source.properties
 
     #Connector name=`mqtt-source`
     name=mqtt-source
@@ -99,8 +99,6 @@ connect to the Rest API of Kafka Connect of your container.
     #task ids: 0
 
 The ``mqtt-source.properties`` file defines:
-
-This configuration defines:
 
 1.  The name of the source.
 2.  The name number of tasks.
@@ -184,7 +182,7 @@ This will put the following records into the avro and json Mqtt topic:
 Check for records in Kafka
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Check Kafka with the console consumer the topic for kjson (the Mqtt payload was a json and we translated that into a Kafka Connect Struct)
+Check for records in Kafka with the console consumer. the topic for kjson (the Mqtt payload was a json and we translated that into a Kafka Connect Struct)
 
 .. sourcecode:: bash
 
@@ -204,7 +202,7 @@ You should see the following output
     {"deviceId":103,"value":26.991,"region":"AMER","timestamp":1482236627236}
     {"deviceId":104,"value":34.17,"region":"AMER","timestamp":1482236627236}
 
-Check Kafka with the console consumer the topic for kavro (the Mqtt payload was a avro and we translated that into a Kafka Connect Struct)
+Check for records in Kafka with the console consumer. the topic for kavro (the Mqtt payload was a avro and we translated that into a Kafka Connect Struct)
 
 .. sourcecode:: bash
 

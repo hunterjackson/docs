@@ -142,11 +142,11 @@ called `source-test`. Then on the Data Explorer tab insert the following and hit
 Check for records in Kafka
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Check Kafka with the console consumer
+Check for records in Kafka with the console consumer..
 
 .. sourcecode:: bash
 
- ➜  confluent confluent-3.0.1/bin/kafka-avro-console-consumer \
+ ➜  confluent-3.0.1/bin/kafka-avro-console-consumer \
     --zookeeper localhost:2181 \
     --topic rethink-topic \
     --from-beginning

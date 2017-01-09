@@ -152,7 +152,7 @@ connect to the Rest API of Kafka Connect of your container.
 
 .. sourcecode:: bash
 
-     ➜  bin/cli.sh create mogo-sink < conf/quickstarts/mongo-sink.properties
+     ➜  bin/cli.sh create mongo-sink < conf/source.kcql/mongo-sink.properties
 
     #Connector `mongo-sink-orders`:
     name=mongo-sink-orders

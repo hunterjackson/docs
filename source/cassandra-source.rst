@@ -184,7 +184,7 @@ We can use the CLI to check if the connector is up but you should be able to see
 
 .. sourcecode:: bash
 
-    [2016-05-06 13:52:28,178] INFO
+    INFO
          ____        __        __  ___                  __        _
         / __ \____ _/ /_____ _/  |/  /___  __  ______  / /_____ _(_)___  ___  ___  _____
        / / / / __ `/ __/ __ `/ /|_/ / __ \/ / / / __ \/ __/ __ `/ / __ \/ _ \/ _ \/ ___/
@@ -203,8 +203,6 @@ We can use the CLI to check if the connector is up but you should be able to see
     [2016-05-06 13:34:41,823] INFO Using data-center name 'datacenter1' for DCAwareRoundRobinPolicy (if this is incorrect, please provide the correct datacenter name with DCAwareRoundRobinPolicy constructor) (com.datastax.driver.core.policies.DCAwareRoundRobinPolicy:95)
     [2016-05-06 13:34:41,824] INFO New Cassandra host localhost/127.0.0.1:9042 added (com.datastax.driver.core.Cluster:1475)
     [2016-05-06 13:34:41,868] INFO Connection to Cassandra established. (com.datamountaineer.streamreactor.connect.cassandra.source.CassandraSourceTask:87)
-    ....
-
 
 If you switch back to the terminal you started the Connector in you should see the Cassandra Source being accepted and
 the task starting and processing the 3 existing rows.
@@ -284,7 +282,7 @@ Check Kafka.
 
 .. sourcecode:: bash
 
-    ➜  confluent confluent-3.0.1/bin/kafka-avro-console-consumer \
+    ➜  confluent-3.0.1/bin/kafka-avro-console-consumer \
     --zookeeper localhost:2181 \
     --topic orders-topic \
     --from-beginning
