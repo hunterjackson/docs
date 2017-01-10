@@ -92,7 +92,7 @@ connect to the Rest API of Kafka Connect of your container.
     connector.class=com.datamountaineer.streamreactor.connect.kudu.KuduSinkConnector
     tasks.max=1
     connect.kudu.master=quickstart
-    connect.kudu.sink.kcql = INSERT INTO kudu_test SELECT * FROM kudu_test
+    connect.kudu.sink.kcql = INSERT INTO kudu_test SELECT * FROM kudu-test
     topics=kudu_test
     #task ids: 0
 
@@ -115,7 +115,7 @@ We can use the CLI to check if the connector is up but you should be able to see
 .. sourcecode:: bash
 
     #check for running connectors with the CLI
-    ➜ java -jar build/libs/kafka-connect-cli-0.6-all.jar ps
+    ➜ bin/cli.sh ps
     kudu-sink
 
 .. sourcecode:: bash
@@ -154,7 +154,7 @@ and a ``random_field`` of type string.
 .. sourcecode:: bash
 
     ${CONFLUENT_HOME}/bin/kafka-avro-console-producer \
-     --broker-list localhost:9092 --topic kudu_test \
+     --broker-list localhost:9092 --topic kudu-test \
      --property value.schema='{"type":"record","name":"myrecord","fields":[{"name":"id","type":"int"},
     {"name":"random_field", "type": "string"}]}'
 

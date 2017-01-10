@@ -92,8 +92,8 @@ connect to the Rest API of Kafka Connect of your container.
     connect.redis.connection.port=6379
     connector.class=com.datamountaineer.streamreactor.connect.redis.sink.RedisSinkConnector
     tasks.max=1
-    topics=person_redis
-    connect.redis.sink.kcql=INSERT INTO TABLE1 SELECT * FROM person_redis
+    topics=redis-topic
+    connect.redis.sink.kcql=INSERT INTO TABLE1 SELECT * FROM redis-topic
     #task ids: 0
 
 The ``redis-sink.properties`` file defines:
@@ -157,12 +157,12 @@ Test Records
 Now we need to put some records it to the test_table topics. We can use the ``kafka-avro-console-producer`` to do this.
 
 Start the producer and pass in a schema to register in the Schema Registry. The schema has a ``firstname`` field of type
-string a ``lastname`` field of type string, an ``age`` field of type int and a ``salary`` field of type double.
+string, a ``lastname`` field of type string, an ``age`` field of type int and a ``salary`` field of type double.
 
 .. sourcecode:: bash
 
     ${CONFLUENT_HOME}/bin/kafka-avro-console-producer \
-      --broker-list localhost:9092 --topic person_redis \
+      --broker-list localhost:9092 --topic redis-topic \
       --property value.schema='{"type":"record","name":"User","namespace":"com.datamountaineer.streamreactor.connect.redis"
       ,"fields":[{"name":"firstName","type":"string"},{"name":"lastName","type":"string"},{"name":"age","type":"int"},{"name":"salary","type":"double"}]}'
 
@@ -179,7 +179,7 @@ Now check the logs of the connector you should see this:
 
 .. sourcecode:: bash
 
-    INFO Received record from topic:person_redis partition:0 and offset:0 (com.datamountaineer.streamreactor.connect.redis.sink.writer.RedisDbWriter:48)
+    INFO Received record from topic:redis-topic partition:0 and offset:0 (com.datamountaineer.streamreactor.connect.redis.sink.writer.RedisDbWriter:48)
     INFO Empty list of records received. (com.datamountaineer.streamreactor.connect.redis.sink.RedisSinkTask:75)
 
 Check in Redis.
@@ -362,8 +362,8 @@ Example
     connect.redis.connection.port=6379
     connector.class=com.datamountaineer.streamreactor.connect.redis.sink.RedisSinkConnector
     tasks.max=1
-    topics=person_redis
-    connect.redis.sink.kcql=INSERT INTO TABLE1 SELECT * FROM person_redis
+    topics=redis-topic
+    connect.redis.sink.kcql=INSERT INTO TABLE1 SELECT * FROM redis-topic
 
 Schema Evolution
 ----------------

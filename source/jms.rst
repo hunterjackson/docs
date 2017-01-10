@@ -71,10 +71,10 @@ connect to the Rest API of Kafka Connect of your container.
     name=jms-sink
     connector.class=com.datamountaineer.streamreactor.connect.jms.sink.JMSSinkConnector
     tasks.max=1
-    topics=person_jms
+    topics=jms-topic
     connect.jms.sink.url=tcp://somehost:61616
     connect.jms.sink.connection.factory=org.apache.activemq.ActiveMQConnectionFactory
-    connect.jms.sink.sink.kcql=INSERT INTO topic_1 SELECT * FROM person_jms
+    connect.jms.sink.sink.kcql=INSERT INTO topic_1 SELECT * FROM jms-topic
     connect.jms.sink.message.type=AVRO
     connect.jms.error.policy=THROW
     connect.jms.sink.export.route.topics=topic_1

@@ -126,9 +126,9 @@ connect to the Rest API of Kafka Connect of your container.
     name=person-hbase-test
     connector.class=com.datamountaineer.streamreactor.connect.hbase.HbaseSinkConnector
     tasks.max=1
-    topics=TOPIC1
+    topics=hbase-topic
     connect.hbase.sink.column.family=d
-    connect.hbase.sink.kcql=INSERT INTO person_hbase SELECT * FROM TOPIC1
+    connect.hbase.sink.kcql=INSERT INTO person_hbase SELECT * FROM hbase-topic
     #task ids: 0
 
 This ``hbase-sink.properties`` configuration defines:
@@ -173,13 +173,13 @@ Test Records
 
 Now we need to put some records it to the test_table topics. We can use the ``kafka-avro-console-producer`` to do this.
 
-Start the producer and pass in a schema to register in the Schema Registry. The schema has a ``firstname`` field of type string
+Start the producer and pass in a schema to register in the Schema Registry. The schema has a ``firstname`` field of type string,
 a ``lastname`` field of type string, an ``age`` field of type int and a ``salary`` field of type double.
 
 .. sourcecode:: bash
 
     ${CONFLUENT_HOME}/bin/kafka-avro-console-producer \
-      --broker-list localhost:9092 --topic TOPIC1 \
+      --broker-list localhost:9092 --topic hbase-topic \
       --property value.schema='{"type":"record","name":"User","namespace":"com.datamountaineer.streamreactor.connect.hbase"
       "fields":[{"name":"firstName","type":"string"},{"name":"lastName","type":"string"},{"name":"age","type":"int"},
       {"name":"salary","type":"double"}]}'

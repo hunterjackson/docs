@@ -113,7 +113,7 @@ it and connect to the websocket endpoint.
 .. sourcecode:: bash
 
     command: curl 'http://localhost:8080/api/kafka/ws?query=SELECT+%2A+FROM+socket-streamer+WITHFORMAT+JSON+WITHGROUP+test'
-    system:	connection established, ws://localhost:8080/ws/topics?topic=person_redis&consumergroup=testcgws
+    system:	connection established, ws://localhost:8080/ws/topics?topic=redis-topic&consumergroup=testcgws
     received:	{"value":"{\"firstName\": \"John\", \"lastName\": \"Smith\", \"age\": 30, \"salary\": 4830.0}"}
 
 

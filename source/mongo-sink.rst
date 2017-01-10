@@ -10,11 +10,11 @@ database is created upfront; the targeted MongoDB collections will be created if
 The Sink supports:
 
 1. :ref:`The KCQL routing querying <kcql>` - Topic to measure mapping and Field selection.
-2. Schema registry support for Connect/Avro with a schema
-3. Schema registry support for Connect and not schema (schema set to Schema.String)
+2. Schema registry support for Connect/Avro with a schema.
+3. Schema registry support for Connect and no schema (schema set to Schema.String)
 4. Json payload support, no Schema Registry.
 5. Error policies.
-6. Schema.Struct and payload Struct, Schema.String and Json payload and Json payload with no schema
+6. Schema.Struct and payload Struct, Schema.String and Json payload and Json payload with no schema.
 
 The Sink supports three Kafka payloads type:
 

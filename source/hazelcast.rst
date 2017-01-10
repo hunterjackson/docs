@@ -100,11 +100,11 @@ connect to the Rest API of Kafka Connect of your container.
     name=hazelcast-sink
     connector.class=com.datamountaineer.streamreactor.connect.hazelcast.sink.HazelCastSinkConnector
     max.tasks=1
-    topics = sink-test
+    topics = hazelcast-topic
     connect.hazelcast.sink.cluster.members=locallhost
     connect.hazelcast.sink.group.name=dev
     connect.hazelcast.sink.group.password=dev-pass
-    connect.hazelcast.sink.kcql=INSERT INTO sink-test SELECT * FROM sink-test WITHFORMAT JSON BATCH 100
+    connect.hazelcast.sink.kcql=INSERT INTO sink-test SELECT * FROM hazelcast-topic WITHFORMAT JSON BATCH 100
     #task ids: 0
 
 The ``hazelcast-sink.properties`` configuration defines:
@@ -167,7 +167,7 @@ We can use the CLI to check if the connector is up but you should be able to see
         connect.hazelcast.sink.group.name = dev
         connect.hazelcast.sink.cluster.members = [192.168.99.100]
         connect.hazelcast.sink.error.policy = THROW
-        connect.hazelcast.sink.kcql = INSERT INTO sink-test SELECT * FROM sink-test WITHFORMAT JSON BATCH 100
+        connect.hazelcast.sink.kcql = INSERT INTO sink-test SELECT * FROM hazelcast-topic WITHFORMAT JSON BATCH 100
         connect.hazelcast.connection.timeout = 5000
      (com.datamountaineer.streamreactor.connect.hazelcast.config.HazelCastSinkConfig:178)
     Aug 20, 2016 4:45:39 PM com.hazelcast.core.LifecycleService
@@ -195,7 +195,7 @@ string a ``lastname`` field of type string, an ``age`` field of type int and a `
 .. sourcecode:: bash
 
     ${CONFLUENT_HOME}/bin/kafka-avro-console-producer \
-      --broker-list localhost:9092 --topic sink-test \
+      --broker-list localhost:9092 --topic hazelcast-topic \
       --property value.schema='{"type":"record","name":"User","namespace":"com.datamountaineer.streamreactor.connect.HazelCast"
       ,"fields":[{"name":"firstName","type":"string"},{"name":"lastName","type":"string"},{"name":"age","type":"int"},{"name":"salary","type":"double"}]}'
 

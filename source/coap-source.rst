@@ -8,7 +8,7 @@ The Source supports:
 
 1. DTLS secure clients.
 2. Observable resources.
-`
+
 The Source Connector automatically converts the CoAP response into a Kafka Connect ``Struct`` to be store in Kafka as Avro or
 Json dependent on the Converters used in Connect. The schema can found :ref:`here <coap_schemas>`.
 
@@ -34,10 +34,9 @@ CoAP Setup
 ~~~~~~~~~~
 
 The connector uses `Californium <https://github.com/eclipse/californium>`__ Java API under the hood. A resource is host at
-``coap://californium.eclipse.org:568``. A `FireFox <https://addons.mozilla.org/en-US/firefox/addon/copper-270430/>`__ browser
-addon is available so you can browse the server and resources. We will use the ``obs-pumping-non`` resource. This is an observable
-non confirmable resource. You can view messages via the browser addon by selecting the resource and clicking the ``observe`` button
-on the top menu.
+``coap://californium.eclipse.org:5683``. Copper, a `FireFox <https://addons.mozilla.org/en-US/firefox/addon/copper-270430/>`__ browser
+addon is available so you can browse the server and resources.. This is an observable non confirmable resource. You can
+view messages via the browser addon by selecting the resource and clicking the ``observe`` button on the top menu.
 
 Source Connector QuickStart
 ---------------------------
@@ -71,12 +70,12 @@ connect to the Rest API of Kafka Connect of your container.
 
     ➜  bin/cli.sh create coap-source < conf/coap-source.properties
 
-    #Connector name=`mqtt-source`
+    #Connector name=`coap-source`
     name = coap-source
     tasks = 1
     connector.class = com.datamountaineer.streamreactor.connect.coap.source.CoapSourceConnector
-    connect.coap.source.uri = coap://californium.eclipse.org:5683
-    connect.coap.kcql = INSERT INTO coap_test SELECT * FROM obs-pumping-non
+    connect.coap.uri = coap://californium.eclipse.org:5683
+    connect.coap.kcql = INSERT INTO coap-topic SELECT * FROM obs-pumping-non
     #task ids: 0
 
 The ``coap-source.properties`` file defines:
@@ -113,16 +112,16 @@ We can use the CLI to check if the connector is up but you should be able to see
         \____/\____/\__,_/ .___/____/\____/\__,_/_/   \___/\___/
                         /_/ (com.datamountaineer.streamreactor.connect.coap.source.CoapSourceTask:54)
     [2017-01-09 20:42:44,830] INFO CoapConfig values:
-        connect.coap.source.uri = coap://californium.eclipse.org:5683/obs-pumping-non
-        connect.coap.source.bind.port = 0
+        connect.coap.uri = coap://californium.eclipse.org:5683
+        connect.coap.bind.port = 0
         connect.coap.truststore.pass = [hidden]
         connect.coap.cert.chain.key = client
         connect.coap.keystore.path =
-        connect.coap.kcql = INSERT INTO coap_test SELECT * FROM obs-pumping-non
+        connect.coap.kcql = INSERT INTO coap-topic SELECT * FROM obs-pumping-non
         connect.coap.truststore.path =
         connect.coap.certs = []
         connect.coap.keystore.pass = [hidden]
-        connect.coap.source.bind.host = localhost
+        connect.coap.bind.host = localhost
      (com.datamountaineer.streamreactor.connect.coap.configs.CoapConfig:178)
     [2017-01-09 20:42:44,831] INFO Source task WorkerSourceTask{id=coap-source-0} finished initialization and start (org.apache.kafka.connect.runtime.WorkerSourceTask:138)
     [2017-01-09 20:42:45,927] INFO Discovered resources /.well-known/core (com.datamountaineer.streamreactor.connect.coap.source.CoapReader:60)
@@ -141,7 +140,7 @@ Check for records in Kafka with the console consumer.
 
  ➜  confluent-3.0.1/bin/kafka-avro-console-consumer \
     --zookeeper localhost:2181 \
-    --topic coap_test \
+    --topic coap-topic \
     --from-beginning
 
 .. sourcecode:: json
@@ -202,7 +201,7 @@ The certificate chain can be set by the ``connect.coap.cert.chain.key`` configur
 Configurations
 --------------
 
-``connect.coap.source.uri``
+``connect.coap.uri``
 
 Uri of the CoAP server.
 
@@ -218,7 +217,7 @@ The KCQL statement to select and route resources to topics.
 * Importance: high
 * Optional  : no
 
-``connect.coap.source.bind.port``
+``connect.coap.bind.port``
 
 The port the DTLS connector will bind to on the Connector host.
 
@@ -227,7 +226,7 @@ The port the DTLS connector will bind to on the Connector host.
 * Optional  : yes
 * Default   : 0
 
-``connect.coap.source.bind.host``
+``connect.coap.bind.host``
 
 The hostname the DTLS connector will bind to on the Connector host.
 
@@ -275,7 +274,7 @@ The path to the truststore.
 
 ``connect.coap.certs``
 
-he certificates to load from the trust store.
+The certificates to load from the trust store.
 
 * Data Type : list
 * Importance: medium
