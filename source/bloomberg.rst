@@ -1,8 +1,6 @@
 Kafka Connect Bloomberg
 =======================
 
-**DOCS ARE WORKING IN PROGRESS**
-
 Kafka Connect Bloomberg is a Source connector to subscribe to Bloomberg feeds via the Bloomberg labs open API and write to Kafka.
 
 Prerequisites
@@ -61,19 +59,21 @@ connect to the Rest API of Kafka Connect of your container.
     connect.bloomberg.subscriptions=AAPL US Equity:LAST_PRICE,BID,ASK;IBM US Equity:BID,ASK,HIGH,LOW,OPEN
     kafka.topic=bloomberg
     connect.bloomberg.buffer.size=4096
+    connect.bloomberg.authentication.mode=USER_AND_APPLICATION
     #task ids: 0
 
 The ``bloomberg-source.properties`` file defines:
 
-1. The connector name.
-2. The class containing the connector.
-3. The number of tasks the connector is allowed to start.
-4. The Bloomberg server host.
-5. The Bloomberg server port.
-6. The Bloomberg service uri.
-7. The subscription keys to subscribe to.
-8. The topic to write to.
-9. The buffer size for the Bloomberg API to buffer events in.
+1.  The connector name.
+2.  The class containing the connector.
+3.  The number of tasks the connector is allowed to start.
+4.  The Bloomberg server host.
+5.  The Bloomberg server port.
+6.  The Bloomberg service uri.
+7.  The subscription keys to subscribe to.
+8.  The topic to write to.
+9.  The buffer size for the Bloomberg API to buffer events in.
+10. The authentication mode.
 
 If you switch back to the terminal you started the Connector in you should see the Bloomberg Source being accepted and the
 task starting.
