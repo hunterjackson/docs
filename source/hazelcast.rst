@@ -6,11 +6,12 @@ SinkRecords and inserts a new entry to a HazelCast reliable topic. The Sink only
 
 The Sink supports:
 
-1. :ref:`The KCQL routing querying <kcql>` - Kafka topic payload field selection is supported, allowing you to have choose selection of fields
-   or all fields written to Hazelcast.
-2. Topic to table routing via KCQL.
-3. Error policies for handling failures.
-4. Storing as JSON or Avro in Hazelcast via KCQL.
+1.  :ref:`The KCQL routing querying <kcql>` - Kafka topic payload field selection is supported, allowing you to have choose selection of fields
+    or all fields written to Hazelcast.
+2.  Topic to table routing via KCQL.
+3.  Error policies for handling failures.
+4.  Storing as JSON, TEXT or Avro in Hazelcast via KCQL.
+5.  Storing into RingBuffers and ReliableTopics.
 
 Prerequisites
 -------------
@@ -104,7 +105,7 @@ connect to the Rest API of Kafka Connect of your container.
     connect.hazelcast.sink.cluster.members=locallhost
     connect.hazelcast.sink.group.name=dev
     connect.hazelcast.sink.group.password=dev-pass
-    connect.hazelcast.sink.kcql=INSERT INTO sink-test SELECT * FROM hazelcast-topic WITHFORMAT JSON BATCH 100
+    connect.hazelcast.sink.kcql=INSERT INTO sink-test SELECT * FROM hazelcast-topic WITHFORMAT JSON
     #task ids: 0
 
 The ``hazelcast-sink.properties`` configuration defines:
@@ -167,7 +168,7 @@ We can use the CLI to check if the connector is up but you should be able to see
         connect.hazelcast.sink.group.name = dev
         connect.hazelcast.sink.cluster.members = [192.168.99.100]
         connect.hazelcast.sink.error.policy = THROW
-        connect.hazelcast.sink.kcql = INSERT INTO sink-test SELECT * FROM hazelcast-topic WITHFORMAT JSON BATCH 100
+        connect.hazelcast.sink.kcql = INSERT INTO sink-test SELECT * FROM hazelcast-topic WITHFORMAT JSON
         connect.hazelcast.connection.timeout = 5000
      (com.datamountaineer.streamreactor.connect.hazelcast.config.HazelCastSinkConfig:178)
     Aug 20, 2016 4:45:39 PM com.hazelcast.core.LifecycleService
@@ -230,7 +231,7 @@ The HazelCast Sink supports the following:
 
 .. sourcecode:: bash
 
-    INSERT INTO <reliable topic> SELECT <fields> FROM <source topic> WITHFORMAT <JSON|AVRO> STOREAS <RELIABLE_TOPIC|RING_BUFFER> BATCH BATCH_SIZE
+    INSERT INTO <reliable topic> SELECT <fields> FROM <source topic> WITHFORMAT <JSON|AVRO> STOREAS <RELIABLE_TOPIC|RING_BUFFER>
 
 Example:
 
@@ -239,8 +240,8 @@ Example:
     #Insert mode, select all fields from topicA and write to tableA
     INSERT INTO tableA SELECT * FROM topicA
 
-    #Insert mode, select 3 fields and rename from topicB and write to tableB, store as serialized avro encoded byte arrays, write in batches of 100
-    INSERT INTO tableB SELECT x AS a, y AS b and z AS c FROM topicB WITHFORMAT avro STOREAS RING_BUFFER BATCH 100
+    #Insert mode, select 3 fields and rename from topicB and write to tableB, store as serialized avro encoded byte arrays
+    INSERT INTO tableB SELECT x AS a, y AS b and z AS c FROM topicB WITHFORMAT avro STOREAS RING_BUFFER
 
 This is set in the ``connect.hazelcast.sink.kcql`` option.
 
@@ -286,6 +287,19 @@ Hazelcast requires that data stored in collections and topics is serializable. T
 
 This behaviour is controlled by the KCQL statement in the ``connect.hazelcast.sink.kcql`` option. The default
 is JSON.
+
+Stored As
+~~~~~~~~~
+
+The Hazelcast Sink supports storing data in RingBuffers and ReliableTopics. This behaviour is controlled by the KCQL statement
+ in the ``connect.hazelcast.sink.kcql`` option.
+
+.. sourcecode:: bash
+
+    #store into a ring buffer
+    INSERT INTO tableB SELECT x AS a, y AS b and z AS c FROM topicB WITHFORMAT avro STOREAS RING_BUFFER
+    #store into reliable topic
+    INSERT INTO tableB SELECT x AS a, y AS b and z AS c FROM topicB WITHFORMAT avro STOREAS RELIABLE_TOPIC
 
 Configurations
 --------------
