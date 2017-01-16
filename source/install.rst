@@ -87,7 +87,8 @@ Unpack the archive:
 .. sourcecode:: bash
 
     #Stream reactor release 0.2.3
-    tar xvf stream-reactor-0.2.3-cp-3.0.1.tar.gz -C stream-reactor
+    mkdir stream-reactor
+    tar xvf stream-reactor-0.2.3-3.0.1.tar.gz -C stream-reactor
 
 Within the unpacked directory you will find the following structure:
 
