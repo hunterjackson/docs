@@ -11,13 +11,12 @@ The Sink supports:
 2.  Topic to table routing via KCQL.
 3.  Error policies for handling failures.
 4.  Storing as JSON, TEXT or Avro in Hazelcast via KCQL.
-5.  Storing into RingBuffers and ReliableTopics.
 
 Prerequisites
 -------------
 
 - Confluent 3.0.1
-- Hazelcast 3.6.4
+- Hazelcast 3.6.4 or higher
 - Java 1.8
 - Scala 2.11
 
@@ -231,7 +230,8 @@ The HazelCast Sink supports the following:
 
 .. sourcecode:: bash
 
-    INSERT INTO <reliable topic> SELECT <fields> FROM <source topic> WITHFORMAT <JSON|AVRO> STOREAS <RELIABLE_TOPIC|RING_BUFFER>
+    INSERT INTO <reliable topic> SELECT <fields> FROM <source topic> WITHFORMAT
+    <JSON|AVRO> STOREAS <RELIABLE_TOPIC|RING_BUFFER|QUEUE|SET|LIST|IMAP|MULTI_MAP|ICACHE>
 
 Example:
 
