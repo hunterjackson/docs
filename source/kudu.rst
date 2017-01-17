@@ -240,7 +240,7 @@ The Kudu Sink supports the following:
 
 .. sourcecode:: bash
 
-    <write mode> INTO <target table> SELECT <fields> FROM <source topic> <AUTOCREATE> <DISTRIBUTEBY> <PK_FIELDS> INTO <NBR_OF_BUCKETS> BUCKETS <AUTOEVOLVE>
+    <write mode> INTO <target table> SELECT <fields> FROM <source topic> <AUTOCREATE> <AUTOEVOLVE> <DISTRIBUTEBY> <PK_FIELDS> INTO <NBR_OF_BUCKETS> BUCKETS
 
 Example:
 
