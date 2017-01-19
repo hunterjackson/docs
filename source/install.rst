@@ -74,8 +74,8 @@ Start the Confluent platform.
 
     #Start the confluent platform, we need kafka, zookeeper and the schema registry
     bin/zookeeper-server-start etc/kafka/zookeeper.properties &
-    bin/kafka-server-start etc/kafka/server.properties &
-    bin/schema-registry-start etc/schema-registry/schema-registry.properties &
+    sleep 10 && bin/kafka-server-start etc/kafka/server.properties &
+    sleep 10 && bin/schema-registry-start etc/schema-registry/schema-registry.properties &
 
 Stream Reactor Install
 ~~~~~~~~~~~~~~~~~~~~~~

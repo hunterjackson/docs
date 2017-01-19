@@ -283,7 +283,7 @@ With Format
 Hazelcast requires that data stored in collections and topics is serializable. The Sink offers two modes to store data.
 
 *Avro* In this mode the Sink converts the SinkRecords from Kafka to Avro encoded byte arrays.
-*Json* In this mode the Sink converts the SinkRecords from Kafka to Json strings and stores the resulting bytes.
+*Json* In this mode the Sink converts the SinkRecords from Kafka to Json strings.
 
 This behaviour is controlled by the KCQL statement in the ``connect.hazelcast.sink.kcql`` option. The default
 is JSON.
@@ -300,6 +300,17 @@ The Hazelcast Sink supports storing data in RingBuffers and ReliableTopics. This
     INSERT INTO tableB SELECT x AS a, y AS b and z AS c FROM topicB WITHFORMAT avro STOREAS RING_BUFFER
     #store into reliable topic
     INSERT INTO tableB SELECT x AS a, y AS b and z AS c FROM topicB WITHFORMAT avro STOREAS RELIABLE_TOPIC
+
+Parallel Writes
+~~~~~~~~~~~~~~~
+
+By default each task in the Sink will write the records it receives sequentially, the Sink optionally supports parallel
+writes where an executorThreadPool is started and records are written in parallel. While this results in better performance
+we can't guarantee the order of the writes.
+
+To enable parallel writes set the ``connect.hazelcast.parallel.write`` configuration option to ``true.``
+
+
 
 Configurations
 --------------
@@ -437,6 +448,16 @@ Sets the SO_SNDBUF and SO_RCVBUF options to the specified value in KB for this S
 * Importance : low
 * Optional  : yes
 * Default	: 32
+
+``connect.hazelcast.parallel.write```
+
+All the sink to write in parallel the records received from Kafka on each poll. Order of writes in not guaranteed.
+
+* Data type  : boolean
+* Importance : medium
+* Optional   : yes
+# Default    : false
+
 
 Schema Evolution
 ----------------
