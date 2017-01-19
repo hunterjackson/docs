@@ -143,7 +143,7 @@ connect to the Rest API of Kafka Connect of your container.
     connector.class=com.datamountaineer.streamreactor.connect.influx.InfluxSinkConnector
     tasks.max=1
     topics=influx-topic
-    connect.influx.sink.route.query=INSERT INTO influxMeasure SELECT * FROM influx-topic WITHTIMESTAMP sys_time()
+    connect.influx.sink.kcql=INSERT INTO influxMeasure SELECT * FROM influx-topic WITHTIMESTAMP sys_time()
     connect.influx.connection.url=http://localhost:8086
     connect.influx.connection.database=mydb
     #task ids: 0
@@ -191,7 +191,7 @@ We can use the CLI to check if the connector is up but you should be able to see
         connect.influx.connection.password = [hidden]
         connect.influx.connection.url = http://localhost:8086
         connect.influx.retry.interval = 60000
-        connect.influx.sink.route.query = INSERT INTO influxMeasure SELECT * FROM influx-topic WITHTIMESTAMP sys_time()
+        connect.influx.sink.kcql = INSERT INTO influxMeasure SELECT * FROM influx-topic WITHTIMESTAMP sys_time()
         connect.influx.max.retires = 20
      (com.datamountaineer.streamreactor.connect.influx.config.InfluxSinkConfig:178)
 
@@ -258,6 +258,38 @@ Features
 1. Topic to index mapping.
 3. Auto mapping of the Kafka topic schema to the index.
 4. Field selection
+5. Tagging the data points using constants or fields from the payload
+
+
+Tag
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+InfluxDB allows via the client API to provide a set of tags (key-value) to each point added.
+The current connector version allows you to provide them via the KCQL
+
+.. sourcecode:: bash
+
+    INSERT INTO <measure> SELECT <fields> FROM <source topic> WITHTIMESTAMP <field_name>|sys_time() WITHTAG(field|(constant_key=constant_value))
+
+Example:
+
+.. sourcecode:: sql
+
+    #Tagging using constants
+    INSERT INTO measureA SELECT * FROM topicA  WITHTAG (DataMountaineer=awesome, Influx=rulz!)
+
+    #Tagging using fields in the payload. Say we have a Payment structure with these fields: amount, from, to, note
+    INSERT INTO measureA SELECT * FROM topicA  WITHTAG (from, to)
+
+
+    #Tagging using a combination of fields in the payload and constants. Say we have a Payment structure with these fields: amount, from, to, note
+    INSERT INTO measureA SELECT * FROM topicA  WITHTAG (from, to, provider=DataMountaineer)
+
+
+Limitations:
+At the moment you can only reference the payload fields but if the structure is nested you can't address nested fields.
+Support for such functionality will be provided soon.
+You can't tag with fields present in the Kafka message key, or use the message metadata(partition, topic, index).
+
 
 Kafka Connect Query Language
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -362,6 +394,17 @@ The InfluxDB password.
 * Data type : string
 * Importance: high
 * Optional  : yes
+
+``connect.influx.consistency.level``
+
+Specifies the write consistency. If any write operations do not meet the configured consistency guarantees,
+an error will occur and the data will not be indexed. The default consistency-level is ALL.
+Other available options are ANY, ONE, QUORUM
+
+* Data type : string
+* Importance: medium
+* Optional  : yes
+* Default   : ALL
 
 ``connect.influx.retention.policy``
 
