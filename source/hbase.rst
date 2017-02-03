@@ -85,7 +85,7 @@ The Sink expects a precreated table in HBase. In the HBase shell create the test
 .. sourcecode:: bash
 
     bin/hbase shell
-    hbase(main):001:0> create 'person_hbase',{NAME=>'d', VERSIONS=>1}
+    hbase(main):001:0> create 'person',{NAME=>'d', VERSIONS=>1}
 
     hbase(main):001:0> list
     person
@@ -128,7 +128,7 @@ connect to the Rest API of Kafka Connect of your container.
     tasks.max=1
     topics=hbase-topic
     connect.hbase.sink.column.family=d
-    connect.hbase.sink.kcql=INSERT INTO person_hbase SELECT * FROM hbase-topic
+    connect.hbase.sink.kcql=INSERT INTO person SELECT * FROM hbase-topic PK firstName, lastName
     #task ids: 0
 
 This ``hbase-sink.properties`` configuration defines:
@@ -180,7 +180,7 @@ a ``lastname`` field of type string, an ``age`` field of type int and a ``salary
 
     ${CONFLUENT_HOME}/bin/kafka-avro-console-producer \
       --broker-list localhost:9092 --topic hbase-topic \
-      --property value.schema='{"type":"record","name":"User","namespace":"com.datamountaineer.streamreactor.connect.hbase"
+      --property value.schema='{"type":"record","name":"User","namespace":"com.datamountaineer.streamreactor.connect.hbase",
       "fields":[{"name":"firstName","type":"string"},{"name":"lastName","type":"string"},{"name":"age","type":"int"},
       {"name":"salary","type":"double"}]}'
 
@@ -205,7 +205,7 @@ In HBase:
 
 .. sourcecode:: bash
 
-    hbase(main):004:0* scan 'person_hbase'
+    hbase(main):004:0* scan 'person'
     ROW                                                  COLUMN+CELL
      Anna\x0AJones                                       column=d:age, timestamp=1463056888641, value=\x00\x00\x00\x1C
      Anna\x0AJones                                       column=d:firstName, timestamp=1463056888641, value=Anna
@@ -357,7 +357,7 @@ Example
 .. sourcecode:: bash
 
     connect.hbase.sink.column.family=d
-    connect.hbase.sink.kcql=INSERT INTO person_hbase SELECT * FROM TOPIC1
+    connect.hbase.sink.kcql=INSERT INTO person SELECT * FROM TOPIC1
     connector.class=com.datamountaineer.streamreactor.connect.hbase.HbaseSinkConnector
     tasks.max=1
     topics=TOPIC1
