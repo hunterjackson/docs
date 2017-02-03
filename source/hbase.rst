@@ -128,7 +128,7 @@ connect to the Rest API of Kafka Connect of your container.
     tasks.max=1
     topics=hbase-topic
     connect.hbase.sink.column.family=d
-    connect.hbase.sink.kcql=INSERT INTO person SELECT * FROM hbase-topic
+    connect.hbase.sink.kcql=INSERT INTO person SELECT * FROM hbase-topic PK firstName, lastName
     #task ids: 0
 
 This ``hbase-sink.properties`` configuration defines:
