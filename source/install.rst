@@ -77,13 +77,13 @@ Confluent can be downloaded for `here <http://www.confluent.io/download/>`__
     ➜  mkdir confluent
 
     #download confluent
-    ➜  wget http://packages.confluent.io/archive/3.0/confluent-3.0.1-2.11.tar.gz
+    ➜  wget http://packages.confluent.io/archive/3.1/confluent-3.1.1-2.11.tar.gz
 
     #extract archive to confluent folder
-    ➜  tar -xvf confluent-3.0.1-2.11.tar.gz -C confluent
+    ➜  tar -xvf confluent-3.1.1-2.11.tar.gz -C confluent
 
     #setup variables
-    ➜  export CONFLUENT_HOME=~/confluent/confluent-3.0.1
+    ➜  export CONFLUENT_HOME=~/confluent/confluent-3.1.1
 
 Start the Confluent platform.
 
@@ -105,35 +105,68 @@ Unpack the archive:
 
     #Stream reactor release 0.2.4
     mkdir stream-reactor
-    tar xvf stream-reactor-0.2.4-3.0.1.tar.gz -C stream-reactor
+    tar xvf stream-reactor-0.2.4-3.1.1.tar.gz -C stream-reactor
 
 Within the unpacked directory you will find the following structure:
 
 .. sourcecode:: bash
 
-    stream-reactor-0.2.4-3.0.1
+    stream-reactor-0.2.4-3.1.1
     |-- LICENSE
     |-- README.md
     |-- bin
     |   |-- cli.sh
-    |   `-- start-connect.sh
-    `-- libs
-        |-- kafka-connect-cli-0.9-all.jar
-        |-- kafka-connect-blockchain-0.2.4-3.0.1-all.jar
-        |-- kafka-connect-bloomberg-0.2.4-3.0.1-all.jar
-        |-- kafka-connect-cassandra-0.2.4-3.0.1-all.jar
-        |-- kafka-connect-druid-0.2.4-3.0.1-all.jar
-        |-- kafka-connect-elastic-0.2.4-3.0.1-all.jar
-        |-- kafka-connect-hazelcast-0.2.4-3.0.1-all.jar
-        |-- kafka-connect-hbase-0.2.4-3.0.1-all.jar
-        |-- kafka-connect-influxdb-0.2.4-3.0.1-all.jar
-        |-- kafka-connect-jms-0.2.4-3.0.1-all.jar
-        |-- kafka-connect-kudu-0.2.4-3.0.1-all.jar
-        |-- kafka-connect-redis-0.2.4-3.0.1-all.jar
-        |-- kafka-connect-rethink-0.2.4-3.0.1-all.jar
-        |-- kafka-connect-voltdb-0.2.4-3.0.1-all.jar
-        |-- kafka-connect-yahoo-0.2.4-3.0.1-all.jar
-        `-- kafka-socket-streamer-0.2.4-3.0.1-all.jar
+    |   |-- install-ui.sh
+    |   |-- sr-cli-linux
+    |   |-- sr-cli-osx
+    |   |-- start-connect.sh
+    |   `-- start-ui.sh
+    |-- conf
+    |   |-- blockchain-source.properties
+    |   |-- bloomberg-source.properties
+    |   |-- cassandra-sink.properties
+    |   |-- cassandra-source.properties
+    |   |-- coap-hazelcast-sink.properties
+    |   |-- coap-hazelcast-source.properties
+    |   |-- coap-sink.properties
+    |   |-- coap-source.properties
+    |   |-- druid-sink.properties
+    |   |-- elastic-sink.properties
+    |   |-- ftp-source.properties
+    |   |-- hazelcast-sink.properties
+    |   |-- hbase-sink.properties
+    |   |-- influxdb-sink.properties
+    |   |-- jms-sink.properties
+    |   |-- kudu-sink.properties
+    |   |-- mongodb-sink.properties
+    |   |-- mqtt-source.properties
+    |   |-- redis-sink.properties
+    |   |-- rethink-sink.properties
+    |   |-- rethink-source.properties
+    |   |-- voltdb-sink.properties
+    |   `-- yahoo-source.properties
+    |-- cql
+    |-- libs
+    |   |-- kafka-connect-blockchain-0.2.4-3.1.1-all.jar
+    |   |-- kafka-connect-bloomberg-0.2.4-3.1.1-all.jar
+    |   |-- kafka-connect-cassandra-0.2.4-3.1.1-all.jar
+    |   |-- kafka-connect-cli-0.9-all.jar
+    |   |-- kafka-connect-coap-0.2.4-3.1.1-all.jar
+    |   |-- kafka-connect-druid-0.2.4-3.1.1-all.jar
+    |   |-- kafka-connect-elastic-0.2.4-3.1.1-all.jar
+    |   |-- kafka-connect-ftp-0.2.4-3.1.1-all.jar
+    |   |-- kafka-connect-hazelcast-0.2.4-3.1.1-all.jar
+    |   |-- kafka-connect-hbase-0.2.4-3.1.1-all.jar
+    |   |-- kafka-connect-influxdb-0.2.4-3.1.1-all.jar
+    |   |-- kafka-connect-jms-0.2.4-3.1.1-all.jar
+    |   |-- kafka-connect-kudu-0.2.4-3.1.1-all.jar
+    |   |-- kafka-connect-mongodb-0.2.4-3.1.1-all.jar
+    |   |-- kafka-connect-mqtt-0.2.4-3.1.1-all.jar
+    |   |-- kafka-connect-redis-0.2.4-3.1.1-all.jar
+    |   |-- kafka-connect-rethink-0.2.4-3.1.1-all.jar
+    |   |-- kafka-connect-voltdb-0.2.4-3.1.1-all.jar
+    |   |-- kafka-connect-yahoo-0.2.4-3.1.1-all.jar
+    |   `-- kafka-socket-streamer-0.2.4-3.1.1-all.jar
 
 The ``libs`` folder contains all the Stream Reactor Connector jars.
 
