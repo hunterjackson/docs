@@ -12,6 +12,16 @@ The following releases are available:
 -  `0.2.3 <https://github.com/datamountaineer/stream-reactor/releases/tag/v0.2.3>`__
 -  `0.2.2 <https://github.com/datamountaineer/stream-reactor/releases/tag/v0.2.2>`__
 
++------------------------+------------------------+------------------------+
+| Kafka Version          | Confluent Version      | Stream reactor version |
++========================+========================+========================+
+| 0.10.0.1               | 3.1                    | 0.2.4                  |
++------------------------+------------------------+------------------------+
+| 0.10.0.1               | 3.0.1                  | 0.2.3                  |
++------------------------+------------------------+------------------------+
+| 0.10.0.1               | 3.0.1                  | 0.2.2                  |
++------------------------+------------------------+------------------------+
+
 +------------------------+------------------------+
 | Connector              | Versions               |
 +========================+========================+
@@ -20,12 +30,16 @@ The following releases are available:
 | Bloomberg              | blpapi-3.8.8-2         |
 +------------------------+------------------------+
 | Cassandra              | Driver 3.0.0,          |
-|                        | Server 2.6.6           |
+|                        | Server 3.0.9           |
++------------------------+------------------------+
+| CoAP                   | Californium 2.0.0-M2   |
 +------------------------+------------------------+
 | Druid                  | Tranquility 0.7.4      |
 +------------------------+------------------------+
 | Elastic                | Elastic 2.2.0,         |
 |                        | Elastic4s 2.3.0        |
++------------------------+------------------------+
+| FTP                    | commons-net 0.5        |
 +------------------------+------------------------+
 | HazelCast              | HazelCast 3.6.0        |
 +------------------------+------------------------+
@@ -40,6 +54,8 @@ The following releases are available:
 | Kudu                   | Kudu Client 0.9.0      |
 +------------------------+------------------------+
 | MongoDB                | MongoDB 3.3.0          |
++------------------------+------------------------+
+| MQTT                   | Mqtt 1.1.0             |
 +------------------------+------------------------+
 | Redis                  | Redis 2.8.1            |
 +------------------------+------------------------+
@@ -142,6 +158,34 @@ Pull the latest images:
     #UI's
     docker pull landoop/kafka-topics-ui
     docker pull landoop/schema-registry-ui
+
+Release Notes
+-------------
+
+0.2.4 (26 Jan 2017)
+~~~~~~~~~~~~~~~~~~~
+
+*   Added FTP and HTTP Source.
+*   Added InfluxDB tag support. KCQL: INSERT INTO targetdimension SELECT * FROM influx-topic WITHTIMESTAMP sys_time() WITHTAG(field1, CONSTANT_KEY1=CONSTANT_VALUE1, field2,CONSTANT_KEY2=CONSTANT_VALUE1)
+*   Added InfluxDb consistency level. Default is ALL. Use connect.influx.consistency.level to set it to ONE/QUORUM/ALL/ANY
+*   InfluxDb connect.influx.sink.route.query was renamed to connect.influx.sink.kcql
+*   Added support for multiple contact points in Cassandra
+
+0.2.3 (5 Jan 2017)
+~~~~~~~~~~~~~~~~~~
+
+*   Added CoAP Source and Sink.
+*   Added MongoDB Sink.
+*   Added MQTT Source.
+*   Hazelcast support for ring buffers, maps, sets, lists and cache.
+*   Redis support for Sorted Sets.
+*   Added start scripts.
+*   Added Kafka Connect and Schema Registry CLI.
+*   Kafka Connect CLI now supports pause/restart/resume; checking connectors on the classpath and validating configuration of connectors.
+*   Support for Struct, Schema.STRING and Json with schema in the Cassandra, ReThinkDB, InfluxDB and MongoDB sinks.
+*   Rename export.query.route to sink.kcql.
+*   Rename import.query.route to source.kcql.
+*   Upgrade to KCQL 0.9.5 - Add support for STOREAS so specify target sink types, e.g. Redis Sorted Sets, Hazelcast map, queues, ringbuffers.
 
 Fast Data Dev
 -------------
