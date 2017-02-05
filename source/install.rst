@@ -8,6 +8,7 @@ optionally the Schema Registry provided by this distribution.
 
 The following releases are available:
 
+-  `0.2.4 <https://github.com/datamountaineer/stream-reactor/releases/tag/v0.2.4>`__
 -  `0.2.3 <https://github.com/datamountaineer/stream-reactor/releases/tag/v0.2.3>`__
 -  `0.2.2 <https://github.com/datamountaineer/stream-reactor/releases/tag/v0.2.2>`__
 
@@ -86,15 +87,15 @@ Unpack the archive:
 
 .. sourcecode:: bash
 
-    #Stream reactor release 0.2.3
+    #Stream reactor release 0.2.4
     mkdir stream-reactor
-    tar xvf stream-reactor-0.2.3-3.0.1.tar.gz -C stream-reactor
+    tar xvf stream-reactor-0.2.4-3.0.1.tar.gz -C stream-reactor
 
 Within the unpacked directory you will find the following structure:
 
 .. sourcecode:: bash
 
-    stream-reactor-0.2-3.0.1
+    stream-reactor-0.2.4-3.0.1
     |-- LICENSE
     |-- README.md
     |-- bin
@@ -102,21 +103,21 @@ Within the unpacked directory you will find the following structure:
     |   `-- start-connect.sh
     `-- libs
         |-- kafka-connect-cli-0.9-all.jar
-        |-- kafka-connect-blockchain-0.2-3.0.1-all.jar
-        |-- kafka-connect-bloomberg-0.2-3.0.1-all.jar
-        |-- kafka-connect-cassandra-0.2-3.0.1-all.jar
-        |-- kafka-connect-druid-0.2-3.0.1-all.jar
-        |-- kafka-connect-elastic-0.2-3.0.1-all.jar
-        |-- kafka-connect-hazelcast-0.2-3.0.1-all.jar
-        |-- kafka-connect-hbase-0.2-3.0.1-all.jar
-        |-- kafka-connect-influxdb-0.2-3.0.1-all.jar
-        |-- kafka-connect-jms-0.2-3.0.1-all.jar
-        |-- kafka-connect-kudu-0.2-3.0.1-all.jar
-        |-- kafka-connect-redis-0.2-3.0.1-all.jar
-        |-- kafka-connect-rethink-0.2-3.0.1-all.jar
-        |-- kafka-connect-voltdb-0.2-3.0.1-all.jar
-        |-- kafka-connect-yahoo-0.2-3.0.1-all.jar
-        `-- kafka-socket-streamer-0.2-3.0.1-all.jar
+        |-- kafka-connect-blockchain-0.2.4-3.0.1-all.jar
+        |-- kafka-connect-bloomberg-0.2.4-3.0.1-all.jar
+        |-- kafka-connect-cassandra-0.2.4-3.0.1-all.jar
+        |-- kafka-connect-druid-0.2.4-3.0.1-all.jar
+        |-- kafka-connect-elastic-0.2.4-3.0.1-all.jar
+        |-- kafka-connect-hazelcast-0.2.4-3.0.1-all.jar
+        |-- kafka-connect-hbase-0.2.4-3.0.1-all.jar
+        |-- kafka-connect-influxdb-0.2.4-3.0.1-all.jar
+        |-- kafka-connect-jms-0.2.4-3.0.1-all.jar
+        |-- kafka-connect-kudu-0.2.4-3.0.1-all.jar
+        |-- kafka-connect-redis-0.2.4-3.0.1-all.jar
+        |-- kafka-connect-rethink-0.2.4-3.0.1-all.jar
+        |-- kafka-connect-voltdb-0.2.4-3.0.1-all.jar
+        |-- kafka-connect-yahoo-0.2.4-3.0.1-all.jar
+        `-- kafka-socket-streamer-0.2.4-3.0.1-all.jar
 
 The ``libs`` folder contains all the Stream Reactor Connector jars.
 
