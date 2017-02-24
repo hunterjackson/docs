@@ -35,11 +35,11 @@ Avro to produce a GenericRecord, to just send a message with Schema.String and t
 **Connect entry without a schema and the payload json String.** There are many existing systems which are publishing json
 over Kafka and bringing them in line with best practices is quite a challenge. Hence we added the support
 
-Prerequisites
+Prerequisites!!
 -------------
 
--  Cassandra 2.2.4
--  Confluent 3.0.0
+-  Cassandra **2.2.4+** if your are on version 2.* or **3.0.1+** if you are on version 3.*
+-  Confluent 3.0.0+
 -  Java 1.8
 -  Scala 2.11
 
