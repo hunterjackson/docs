@@ -87,7 +87,11 @@ Of course if your SchemaRegistry runs on a different machine or you have multipl
 Test Database
 ~~~~~~~~~~~~~
 
-The Sink requires that a database be precreated in DocumentDb.
+The Sink can handle creating the database if is not present.
+All you have to do in this case is to set the following in the configuration
+
+.. sourcecode:: bash
+    connect.documentdb.sink.database.create=true
 
 .. sourcecode:: bash
 
@@ -128,8 +132,9 @@ connect to the Rest API of Kafka Connect of your container.
     tasks.max=1
     topics=orders-topic
     connect.documentdb.sink.kcql=INSERT INTO orders SELECT * FROM orders-topic
-    connect.documentdb.sink.database=connect
-    connect.documentdb.sink.endpoint=localhost:
+    connect.documentdb.database.name=dm_orders
+    connect.documentdb.endpoint=localhost:8081
+    connect.documentdb.sink.database.create=true
     connect.documentdb.master.key=C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==
     connect.documentdb.sink.batch.size=10
 
@@ -213,7 +218,7 @@ This time we need to start the connect with a different set of settings.
 
       #create a new configuration for connect
       ➜ cp  etc/schema-registry/connect-avro-distributed.properties etc/schema-registry/connect-avro-distributed-json.properties
-      ➜ vi etc/schema-registry/connect-avro-distributed-json.properties
+      ➜ vi vim etc/schema-registry/connect-avro-distributed.properties
 
 Replace the following 4 entries in the config
 
@@ -517,14 +522,14 @@ Example
 ~~~~~~~
 
 .. sourcecode:: bash
-
     name=azure-docdb-sink
     connector.class=com.datamountaineer.streamreactor.connect.azure.documentdb.sink.DocumentDbSinkConnector
     tasks.max=1
     topics=orders-topic
     connect.documentdb.sink.kcql=INSERT INTO orders SELECT * FROM orders-topic
-    connect.documentdb.sink.database=connect
-    connect.documentdb.sink.endpoint=localhost:
+    connect.documentdb.database.name=dm_orders
+    connect.documentdb.endpoint=localhost:8081
+    connect.documentdb.sink.database.create=true
     connect.documentdb.master.key=C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==
     connect.documentdb.sink.batch.size=10
 
