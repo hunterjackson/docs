@@ -93,13 +93,6 @@ All you have to do in this case is to set the following in the configuration
 .. sourcecode:: bash
     connect.documentdb.sink.database.create=true
 
-.. sourcecode:: bash
-
-    #from a new terminal
-    ➜
-
-    #list all dbs
-    ➜
 
 
 Starting the Connector
@@ -130,12 +123,12 @@ connect to the Rest API of Kafka Connect of your container.
     name=azure-docdb-sink
     connector.class=com.datamountaineer.streamreactor.connect.azure.documentdb.sink.DocumentDbSinkConnector
     tasks.max=1
-    topics=orders-topic
-    connect.documentdb.sink.kcql=INSERT INTO orders SELECT * FROM orders-topic
-    connect.documentdb.database.name=dm_orders
-    connect.documentdb.endpoint=localhost:8081
+    topics=orders-avro
+    connect.documentdb.sink.kcql=INSERT INTO orders SELECT * FROM orders-avro
+    connect.documentdb.database.name=dm
+    connect.documentdb.endpoint=[YOUR_AZURE_ENDPOINT]
     connect.documentdb.sink.database.create=true
-    connect.documentdb.master.key=C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==
+    connect.documentdb.master.key=[YOUR_MASTER_KEY]
     connect.documentdb.sink.batch.size=10
 
     #task ids: 0
@@ -154,7 +147,22 @@ We can use the CLI to check if the connector is up but you should be able to see
 
 .. sourcecode:: bash
 
-        //TODO
+        [2017-02-28 21:34:09,922] INFO
+
+  _____        _        __  __                   _        _
+ |  __ \      | |      |  \/  |                 | |      (_)
+ | |  | | __ _| |_ __ _| \  / | ___  _   _ _ __ | |_ __ _ _ _ __   ___  ___ _ __
+ | |  | |/ _` | __/ _` | |\/| |/ _ \| | | | '_ \| __/ _` | | '_ \ / _ \/ _ \ '__|
+ | |__| | (_| | || (_| | |  | | (_) | |_| | | | | || (_| | | | | |  __/  __/ |
+ |_____/ \__,_|\__\__,_|_|  |_|\___/ \__,_|_| |_|\__\__,_|_|_| |_|\___|\___|_|
+        By Stefan Bocutiu        _____             _____  ____     _____ _       _
+     /\                         |  __ \           |  __ \|  _ \   / ____(_)     | |
+    /  \    _____   _ _ __ ___  | |  | | ___   ___| |  | | |_) | | (___  _ _ __ | | __
+   / /\ \  |_  / | | | '__/ _ \ | |  | |/ _ \ / __| |  | |  _ <   \___ \| | '_ \| |/ /
+  / ____ \  / /| |_| | | |  __/ | |__| | (_) | (__| |__| | |_) |  ____) | | | | |   <
+ /_/    \_\/___|\__,_|_|  \___| |_____/ \___/ \___|_____/|____/  |_____/|_|_| |_|_|\_\
+
+ (com.datamountaineer.streamreactor.connect.azure.documentdb.sink.DocumentDbSinkTask:56)
 
 Test Records
 ^^^^^^^^^^^^
@@ -173,37 +181,78 @@ Start the producer and pass in a schema to register in the Schema Registry. The 
 .. sourcecode:: bash
 
     bin/kafka-avro-console-producer \
-     --broker-list localhost:9092 --topic orders-topic \
-     --property value.schema='{"type":"record","name":"myrecord","fields":[{"name":"id","type":"int"},
+     --broker-list localhost:9092 --topic orders-avro \
+     --property value.schema='{"type":"record","name":"myrecord","fields":[{"name":"id","type":"string"},
     {"name":"created", "type": "string"}, {"name":"product", "type": "string"}, {"name":"price", "type": "double"}]}'
 
 Now the producer is waiting for input. Paste in the following (each on a line separately):
 
 .. sourcecode:: bash
 
-    {"id": 1, "created": "2016-05-06 13:53:00", "product": "OP-DAX-P-20150201-95.7", "price": 94.2}
-    {"id": 2, "created": "2016-05-06 13:54:00", "product": "OP-DAX-C-20150201-100", "price": 99.5}
-    {"id": 3, "created": "2016-05-06 13:55:00", "product": "FU-DATAMOUNTAINEER-20150201-100", "price": 10000}
-    {"id": 4, "created": "2016-05-06 13:56:00", "product": "FU-KOSPI-C-20150201-100", "price": 150}
+    {"id": "1", "created": "2016-05-06 13:53:00", "product": "OP-DAX-P-20150201-95.7", "price": 94.2}
+    {"id": "2", "created": "2016-05-06 13:54:00", "product": "OP-DAX-C-20150201-100", "price": 99.5}
+    {"id": "3", "created": "2016-05-06 13:55:00", "product": "FU-DATAMOUNTAINEER-20150201-100", "price": 10000}
+    {"id": "4", "created": "2016-05-06 13:56:00", "product": "FU-KOSPI-C-20150201-100", "price": 150}
 
-Now if we check the logs of the connector we should see 2 records being inserted to DocumentDB:
-
-.. sourcecode:: bash
-
-    //TODO
+Now if we check the logs of the connector we should see 4 records being inserted to DocumentDB:
 
 .. sourcecode:: bash
 
-    #Verify the records were inserted
-    ➜   //TODO
-        >
-        { "_id" : ObjectId("581fb21b09690a24b63b35bd"), "id" : 1, "created" : "2016-05-06 13:53:00", "product" : "OP-DAX-P-20150201-95.7", "price" : 94.2 }
-        { "_id" : ObjectId("581fb2f809690a24b63b35c2"), "id" : 2, "created" : "2016-05-06 13:54:00", "product" : "OP-DAX-C-20150201-100", "price" : 99.5 }
-        { "_id" : ObjectId("581fb2f809690a24b63b35c3"), "id" : 3, "created" : "2016-05-06 13:55:00", "product" : "FU-DATAMOUNTAINEER-20150201-100", "price" : 10000 }
-        { "_id" : ObjectId("581fb2f809690a24b63b35c4"), "id" : 4, "created" : "2016-05-06 13:56:00", "product" : "FU-KOSPI-C-20150201-100", "price" : 150 }
+    #From the Query Explorer in you Azure run
+    SELECT * FROM orders
 
+.. sourcecode:: bash
 
-Bingo, our 4 rows!
+    #The query should return something along the lines
+    ➜
+      [
+          {
+            "product": "OP-DAX-P-20150201-95.7",
+            "created": "2016-05-06 13:53:00",
+            "price": 94.2,
+            "id": "1",
+            "_rid": "Rrg+APfcfwABAAAAAAAAAA==",
+            "_self": "dbs/***/colls/***/docs/Rrg+APfcfwABAAAAAAAAAA==/",
+            "_etag": "\"4000c5f0-0000-0000-0000-58b5ecd10000\"",
+            "_attachments": "attachments/",
+            "_ts": 1488317649
+          },
+          {
+            "product": "OP-DAX-C-20150201-100",
+            "created": "2016-05-06 13:54:00",
+            "price": 99.5,
+            "id": "2",
+            "_rid": "Rrg+APfcfwACAAAAAAAAAA==",
+            "_self": "dbs/***/colls/***/docs/Rrg+APfcfwACAAAAAAAAAA==/",
+            "_etag": "\"4000c6f0-0000-0000-0000-58b5ecd10000\"",
+            "_attachments": "attachments/",
+            "_ts": 1488317649
+          },
+          {
+            "product": "FU-DATAMOUNTAINEER-20150201-100",
+            "created": "2016-05-06 13:55:00",
+            "price": 10000,
+            "id": "3",
+            "_rid": "Rrg+APfcfwADAAAAAAAAAA==",
+            "_self": "dbs/***/colls/***/docs/Rrg+APfcfwADAAAAAAAAAA==/",
+            "_etag": "\"4000c7f0-0000-0000-0000-58b5ecd10000\"",
+            "_attachments": "attachments/",
+            "_ts": 1488317650
+          },
+          {
+            "product": "FU-KOSPI-C-20150201-100",
+            "created": "2016-05-06 13:56:00",
+            "price": 150,
+            "id": "4",
+            "_rid": "Rrg+APfcfwAEAAAAAAAAAA==",
+            "_self": "dbs/***/colls/***/docs/Rrg+APfcfwAEAAAAAAAAAA==/",
+            "_etag": "\"4000c8f0-0000-0000-0000-58b5ecd10000\"",
+            "_attachments": "attachments/",
+            "_ts": 1488317650
+          }
+        ]
+
+Bingo, our 4 documents!
 
 
 Legacy topics (plain text payload with a json string)
@@ -233,10 +282,10 @@ with the following
 
 .. sourcecode:: bash
 
-      key.converter=org.apache.kafka.connect.json.JsonConverter
-      key.converter.schemas.enable=false
-      value.converter=org.apache.kafka.connect.json.JsonConverter
-      value.converter.schemas.enable=false
+    key.converter=org.apache.kafka.connect.json.JsonConverter
+    key.converter.schemas.enable=false
+    value.converter=org.apache.kafka.connect.json.JsonConverter
+    value.converter.schemas.enable=false
 
 Now let's restart the connect instance:
 
@@ -254,6 +303,17 @@ Use the ``CLI`` to remove the old DocumentDb Sink:
 
 and start the new sink with the json properties files to read from the a different topic with json as the payload.
 
+
+.. sourcecode:: bash
+    #make a copy of azure-docdb-sink.properties
+    cp azure-docdb-sink.properties azure-docdb-sink-json.properties
+
+.. sourcecode:: bash
+    #edit  azure-docdb-sink-json.properties replace the following keys
+    topics=orders-topic-json
+    connect.documentdb.sink.kcql=INSERT INTO orders_j SELECT * FROM orders-topic-json
+
+
 .. sourcecode:: bash
 
      #start the connector for DocumentDb
@@ -263,7 +323,35 @@ You should see in the terminal where you started Kafka Connect the following ent
 
 .. sourcecode:: bash
 
-        //TODO
+        [2017-02-28 21:55:52,192] INFO DocumentDbConfig values:
+        connect.documentdb.database.name = dm
+        connect.documentdb.endpoint = [hidden]
+        connect.documentdb.error.policy = THROW
+        connect.documentdb.master.key = [hidden]
+        connect.documentdb.max.retires = 20
+        connect.documentdb.proxy = null
+        connect.documentdb.retry.interval = 60000
+        connect.documentdb.sink.batch.size = 10
+        connect.documentdb.sink.consistency.level = Session
+        connect.documentdb.sink.database.create = true
+        connect.documentdb.sink.kcql = INSERT INTO orders_j SELECT * FROM orders-topic-json
+ (com.datamountaineer.streamreactor.connect.azure.documentdb.config.DocumentDbConfig:180)
+[2017-02-28 21:55:52,193] INFO
+  _____        _        __  __                   _        _
+ |  __ \      | |      |  \/  |                 | |      (_)
+ | |  | | __ _| |_ __ _| \  / | ___  _   _ _ __ | |_ __ _ _ _ __   ___  ___ _ __
+ | |  | |/ _` | __/ _` | |\/| |/ _ \| | | | '_ \| __/ _` | | '_ \ / _ \/ _ \ '__|
+ | |__| | (_| | || (_| | |  | | (_) | |_| | | | | || (_| | | | | |  __/  __/ |
+ |_____/ \__,_|\__\__,_|_|  |_|\___/ \__,_|_| |_|\__\__,_|_|_| |_|\___|\___|_|
+        By Stefan Bocutiu        _____             _____  ____     _____ _       _
+     /\                         |  __ \           |  __ \|  _ \   / ____(_)     | |
+    /  \    _____   _ _ __ ___  | |  | | ___   ___| |  | | |_) | | (___  _ _ __ | | __
+   / /\ \  |_  / | | | '__/ _ \ | |  | |/ _ \ / __| |  | |  _ <   \___ \| | '_ \| |/ /
+  / ____ \  / /| |_| | | |  __/ | |__| | (_) | (__| |__| | |_) |  ____) | | | | |   <
+ /_/    \_\/___|\__,_|_|  \___| |_____/ \___/ \___|_____/|____/  |_____/|_|_| |_|_|\_\
+
+
+ (com.datamountaineer.streamreactor.connect.azure.documentdb.sink.DocumentDbSinkTask:56)
 
 Now it's time to produce some records. This time we will use the simple kafka-consoler-consumer to put simple json on the topic:
 
@@ -271,27 +359,57 @@ Now it's time to produce some records. This time we will use the simple kafka-co
 
     ➜ ${CONFLUENT_HOME}/bin/kafka-console-producer --broker-list localhost:9092 --topic orders-topic-json
 
-    {"id": 1, "created": "2016-05-06 13:53:00", "product": "OP-DAX-P-20150201-95.7", "price": 94.2}
-    {"id": 2, "created": "2016-05-06 13:54:00", "product": "OP-DAX-C-20150201-100", "price": 99.5}
-    {"id": 3, "created": "2016-05-06 13:55:00", "product": "FU-DATAMOUNTAINEER-20150201-100", "price":10000}
+    {"id": "1", "created": "2016-05-06 13:53:00", "product": "OP-DAX-P-20150201-95.7", "price": 94.2}
+    {"id": "2", "created": "2016-05-06 13:54:00", "product": "OP-DAX-C-20150201-100", "price": 99.5}
+    {"id": "3", "created": "2016-05-06 13:55:00", "product": "FU-DATAMOUNTAINEER-20150201-100", "price":10000}
 
-Following the command you should have something similar to this in the logs for your connect:
-
-.. sourcecode:: bash
-
-    //TODO
 
 Let's check the DocumentDb database for the new records:
 
 .. sourcecode:: bash
 
-    #
-    ➜
-        >  //TODO
-        { "_id" : ObjectId("581fc5fe53b2c9318a3c1004"), "created" : "2016-05-06 13:53:00", "id" : NumberLong(1), "product_name" : "OP-DAX-P-20150201-95.7", "value" : 94.2 }
-        { "_id" : ObjectId("581fc5fe53b2c9318a3c1005"), "created" : "2016-05-06 13:54:00", "id" : NumberLong(2), "product_name" : "OP-DAX-C-20150201-100", "value" : 99.5 }
-        { "_id" : ObjectId("581fc5fe53b2c9318a3c1006"), "created" : "2016-05-06 13:55:00", "id" : NumberLong(3), "product_name" : "FU-DATAMOUNTAINEER-20150201-100", "value" : NumberLong(10000) }
+     #From the Query Explorer in you Azure run
+    SELECT * FROM orders
 
+.. sourcecode:: bash
+
+    #The query should return something along the lines
+    ➜
+        [
+          {
+            "product": "OP-DAX-P-20150201-95.7",
+            "created": "2016-05-06 13:53:00",
+            "price": 94.2,
+            "id": "1",
+            "_rid": "Rrg+AP5X3gABAAAAAAAAAA==",
+            "_self": "dbs/***/colls/***/docs/Rrg+AP5X3gABAAAAAAAAAA==/",
+            "_etag": "\"00007008-0000-0000-0000-58b5f3ff0000\"",
+            "_attachments": "attachments/",
+            "_ts": 1488319485
+          },
+          {
+            "product": "OP-DAX-C-20150201-100",
+            "created": "2016-05-06 13:54:00",
+            "price": 99.5,
+            "id": "2",
+            "_rid": "Rrg+AP5X3gACAAAAAAAAAA==",
+            "_self": "dbs/****/colls/***/docs/Rrg+AP5X3gACAAAAAAAAAA==/",
+            "_etag": "\"00007108-0000-0000-0000-58b5f3ff0000\"",
+            "_attachments": "attachments/",
+            "_ts": 1488319485
+          },
+          {
+            "product": "FU-DATAMOUNTAINEER-20150201-100",
+            "created": "2016-05-06 13:55:00",
+            "price": 10000,
+            "id": "3",
+            "_rid": "Rrg+AP5X3gADAAAAAAAAAA==",
+            "_self": "dbs/****/colls/****/docs/Rrg+AP5X3gADAAAAAAAAAA==/",
+            "_etag": "\"00007208-0000-0000-0000-58b5f3ff0000\"",
+            "_attachments": "attachments/",
+            "_ts": 1488319485
+          }
+        ]
 
 Bingo, our 3 rows!
 
@@ -442,7 +560,7 @@ The connection master key
 
 ``connect.documentdb.sink.consistency.level``
 
-Determines the write visibility. There are four possible values: Strong,BoundedStaleness,Session or Eventual
+Determines the write visibility. There are four possible values: Strong,BoundedStaleness,Session  nbyor Eventual
 
 * Data type: string
 * Optional : yes
@@ -525,12 +643,12 @@ Example
     name=azure-docdb-sink
     connector.class=com.datamountaineer.streamreactor.connect.azure.documentdb.sink.DocumentDbSinkConnector
     tasks.max=1
-    topics=orders-topic
-    connect.documentdb.sink.kcql=INSERT INTO orders SELECT * FROM orders-topic
-    connect.documentdb.database.name=dm_orders
-    connect.documentdb.endpoint=localhost:8081
+    topics=orders-avro
+    connect.documentdb.sink.kcql=INSERT INTO orders SELECT * FROM orders-avro
+    connect.documentdb.database.name=dm
+    connect.documentdb.endpoint=[YOUR_AZURE_ENDPOINT]
     connect.documentdb.sink.database.create=true
-    connect.documentdb.master.key=C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==
+    connect.documentdb.master.key=[YOUR_MASTER_KEY]
     connect.documentdb.sink.batch.size=10
 
 Schema Evolution
