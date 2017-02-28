@@ -38,7 +38,7 @@ Prerequisites
 -------------
 
 -  Azure DocumentDb instance
--  Confluent 3.0.1+
+- Confluent 3.1.1
 -  Java 1.8
 -  Scala 2.11
 

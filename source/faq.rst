@@ -15,7 +15,9 @@ However, it is possible sink Json messages from Kafka with some of our Sinks by 
 have a `schema` field the converter will deliver the records to the Sink with a schema. If no `schema` tag is present the
 records will be delivered with a schema of type ``SCHEMA.String``.
 
-We are currently working on support for schemaless json records.
+.. note::
+
+    You must be using at least Cassandra 3.0.9 to have JSON support!
 
 
 **Can I run on multiple nodes?**

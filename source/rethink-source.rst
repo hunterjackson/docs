@@ -15,7 +15,7 @@ The Source supports:
 Prerequisites
 -------------
 
-- Confluent 3.0.1
+- Confluent 3.1.1
 - RethinkDb 2.3.3
 - Java 1.8
 - Scala 2.11

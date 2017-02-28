@@ -18,7 +18,7 @@ The Sink supports:
 
 Prerequisites
 -------------
--  Confluent 3.0.0
+- Confluent 3.1.1
 -  Java 1.8
 -  Scala 2.11
 -  A JMS framework (ActiveMQ for example)

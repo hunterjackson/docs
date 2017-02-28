@@ -39,9 +39,13 @@ Prerequisites!!
 -------------
 
 -  Cassandra **2.2.4+** if your are on version 2.* or **3.0.1+** if you are on version 3.*
--  Confluent 3.0.0+
+- Confluent 3.1.1
 -  Java 1.8
 -  Scala 2.11
+
+.. note::
+
+    You must be using at least Cassandra 3.0.9 to have JSON support!
 
 Setup
 -----

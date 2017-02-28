@@ -19,7 +19,7 @@ The payload of the CoAP request sent to the CoAP server is sent as json.
 Prerequisites
 -------------
 
-- Confluent 3.0.1
+- Confluent 3.1.1
 - Java 1.8
 - Scala 2.11
 
