@@ -1,5 +1,5 @@
 Kafka Connect Azure DocumentDb Sink
-========================
+===================================
 
 The Azure DocumentDb Sink allows you to write events from Kafka to your DocumentDb instance. The connector converts the Kafka
 Connect SinkRecords to DocumentDb Documents and will do an insert or upsert, depending on the configuration you chose. If the database doesn't exist
@@ -55,10 +55,10 @@ Confluent Setup
 Follow the instructions :ref:`here <install>`.
 
 DocumentDb Setup
-~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~
 
 If you already have an instance of Azure DocumentDb running you can skip this step.
-Otherwise, please follow `this <https://azure.microsoft.com/en-gb/pricing/details/documentdb/>` to get an Azure account
+Otherwise, please follow `this <https://azure.microsoft.com/en-gb/pricing/details/documentdb/>`__ to get an Azure account
 or use the Emulator.
 
 Sink Connector QuickStart
@@ -91,6 +91,7 @@ The Sink can handle creating the database if is not present.
 All you have to do in this case is to set the following in the configuration
 
 .. sourcecode:: bash
+
     connect.documentdb.sink.database.create=true
 
 
@@ -107,7 +108,7 @@ Start Kafka Connect in distributed more by running the ``start-connect.sh`` scri
 
     ➜ bin/start-connect.sh
 
-Once the connector has started we can now use the kafka-connect-tools cli to post in our distributed properties file for Kudu.
+Once the connector has started we can now use the kafka-connect-tools cli to post in our distributed properties file for Azure DocumentDB.
 If you are using the :ref:`dockers <dockers>` you will have to set the following environment variable to for the CLI to
 connect to the Rest API of Kafka Connect of your container.
 
@@ -147,22 +148,22 @@ We can use the CLI to check if the connector is up but you should be able to see
 
 .. sourcecode:: bash
 
-        [2017-02-28 21:34:09,922] INFO
+    [2017-02-28 21:34:09,922] INFO
 
-  _____        _        __  __                   _        _
- |  __ \      | |      |  \/  |                 | |      (_)
- | |  | | __ _| |_ __ _| \  / | ___  _   _ _ __ | |_ __ _ _ _ __   ___  ___ _ __
- | |  | |/ _` | __/ _` | |\/| |/ _ \| | | | '_ \| __/ _` | | '_ \ / _ \/ _ \ '__|
- | |__| | (_| | || (_| | |  | | (_) | |_| | | | | || (_| | | | | |  __/  __/ |
- |_____/ \__,_|\__\__,_|_|  |_|\___/ \__,_|_| |_|\__\__,_|_|_| |_|\___|\___|_|
-        By Stefan Bocutiu        _____             _____  ____     _____ _       _
-     /\                         |  __ \           |  __ \|  _ \   / ____(_)     | |
-    /  \    _____   _ _ __ ___  | |  | | ___   ___| |  | | |_) | | (___  _ _ __ | | __
-   / /\ \  |_  / | | | '__/ _ \ | |  | |/ _ \ / __| |  | |  _ <   \___ \| | '_ \| |/ /
-  / ____ \  / /| |_| | | |  __/ | |__| | (_) | (__| |__| | |_) |  ____) | | | | |   <
- /_/    \_\/___|\__,_|_|  \___| |_____/ \___/ \___|_____/|____/  |_____/|_|_| |_|_|\_\
+      _____        _        __  __                   _        _
+     |  __ \      | |      |  \/  |                 | |      (_)
+     | |  | | __ _| |_ __ _| \  / | ___  _   _ _ __ | |_ __ _ _ _ __   ___  ___ _ __
+     | |  | |/ _` | __/ _` | |\/| |/ _ \| | | | '_ \| __/ _` | | '_ \ / _ \/ _ \ '__|
+     | |__| | (_| | || (_| | |  | | (_) | |_| | | | | || (_| | | | | |  __/  __/ |
+     |_____/ \__,_|\__\__,_|_|  |_|\___/ \__,_|_| |_|\__\__,_|_|_| |_|\___|\___|_|
+            By Stefan Bocutiu        _____             _____  ____     _____ _       _
+         /\                         |  __ \           |  __ \|  _ \   / ____(_)     | |
+        /  \    _____   _ _ __ ___  | |  | | ___   ___| |  | | |_) | | (___  _ _ __ | | __
+       / /\ \  |_  / | | | '__/ _ \ | |  | |/ _ \ / __| |  | |  _ <   \___ \| | '_ \| |/ /
+      / ____ \  / /| |_| | | |  __/ | |__| | (_) | (__| |__| | |_) |  ____) | | | | |   <
+     /_/    \_\/___|\__,_|_|  \___| |_____/ \___/ \___|_____/|____/  |_____/|_|_| |_|_|\_\
 
- (com.datamountaineer.streamreactor.connect.azure.documentdb.sink.DocumentDbSinkTask:56)
+     (com.datamountaineer.streamreactor.connect.azure.documentdb.sink.DocumentDbSinkTask:56)
 
 Test Records
 ^^^^^^^^^^^^
@@ -305,10 +306,12 @@ and start the new sink with the json properties files to read from the a differe
 
 
 .. sourcecode:: bash
+
     #make a copy of azure-docdb-sink.properties
     cp azure-docdb-sink.properties azure-docdb-sink-json.properties
 
 .. sourcecode:: bash
+
     #edit  azure-docdb-sink-json.properties replace the following keys
     topics=orders-topic-json
     connect.documentdb.sink.kcql=INSERT INTO orders_j SELECT * FROM orders-topic-json
@@ -316,42 +319,42 @@ and start the new sink with the json properties files to read from the a differe
 
 .. sourcecode:: bash
 
-     #start the connector for DocumentDb
+    #start the connector for DocumentDb
     ➜   bin/cli.sh create azure-docdb-sink-json < azure-docdb-sink-json.properties
 
 You should see in the terminal where you started Kafka Connect the following entries in the log:
 
 .. sourcecode:: bash
 
-        [2017-02-28 21:55:52,192] INFO DocumentDbConfig values:
-        connect.documentdb.database.name = dm
-        connect.documentdb.endpoint = [hidden]
-        connect.documentdb.error.policy = THROW
-        connect.documentdb.master.key = [hidden]
-        connect.documentdb.max.retires = 20
-        connect.documentdb.proxy = null
-        connect.documentdb.retry.interval = 60000
-        connect.documentdb.sink.batch.size = 10
-        connect.documentdb.sink.consistency.level = Session
-        connect.documentdb.sink.database.create = true
-        connect.documentdb.sink.kcql = INSERT INTO orders_j SELECT * FROM orders-topic-json
- (com.datamountaineer.streamreactor.connect.azure.documentdb.config.DocumentDbConfig:180)
-[2017-02-28 21:55:52,193] INFO
-  _____        _        __  __                   _        _
- |  __ \      | |      |  \/  |                 | |      (_)
- | |  | | __ _| |_ __ _| \  / | ___  _   _ _ __ | |_ __ _ _ _ __   ___  ___ _ __
- | |  | |/ _` | __/ _` | |\/| |/ _ \| | | | '_ \| __/ _` | | '_ \ / _ \/ _ \ '__|
- | |__| | (_| | || (_| | |  | | (_) | |_| | | | | || (_| | | | | |  __/  __/ |
- |_____/ \__,_|\__\__,_|_|  |_|\___/ \__,_|_| |_|\__\__,_|_|_| |_|\___|\___|_|
-        By Stefan Bocutiu        _____             _____  ____     _____ _       _
-     /\                         |  __ \           |  __ \|  _ \   / ____(_)     | |
-    /  \    _____   _ _ __ ___  | |  | | ___   ___| |  | | |_) | | (___  _ _ __ | | __
-   / /\ \  |_  / | | | '__/ _ \ | |  | |/ _ \ / __| |  | |  _ <   \___ \| | '_ \| |/ /
-  / ____ \  / /| |_| | | |  __/ | |__| | (_) | (__| |__| | |_) |  ____) | | | | |   <
- /_/    \_\/___|\__,_|_|  \___| |_____/ \___/ \___|_____/|____/  |_____/|_|_| |_|_|\_\
+    [2017-02-28 21:55:52,192] INFO DocumentDbConfig values:
+            connect.documentdb.database.name = dm
+            connect.documentdb.endpoint = [hidden]
+            connect.documentdb.error.policy = THROW
+            connect.documentdb.master.key = [hidden]
+            connect.documentdb.max.retires = 20
+            connect.documentdb.proxy = null
+            connect.documentdb.retry.interval = 60000
+            connect.documentdb.sink.batch.size = 10
+            connect.documentdb.sink.consistency.level = Session
+            connect.documentdb.sink.database.create = true
+            connect.documentdb.sink.kcql = INSERT INTO orders_j SELECT * FROM orders-topic-json
+     (com.datamountaineer.streamreactor.connect.azure.documentdb.config.DocumentDbConfig:180)
+    [2017-02-28 21:55:52,193] INFO
+      _____        _        __  __                   _        _
+     |  __ \      | |      |  \/  |                 | |      (_)
+     | |  | | __ _| |_ __ _| \  / | ___  _   _ _ __ | |_ __ _ _ _ __   ___  ___ _ __
+     | |  | |/ _` | __/ _` | |\/| |/ _ \| | | | '_ \| __/ _` | | '_ \ / _ \/ _ \ '__|
+     | |__| | (_| | || (_| | |  | | (_) | |_| | | | | || (_| | | | | |  __/  __/ |
+     |_____/ \__,_|\__\__,_|_|  |_|\___/ \__,_|_| |_|\__\__,_|_|_| |_|\___|\___|_|
+            By Stefan Bocutiu        _____             _____  ____     _____ _       _
+         /\                         |  __ \           |  __ \|  _ \   / ____(_)     | |
+        /  \    _____   _ _ __ ___  | |  | | ___   ___| |  | | |_) | | (___  _ _ __ | | __
+       / /\ \  |_  / | | | '__/ _ \ | |  | |/ _ \ / __| |  | |  _ <   \___ \| | '_ \| |/ /
+      / ____ \  / /| |_| | | |  __/ | |__| | (_) | (__| |__| | |_) |  ____) | | | | |   <
+     /_/    \_\/___|\__,_|_|  \___| |_____/ \___/ \___|_____/|____/  |_____/|_|_| |_|_|\_\
 
 
- (com.datamountaineer.streamreactor.connect.azure.documentdb.sink.DocumentDbSinkTask:56)
+     (com.datamountaineer.streamreactor.connect.azure.documentdb.sink.DocumentDbSinkTask:56)
 
 Now it's time to produce some records. This time we will use the simple kafka-consoler-consumer to put simple json on the topic:
 
@@ -640,6 +643,7 @@ Example
 ~~~~~~~
 
 .. sourcecode:: bash
+
     name=azure-docdb-sink
     connector.class=com.datamountaineer.streamreactor.connect.azure.documentdb.sink.DocumentDbSinkConnector
     tasks.max=1
