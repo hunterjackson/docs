@@ -274,7 +274,7 @@ The developer can then use this docker image to setup a connect-distributed clus
            -e BS=broker1:9092,broker2:9092 \
            -e ZK=zk1:2181,zk2:2181 \
            -e SC=http://schema-registry:8081 \
-           -e HOST=<IP OR FQDN>
+           -e HOST=<IP OR FQDN> \
            landoop/fast-data-dev-connect-cluster
 
 
@@ -302,9 +302,9 @@ that it is important to expose Connect's port on the same port at the host. This
            -e BS=broker1:9092,broker2:9092 \
            -e ZK=zk1:2181,zk2:2181 \
            -e SC=http://schema-registry:8081 \
-           -e HOST=<IP OR FQDN>
-           -e PORT=8085
-           -p 8085:8085
+           -e HOST=<IP OR FQDN> \
+           -e PORT=8085 \
+           -p 8085:8085 \
            landoop/fast-data-dev-connect-cluster
 
 Advanced
