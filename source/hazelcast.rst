@@ -2,7 +2,8 @@ Kafka Connect HazelCast
 =======================
 
 A Connector and Sink to write events from Kafka to HazelCast. The connector takes the value from the Kafka Connect
-SinkRecords and inserts a new entry to a HazelCast reliable topic. The Sink only supports writing to reliable topics.
+SinkRecords and inserts/update an entry in HazelCast. The Sink supports writing to a reliable topic, ring buffer,
+queue, set, list, imap, multi-map and icache.
 
 The Sink supports:
 
@@ -10,7 +11,8 @@ The Sink supports:
     or all fields written to Hazelcast.
 2.  Topic to table routing via KCQL.
 3.  Error policies for handling failures.
-4.  Storing as JSON, TEXT or Avro in Hazelcast via KCQL.
+4.  Encoding as JSON, TEXT or Avro in Hazelcast via KCQL.
+5.  Storing in a Hazelcast RELIABLE_TOPIC, RING_BUFFER, QUEUE, SET, LIST, IMAP, MULTI_MAP, ICACHE via KCQL.
 
 Prerequisites
 -------------
@@ -291,15 +293,28 @@ is JSON.
 Stored As
 ~~~~~~~~~
 
-The Hazelcast Sink supports storing data in RingBuffers and ReliableTopics. This behaviour is controlled by the KCQL statement
- in the ``connect.hazelcast.sink.kcql`` option.
+The Hazelcast Sink supports storing data in RingBuffers, ReliableTopics, Queues, Sets, Lists, IMaps, Multi-maps and
+ICaches. This behaviour is controlled by the KCQL statement in the ``connect.hazelcast.sink.kcql`` option. Note that
+IMaps, Multi-maps and ICaches support a key as well as a value.
 
 .. sourcecode:: bash
 
     #store into a ring buffer
     INSERT INTO tableB SELECT x AS a, y AS b and z AS c FROM topicB WITHFORMAT avro STOREAS RING_BUFFER
-    #store into reliable topic
+    #store into a reliable topic
     INSERT INTO tableB SELECT x AS a, y AS b and z AS c FROM topicB WITHFORMAT avro STOREAS RELIABLE_TOPIC
+    #store into a queue
+    INSERT INTO tableB SELECT x AS a, y AS b and z AS c FROM topicB WITHFORMAT avro STOREAS QUEUE
+    #store into a set
+    INSERT INTO tableB SELECT x AS a, y AS b and z AS c FROM topicB WITHFORMAT avro STOREAS SET
+    #store into a list
+    INSERT INTO tableB SELECT x AS a, y AS b and z AS c FROM topicB WITHFORMAT avro STOREAS LIST
+    #store into an i-map with field1 used as the map key
+    INSERT INTO tableB SELECT x AS a, y AS b and z AS c FROM topicB PK field1 WITHFORMAT avro STOREAS IMAP
+    #store into a multi-map with field1 used as the map key
+    INSERT INTO tableB SELECT x AS a, y AS b and z AS c FROM topicB PK field1 WITHFORMAT avro STOREAS MULTI_MAP
+    #store into an i-cache with field1 used as the cache key
+    INSERT INTO tableB SELECT x AS a, y AS b and z AS c FROM topicB PK field1 WITHFORMAT avro STOREAS ICACHE
 
 Parallel Writes
 ~~~~~~~~~~~~~~~
