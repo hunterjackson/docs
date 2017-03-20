@@ -87,7 +87,7 @@ The ``jms-sink.properties`` file defines:
 3.  The max number of tasks the connector is allowed to created.
 4.  The Kafka topics to take events from.
 5.  The JMS url.
-6.  The factory class for the JSM endpoint.
+6.  The factory class for the JMS endpoint.
 7.  :ref:`The KCQL routing querying. <kcql>`
 8.  The message type storage format.
 9.  The error policy.
