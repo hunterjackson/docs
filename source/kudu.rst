@@ -15,7 +15,7 @@ The Sink supports:
 Prerequisites
 -------------
 
-- Confluent 3.1.1
+- Confluent 3.2
 - Kudu 0.8
 - Java 1.8
 - Scala 2.11

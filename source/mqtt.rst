@@ -13,7 +13,7 @@ The Source supports:
 Prerequisites
 -------------
 
-- Confluent 3.1.1
+- Confluent 3.2
 - Mqtt server
 - Java 1.8
 - Scala 2.11
@@ -428,7 +428,7 @@ If the source topic is not matched it will default to the BytesConverter. This w
 
 .. sourcecode:: bash
 
-  mqtt_source1=com.datamountaineer.streamreactor.connect.mqtt.source.converters.AvroConverter;mqtt_source2=com.datamountaineer.streamreactor.connect.mqtt.source.converters.JsonSimpleConverter
+  mqtt_source1=com.datamountaineer.streamreactor.connect.source.converters.AvroConverter;mqtt_source2=com.datamountaineer.streamreactor.connect.source.converters.JsonSimpleConverter
 
 ``connect.mqtt.converter.throw.on.error``
 
@@ -442,7 +442,7 @@ If set to false the conversion exception will be swallowed and everything carrie
 ``connect.source.converter.avro.schemas``
 
 If the AvroConverter is used you need to provide an avro Schema to be able to read and translate the raw bytes to an avro record.
-The formate is $MQTT_TOPIC=$PATH_TO_AVRO_SCHEMA_FILE
+The format is $MQTT_TOPIC=$PATH_TO_AVRO_SCHEMA_FILE
 
 * Data type:  bool
 * Importance: medium
@@ -481,7 +481,7 @@ Gradle:
 
 .. sourcecode:: groovy
 
-    compile "com.datamountaineer:kafka-connect-common:0.6.1"
+    compile "com.datamountaineer:kafka-connect-common:0.7.1"
 
 Maven:
 
@@ -490,7 +490,7 @@ Maven:
     <dependency>
         <groupId>com.datamountaineer</groupId>
         <artifactId>kafka-connect-common</artifactId>
-        <version>0.6.1</version>
+        <version>0.7.1</version>
     </dependency>
 
 Then all you have to do is implement ``com.datamountaineer.streamreactor.connect.converters.source.Converter``.
@@ -500,7 +500,7 @@ Here is our BytesConverter class code:
 .. sourcecode:: scala
 
     class BytesConverter extends Converter {
-      override def convert(kafkaTopic: String, sourceTopic: String, messageId: Int, bytes: Array[Byte]): SourceRecord = {
+      override def convert(kafkaTopic: String, sourceTopic: String, messageId: String, bytes: Array[Byte]): SourceRecord = {
         new SourceRecord(Collections.singletonMap(Converter.TopicKey, sourceTopic),
           null,
           kafkaTopic,

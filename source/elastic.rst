@@ -15,7 +15,7 @@ The Sink supports:
 Prerequisites
 -------------
 
-- Confluent 3.1.1
+- Confluent 3.2
 - Elastic Search 2.2
 - Java 1.8
 - Scala 2.11

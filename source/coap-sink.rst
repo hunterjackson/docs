@@ -12,14 +12,32 @@ The Sink supports:
 4. Schema registry support for Connect and no schema (schema set to Schema.String)
 5. Json payload support, no Schema Registry.
 6. Error policies.
-7. Schema.Struct and payload Struct, Schema.String and Json payload and Json payload with no schema.
+7. Payload support for Schema.Struct and payload Struct, Schema.String and Json payload and Json payload with no schema
+
+The Sink supports three Kafka payloads type:
+
+**Connect entry with Schema.Struct and payload Struct.** If you follow the best practice while producing the events, each
+message should carry its schema information. Best option is to send Avro. Your connect configurations should be set to
+``value.converter=io.confluent.connect.avro.AvroConverter``.
+You can fnd an example `here <https://github.com/confluentinc/kafka-connect-blog/blob/master/etc/connect-avro-standalone.properties>`__.
+To see how easy is to have your producer serialize to Avro have a look at
+`this <http://docs.confluent.io/3.0.1/schema-registry/docs/serializer-formatter.html?highlight=kafkaavroserializer>`__.
+This requires the SchemaRegistry which is open source thanks to Confluent! Alternatively you can send Json + Schema.
+In this case your connect configuration should be set to ``value.converter=org.apache.kafka.connect.json.JsonConverter``. This doesn't
+require the SchemaRegistry.
+
+**Connect entry with Schema.String and payload json String.** Sometimes the producer would find it easier, despite sending
+Avro to produce a GenericRecord, to just send a message with Schema.String and the json string.
+
+**Connect entry without a schema and the payload json String.** There are many existing systems which are publishing json
+over Kafka and bringing them in line with best practices is quite a challenge. Hence we added the support
 
 The payload of the CoAP request sent to the CoAP server is sent as json.
 
 Prerequisites
 -------------
 
-- Confluent 3.1.1
+- Confluent 3.2
 - Java 1.8
 - Scala 2.11
 

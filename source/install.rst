@@ -8,6 +8,7 @@ optionally the Schema Registry provided by this distribution.
 
 The following releases are available:
 
+-  `0.2.5 <https://github.com/datamountaineer/stream-reactor/releases/tag/v0.2.5>`__
 -  `0.2.4 <https://github.com/datamountaineer/stream-reactor/releases/tag/v0.2.4>`__
 -  `0.2.3 <https://github.com/datamountaineer/stream-reactor/releases/tag/v0.2.3>`__
 -  `0.2.2 <https://github.com/datamountaineer/stream-reactor/releases/tag/v0.2.2>`__
@@ -15,6 +16,8 @@ The following releases are available:
 +------------------------+------------------------+------------------------+
 | Kafka Version          | Confluent Version      | Stream reactor version |
 +========================+========================+========================+
+| 0.10.2.0               | 3.2                    | 0.2.5                  |
++------------------------+------------------------+------------------------+
 | 0.10.0.1               | 3.1                    | 0.2.4                  |
 +------------------------+------------------------+------------------------+
 | 0.10.0.1               | 3.0.1                  | 0.2.3                  |
@@ -25,6 +28,8 @@ The following releases are available:
 +------------------------+------------------------+
 | Connector              | Versions               |
 +========================+========================+
+| Azure DocumentDB       | 1.9.5                  |
++------------------------+------------------------+
 | BlockChain             | Not applicable         |
 +------------------------+------------------------+
 | Bloomberg              | blpapi-3.8.8-2         |
@@ -77,13 +82,13 @@ Confluent can be downloaded for `here <http://www.confluent.io/download/>`__
     ➜  mkdir confluent
 
     #download confluent
-    ➜  wget http://packages.confluent.io/archive/3.1/confluent-3.1.1-2.11.tar.gz
+    ➜  wget http://packages.confluent.io/archive/3.2/confluent-3.2.0-2.11.tar.gz
 
     #extract archive to confluent folder
-    ➜  tar -xvf confluent-3.1.1-2.11.tar.gz -C confluent
+    ➜  tar -xvf confluent-3.2.0-2.11.tar.gz -C confluent
 
     #setup variables
-    ➜  export CONFLUENT_HOME=~/confluent/confluent-3.1.1
+    ➜  export CONFLUENT_HOME=~/confluent/confluent-3.2.0
 
 Start the Confluent platform.
 
@@ -103,15 +108,15 @@ Unpack the archive:
 
 .. sourcecode:: bash
 
-    #Stream reactor release 0.2.4
+    #Stream reactor release 0.2.5
     mkdir stream-reactor
-    tar xvf stream-reactor-0.2.4-3.1.1.tar.gz -C stream-reactor
+    tar xvf stream-reactor-0.2.5-3.2.0.tar.gz -C stream-reactor
 
 Within the unpacked directory you will find the following structure:
 
 .. sourcecode:: bash
 
-    stream-reactor-0.2.4-3.1.1
+    stream-reactor-0.2.5-3.2.0
     |-- LICENSE
     |-- README.md
     |-- bin
@@ -125,6 +130,7 @@ Within the unpacked directory you will find the following structure:
     |   |-- blockchain-source.properties
     |   |-- bloomberg-source.properties
     |   |-- cassandra-sink.properties
+    |   |-- cassandra-source-incr.properties
     |   |-- cassandra-source.properties
     |   |-- coap-hazelcast-sink.properties
     |   |-- coap-hazelcast-source.properties
@@ -137,6 +143,7 @@ Within the unpacked directory you will find the following structure:
     |   |-- hbase-sink.properties
     |   |-- influxdb-sink.properties
     |   |-- jms-sink.properties
+    |   |-- jms-source.properties
     |   |-- kudu-sink.properties
     |   |-- mongodb-sink.properties
     |   |-- mqtt-source.properties
@@ -145,28 +152,27 @@ Within the unpacked directory you will find the following structure:
     |   |-- rethink-source.properties
     |   |-- voltdb-sink.properties
     |   `-- yahoo-source.properties
-    |-- cql
-    |-- libs
-    |   |-- kafka-connect-blockchain-0.2.4-3.1.1-all.jar
-    |   |-- kafka-connect-bloomberg-0.2.4-3.1.1-all.jar
-    |   |-- kafka-connect-cassandra-0.2.4-3.1.1-all.jar
-    |   |-- kafka-connect-cli-0.9-all.jar
-    |   |-- kafka-connect-coap-0.2.4-3.1.1-all.jar
-    |   |-- kafka-connect-druid-0.2.4-3.1.1-all.jar
-    |   |-- kafka-connect-elastic-0.2.4-3.1.1-all.jar
-    |   |-- kafka-connect-ftp-0.2.4-3.1.1-all.jar
-    |   |-- kafka-connect-hazelcast-0.2.4-3.1.1-all.jar
-    |   |-- kafka-connect-hbase-0.2.4-3.1.1-all.jar
-    |   |-- kafka-connect-influxdb-0.2.4-3.1.1-all.jar
-    |   |-- kafka-connect-jms-0.2.4-3.1.1-all.jar
-    |   |-- kafka-connect-kudu-0.2.4-3.1.1-all.jar
-    |   |-- kafka-connect-mongodb-0.2.4-3.1.1-all.jar
-    |   |-- kafka-connect-mqtt-0.2.4-3.1.1-all.jar
-    |   |-- kafka-connect-redis-0.2.4-3.1.1-all.jar
-    |   |-- kafka-connect-rethink-0.2.4-3.1.1-all.jar
-    |   |-- kafka-connect-voltdb-0.2.4-3.1.1-all.jar
-    |   |-- kafka-connect-yahoo-0.2.4-3.1.1-all.jar
-    |   `-- kafka-socket-streamer-0.2.4-3.1.1-all.jar
+    `-- libs
+        |-- kafka-connect-azure-documentdb-0.2.5-3.2.0-all.jar
+        |-- kafka-connect-blockchain-0.2.5-3.2.0-all.jar
+        |-- kafka-connect-bloomberg-0.2.5-3.2.0-all.jar
+        |-- kafka-connect-cassandra-0.2.5-3.2.0-all.jar
+        |-- kafka-connect-cli-1.0-all.jar
+        |-- kafka-connect-coap-0.2.5-3.2.0-all.jar
+        |-- kafka-connect-druid-0.2.5-3.2.0-all.jar
+        |-- kafka-connect-elastic-0.2.5-3.2.0-all.jar
+        |-- kafka-connect-ftp-0.2.5-3.2.0-all.jar
+        |-- kafka-connect-hazelcast-0.2.5-3.2.0-all.jar
+        |-- kafka-connect-hbase-0.2.5-3.2.0-all.jar
+        |-- kafka-connect-influxdb-0.2.5-3.2.0-all.jar
+        |-- kafka-connect-jms-0.2.5-3.2.0-all.jar
+        |-- kafka-connect-kudu-0.2.5-3.2.0-all.jar
+        |-- kafka-connect-mongodb-0.2.5-3.2.0-all.jar
+        |-- kafka-connect-mqtt-0.2.5-3.2.0-all.jar
+        |-- kafka-connect-redis-0.2.5-3.2.0-all.jar
+        |-- kafka-connect-rethink-0.2.5-3.2.0-all.jar
+        |-- kafka-connect-voltdb-0.2.5-3.2.0-all.jar
+        `-- kafka-connect-yahoo-0.2.5-3.2.0-all.jar
 
 The ``libs`` folder contains all the Stream Reactor Connector jars.
 
@@ -192,17 +198,39 @@ Pull the latest images:
     docker pull landoop/kafka-topics-ui
     docker pull landoop/schema-registry-ui
 
+Individual docker images are available at DataMountaineers `DockerHub <https://hub.docker.com/u/datamountaineer/dashboard/>`__.
+We base our Docker images of Confluents base connector image. This contains a script that uses the environment variables
+starting with `CONNECT_` to create the Kafka Connect Worker property files. We added a second script that uses the
+environment variables starting with `CONNECTOR_` to create a properties files for the actual connector we want to start.
+
+Set the `CONNECT_` and `CONNECTOR_` environment variables accordingly when running the images.
+
 Release Notes
 -------------
+
+0.2.5
+~~~~~
+
+*   Adding Azure DocumentDb Sink
+*   Adding UPSERT to Elastic Search
+*   Cassandra improvements `withunwrap`
+*   Upgrade to Kudu 1.0 and CLI 1.0
+*   Add ingest_time to CoAP Source
+*   Support Confluent 3.2 and Kafka 0.10.2.
+*   Added Azure DocumentDB.
+*   Added JMS Source.
+*   Added Schemaless Json and Json with schema support to JMS Sink.
+*   InfluxDB bug fixes for tags and field selection.
+*   Support for Cassandra data type of ``timestamp`` in the Cassandra Source for timestamp tracking.
 
 0.2.4 (26 Jan 2017)
 ~~~~~~~~~~~~~~~~~~~
 
 *   Added FTP and HTTP Source.
-*   Added InfluxDB tag support. KCQL: INSERT INTO targetdimension SELECT * FROM influx-topic WITHTIMESTAMP sys_time() WITHTAG(field1, CONSTANT_KEY1=CONSTANT_VALUE1, field2,CONSTANT_KEY2=CONSTANT_VALUE1)
-*   Added InfluxDb consistency level. Default is ALL. Use connect.influx.consistency.level to set it to ONE/QUORUM/ALL/ANY
-*   InfluxDb connect.influx.sink.route.query was renamed to connect.influx.sink.kcql
-*   Added support for multiple contact points in Cassandra
+*   Added InfluxDB tag support. KCQL: INSERT INTO target dimension SELECT * FROM influx-topic WITHTIMESTAMP sys_time() WITHTAG(field1, CONSTANT_KEY1=CONSTANT_VALUE1, field2,CONSTANT_KEY2=CONSTANT_VALUE1)
+*   Added InfluxDb consistency level. Default is ALL. Use connect.influx.consistency.level to set it to ONE/QUORUM/ALL/ANY.
+*   InfluxDb connect.influx.sink.route.query was renamed to connect.influx.sink.kcql.
+*   Added support for multiple contact points in Cassandra.
 
 0.2.3 (5 Jan 2017)
 ~~~~~~~~~~~~~~~~~~
@@ -320,7 +348,7 @@ as long as other instances can reach each instance via the advertised host.
 Latest Test Results
 -------------------
 
-To see the latest tests for the Connectors, in a docker, please vist Landoop's test github `here <https://github.com/Landoop/kafka-connectors-tests>`__
+To see the latest tests for the Connectors, in a docker, please visit Landoop's test github `here <https://github.com/Landoop/kafka-connectors-tests>`__
 Test results can be found `here <https://coyote.landoop.com/connect/>`__.
 
 An example for BlockChain is:

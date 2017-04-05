@@ -18,7 +18,7 @@ and the message id.
 Prerequisites
 -------------
 
-- Confluent 3.1.1
+- Confluent 3.2
 - Java 1.8
 - Scala 2.11
 
@@ -138,7 +138,7 @@ Check for records in Kafka with the console consumer.
 
 .. sourcecode:: bash
 
- ➜  confluent-3.0.1/bin/kafka-avro-console-consumer \
+ ➜  bin/kafka-avro-console-consumer \
     --zookeeper localhost:2181 \
     --topic coap-topic \
     --from-beginning

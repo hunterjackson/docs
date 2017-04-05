@@ -1,5 +1,5 @@
-Kafka Connect JMS
-=======================
+Kafka Connect JMS Sink
+======================
 
 The JMS Sink connector allows you to extract entries from a Kafka topic with the CQL driver and pass them to a JMS topic/queue.
 The connector allows you to specify the payload type sent to the JMS target:
@@ -15,13 +15,36 @@ The Sink supports:
 2. Topic to topic routing via KCQL.
 3. Payload format selection via KCQL.
 4. Error policies for handling failures.
+5. Payload support for Schema.Struct and payload Struct, Schema.String and Json payload and Json payload with no schema
+
+The Sink supports three Kafka payloads type for TextMessage (Format JSON) only:
+
+.. note::
+
+    Only support with used with KCQL format type JSON. This sends messages at TextMessages to the JMS destination.
+
+**Connect entry with Schema.Struct and payload Struct.** If you follow the best practice while producing the events, each
+message should carry its schema information. Best option is to send Avro. Your connect configurations should be set to
+``value.converter=io.confluent.connect.avro.AvroConverter``.
+You can fnd an example `here <https://github.com/confluentinc/kafka-connect-blog/blob/master/etc/connect-avro-standalone.properties>`__.
+To see how easy is to have your producer serialize to Avro have a look at
+`this <http://docs.confluent.io/3.0.1/schema-registry/docs/serializer-formatter.html?highlight=kafkaavroserializer>`__.
+This requires the SchemaRegistry which is open source thanks to Confluent! Alternatively you can send Json + Schema.
+In this case your connect configuration should be set to ``value.converter=org.apache.kafka.connect.json.JsonConverter``. This doesn't
+require the SchemaRegistry.
+
+**Connect entry with Schema.String and payload json String.** Sometimes the producer would find it easier, despite sending
+Avro to produce a GenericRecord, to just send a message with Schema.String and the json string.
+
+**Connect entry without a schema and the payload json String.** There are many existing systems which are publishing json
+over Kafka and bringing them in line with best practices is quite a challenge. Hence we added the support.
 
 Prerequisites
 -------------
-- Confluent 3.1.1
--  Java 1.8
--  Scala 2.11
--  A JMS framework (ActiveMQ for example)
+- Confluent 3.2
+- Java 1.8
+- Scala 2.11
+- A JMS framework (ActiveMQ for example)
 
 Setup
 -----
@@ -67,31 +90,10 @@ connect to the Rest API of Kafka Connect of your container.
 .. sourcecode:: bash
 
     ➜  bin/cli.sh create jms-sink < conf/jms-sink.properties
-    #Connector name=`jms-sink`
-    name=jms-sink
-    connector.class=com.datamountaineer.streamreactor.connect.jms.sink.JMSSinkConnector
-    tasks.max=1
-    topics=jms-topic
-    connect.jms.sink.url=tcp://somehost:61616
-    connect.jms.sink.connection.factory=org.apache.activemq.ActiveMQConnectionFactory
-    connect.jms.sink.sink.kcql=INSERT INTO topic_1 SELECT * FROM jms-topic
-    connect.jms.sink.message.type=AVRO
-    connect.jms.error.policy=THROW
-    connect.jms.sink.export.route.topics=topic_1
-    #task ids: 0
+
 
 The ``jms-sink.properties`` file defines:
 
-1.  The name of the sink.
-2.  The Sink class.
-3.  The max number of tasks the connector is allowed to created.
-4.  The Kafka topics to take events from.
-5.  The JMS url.
-6.  The factory class for the JMS endpoint.
-7.  :ref:`The KCQL routing querying. <kcql>`
-8.  The message type storage format.
-9.  The error policy.
-10. The list of target topics (must match the targets set in ``connect.jms.sink.sink.kcql``
 
 If you switch back to the terminal you started the Connector in you should see the JMS Sink being accepted and the
 task starting.
@@ -138,9 +140,11 @@ Features
 The Sink supports:
 
 1. Field selection - Kafka topic payload field selection is supported, allowing you to select fields written to the queue or topic in JMS.
-2. Topic to topic routing.
+2. Topic to JMS Destination routing.
 3. Payload format selection.
 4. Error policies for handling failures.
+5. Payload support for Schema.Struct and payload Struct, Schema.String and Json payload and Json payload with no schema.
+   Only supported when storing as JSON
 
 Kafka Connect Query Language
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -152,7 +156,7 @@ The JMS Sink supports the following:
 
 .. sourcecode:: bash
 
-    INSERT INTO <jms target> SELECT <fields> FROM <source topic>
+    INSERT INTO <jms target> SELECT <fields> FROM <source topic> STOREAS <AVRO|JSON|MAP|OBJECT>
 
 Example:
 
@@ -161,8 +165,8 @@ Example:
     #select all fields from topicA and write to jmsA
     INSERT INTO jmsA SELECT * FROM topicA
 
-    #select 3 fields and rename from topicB and write to jmsB
-    INSERT INTO jmsB SELECT x AS a, y AS b and z AS c FROM topicB
+    #select 3 fields and rename from topicB and write to jmsB as JSON in a TextMessage
+    INSERT INTO jmsB SELECT x AS a, y AS b and z AS c FROM topicB STOREAS JSON
 
 
 JMS Payload
@@ -187,12 +191,12 @@ Example:
 .. sourcecode:: sql
 
     //Select all
-    INSERT INTO jms1 SELECT * FROM topic1; INSERT INTO jms3 SELECT * FROM topicCConfigurations
+    INSERT INTO prices SELECT * FROM bloomberg_prices; INSERT INTO jms3 SELECT * FROM topic2
 
 Configurations
 --------------
 
-``connect.jms.sink.url``
+``connect.jms.url``
 
 Provides the JMS broker url
 
@@ -200,7 +204,7 @@ Provides the JMS broker url
 * Importance: high
 * Optional : no
 
-``connect.jms.sink.user``
+``connect.jms.user``
 
 Provides the user for the JMS connection.
 
@@ -208,7 +212,7 @@ Provides the user for the JMS connection.
 * Importance: high
 * Optional : no
 
-``connect.jms.sink.password``
+``connect.jms.password``
 
 Provides the password for the JMS connection.
 
@@ -216,15 +220,40 @@ Provides the password for the JMS connection.
 * Importance: high
 * Optional : no
 
-``connect.jms.sink.connection.factory``
+``connect.jms.initial.context.factory``
 
-Provides the full class name for the ConnectionFactory implementation to use.
+* Data Type: string
+* Importance: high
+* Optional: no
+
+Initial Context Factory, e.g: org.apache.activemq.jndi.ActiveMQInitialContextFactory.
+
+``connect.jms.connection.factory``
+
+The ConnectionFactory implementation to use.
 
 * Data Type: string
 * Importance: high
 * Optional : no
 
-``connect.jms.sink.sink.kcql``
+``connect.jms.destination.selector``
+
+* Data Type: String
+* Importance: high
+* Optional: no
+* Default: CDI
+
+Selector to use for destination lookup. Either CDI or JNDI.
+
+``connect.jms.initial.context.extra.params``
+
+* Data Type: String
+* Importance: high
+* Optional: yes
+
+List (comma separated) of extra properties as key/value pairs with a colon delimiter to supply to the initial context e.g. SOLACE_JMS_VPN:my_solace_vp.
+
+``connect.jms.kcql``
 
 KCQL expression describing field selection and routes.
 
@@ -232,38 +261,29 @@ KCQL expression describing field selection and routes.
 * Importance: high
 * Optional : no
 
-``connect.jms.sink.export.route.topics``
+``connect.jms.topics``
 
-Lists all the jms target topics.
+Comma separated list of all the jms target topics.
 
-* Data Type: list (comma separated strings)
+* Data Type: list
 * Importance: medium
 * Optional : yes
 
-``connect.jms.sink.export.route.queue``
+``connect.jms.queues``
 
-Lists all the jms target queues.
+Comma separated list of all the jms target queues.
 
-* Data Type: list (comma separated strings)
+* Data Type: list
 * Importance: medium
 * Optional : yes
 
-``connect.jms.sink.message.type``
-
-Specifies the JMS payload. If JSON is chosen it will send a TextMessage.
-
-* Data Type: string
-* Importance: medium
-* Optional : yes
-* Default : AVRO
-
-``connect.jms.sink.error.policy``
+``connect.jms.error.policy``
 
 Specifies the action to be taken if an error occurs while inserting the data.
 
 There are three available options, **noop**, the error is swallowed, **throw**, the error is allowed to propagate and retry.
-For **retry** the Kafka message is redelivered up to a maximum number of times specified by the ``connect.jms.sink.max.retries``
-option. The ``connect.jms.sink.retry.interval`` option specifies the interval between retries.
+For **retry** the Kafka message is redelivered up to a maximum number of times specified by the ``connect.jms.max.retries``
+option. The ``connect.jms.retry.interval`` option specifies the interval between retries.
 
 The errors will be logged automatically.
 
@@ -272,18 +292,18 @@ The errors will be logged automatically.
 * Optional: yes
 * Default: RETRY
 
-``connect.jms.sink.max.retries``
+``connect.jms.max.retries``
 
-The maximum number of times a message is retried. Only valid when the ``connect.jms.sink.error.policy`` is set to ``retry``.
+The maximum number of times a message is retried. Only valid when the ``connect.jms.error.policy`` is set to ``retry``.
 
 * Type: string
 * Importance: medium
 * Optional: yes
 * Default: 10
 
-``connect.jms.sink.retry.interval``
+``connect.jms.retry.interval``
 
-The interval, in milliseconds between retries if the Sink is using ``connect.jms.sink.error.policy`` set to **RETRY**.
+The interval, in milliseconds between retries if the Sink is using ``connect.jms.error.policy`` set to **RETRY**.
 
 * Type: int
 * Importance: medium

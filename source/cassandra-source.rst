@@ -13,8 +13,8 @@ The Source supports:
 Prerequisites
 -------------
 
--  Cassandra 2.2.4
-- Confluent 3.1.1
+-  Cassandra 3.0.9
+-  Confluent 3.2
 -  Java 1.8
 -  Scala 2.11
 
@@ -67,14 +67,15 @@ The Source connector operates in two modes:
 2. Incremental - Each table is querying with lower and upper bounds to
    extract deltas.
 
-In incremental mode the column used to identify new or delta rows has to be provided. This column must be of CQL Type
-Timestamp. Due to Cassandra's and CQL restrictions this should be a primary key or part of a composite primary keys.
-ALLOW\_FILTERING can also be supplied as an configuration.
+In incremental mode the column used to identify new or delta rows has to be provided. Due to Cassandra's and CQL restrictions
+this should be a primary key or part of a composite primary keys. ALLOW\_FILTERING can also be supplied as an configuration.
 
 .. note::
 
     TimeUUIDs are converted to strings. Use the `UUIDs <https://docs.datastax.com/en/drivers/java/2.0/com/datastax/driver/core/utils/UUIDs.html>`__
     helpers to convert to Dates.
+
+    Only TimeUUID and Timestamp Cassandra data types are supported for tracking new rows in incremental mode.
 
 Source Connector QuickStart
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -148,7 +149,7 @@ connect to the Rest API of Kafka Connect of your container.
 
 .. sourcecode:: bash
 
-    ➜  bin/cli.sh create cassandra-source-orders < cassandra-source-incr-orders.properties
+    ➜  bin/cli.sh create cassandra-source-orders < conf/cassandra-source-incr.properties
 
     #Connector `cassandra-source-orders`:
     name=cassandra-source-orders
@@ -159,20 +160,22 @@ connect to the Rest API of Kafka Connect of your container.
     connect.cassandra.contact.points=localhost
     connect.cassandra.username=cassandra
     connect.cassandra.password=cassandra
+    connect.cassandra.source.timestamp.type=timeuuid
     #task ids: 0
 
-The ``cassandra-source.properties`` file defines:
+The ``cassandra-source-incr.properties`` file defines:
 
-1. The name of the connector, must be unique.
-2. The name of the connector class.
-3. The keyspace (demo) we are connecting to.
-4. The table to topic import map. This allows you to route tables to different topics. Each mapping is comma separated
-   and for each mapping the table and topic are separated by a colon, if no topic is provided the records from the table
-   will be routed to a topic matching the table name. In this example the orders table records are routed to the topic
-   orders-topic. This property sets the tables to import!
-5. The import mode, either incremental or bulk.
-6. The ip or host name of the nodes in the Cassandra cluster to connect to.
-7. Username and password, ignored unless you have set Cassandra to use the PasswordAuthenticator.
+1.  The name of the connector, must be unique.
+2.  The name of the connector class.
+3.  The keyspace (demo) we are connecting to.
+4.  The table to topic import map. This allows you to route tables to different topics. Each mapping is comma separated
+    and for each mapping the table and topic are separated by a colon, if no topic is provided the records from the table
+    will be routed to a topic matching the table name. In this example the orders table records are routed to the topic
+    orders-topic. This property sets the tables to import!
+5.  The import mode, either incremental or bulk.
+6.  The ip or host name of the nodes in the Cassandra cluster to connect to.
+7.  Username and password, ignored unless you have set Cassandra to use the PasswordAuthenticator.
+8.  The timestamp column Cassandra data type, either ``timeuuid`` or ``timestamp``.
 
 We can use the CLI to check if the connector is up but you should be able to see this in logs as-well.
 
@@ -180,7 +183,7 @@ We can use the CLI to check if the connector is up but you should be able to see
 
     #check for running connectors with the CLI
     ➜ bin/cli.sh ps
-    cassandra-sink
+    cassandra-source
 
 .. sourcecode:: bash
 
@@ -221,7 +224,7 @@ Check Kafka, 3 rows as before.
 
 .. sourcecode:: bash
 
-    ➜  confluent-3.0.1/bin/kafka-avro-console-consumer \
+    ➜  $CONFLUENT_HOME/bin/kafka-avro-console-consumer \
     --zookeeper localhost:2181 \
     --topic orders-topic \
     --from-beginning
@@ -240,16 +243,7 @@ The Source tasks will continue to poll but not pick up any new rows yet.
 Inserting new data
 ''''''''''''''''''
 
-Now lets insert a row into the Cassandra table. Start the CQL shell.
-
-.. code-block:: bash
-
-    ➜  bin ./cqlsh
-    Connected to Test Cluster at 127.0.0.1:9042.
-    [cqlsh 5.0.1 | Cassandra 3.0.2 | CQL spec 3.3.1 | Native protocol v4]
-    Use HELP for help.
-
-Execute the following:
+Now lets insert a row into the Cassandra table. Start the CQL shell and execute the following:
 
 .. code-block:: sql
 
@@ -282,7 +276,7 @@ Check Kafka.
 
 .. sourcecode:: bash
 
-    ➜  confluent-3.0.1/bin/kafka-avro-console-consumer \
+    ➜  $CONFLUENT_HOME/bin/kafka-avro-console-consumer \
     --zookeeper localhost:2181 \
     --topic orders-topic \
     --from-beginning
@@ -304,6 +298,17 @@ Kafka Connect Query Language
 Both connectors support **K** afka **C** onnect **Q** uery **L** anguage found here
 `GitHub repo <https://github.com/datamountaineer/kafka-connector-query-language>`_ allows for routing and mapping using
 a SQL like syntax, consolidating typically features in to one configuration option.
+
+..  sourcecode:: sql
+
+    INSERT INTO <topic> SELECT * FROM <TABLE> PK <TIMESTAMP_COLUMN>
+
+    #Select all columns from table orders and insert into a topic called orders-topic, use column created to track new rows.
+    INSERT INTO orders-topic SELECT * FROM orders PK created
+
+    #Select created, product, price from table orders and insert into a topic called orders-topic, use column created to track new rows.
+    INSERT INTO orders-topic SELECT created, product, price FROM orders PK created
+
 
 Data Types
 ^^^^^^^^^^
@@ -386,7 +391,11 @@ is used. This is then passed to a prepared statement containing a range query. F
 
 .. sourcecode:: sql
 
+    #for timestamp type `timeuuid`
     SELECT * FROM demo.orders WHERE created > maxTimeuuid(?) AND created <= minTimeuuid(?)
+
+    #form timestamp type as `timestamp`
+    SELECT * FROM demo.orders WHERE created > ? AND created <= ?
 
 .. warning::::
 
@@ -539,6 +548,13 @@ Either bulk or incremental.
 * Data type : string
 * Optional  : no
 
+``connect.cassandra.source.timestamp.type``
+
+The Cassandra data type of the timestamp column, either timeuuid (default) or timestamp.
+
+* Data type: string
+* Optional: yes
+* Default: timeuuid
 
 ``connect.cassandra.source.kcql``
 

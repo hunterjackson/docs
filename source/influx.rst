@@ -8,7 +8,7 @@ The Sink supports:
 
 1. :ref:`The KCQL routing querying <kcql>` - Topic to index mapping and Field selection.
 2. Auto mapping of the Kafka topic schema to the index.
-3. Schema.Struct and payload Struct, Schema.String and Json payload and Json payload with no schema
+3. Payload support for Schema.Struct and payload Struct, Schema.String and Json payload and Json payload with no schema
 
 The Sink supports three Kafka payloads type:
 
@@ -18,21 +18,20 @@ message should carry its schema information. Best option is to send Avro. Your c
 You can fnd an example `here <https://github.com/confluentinc/kafka-connect-blog/blob/master/etc/connect-avro-standalone.properties>`__.
 To see how easy is to have your producer serialize to Avro have a look at
 `this <http://docs.confluent.io/3.0.1/schema-registry/docs/serializer-formatter.html?highlight=kafkaavroserializer>`__.
-This requires SchemaRegistry which is open source thanks to Confluent! Alternatively you can send Json + Schema.
-In this case your connect configuration should read ``value.converter=org.apache.kafka.connect.json.JsonConverter``.
-The difference would be to point your serialization to ``org.apache.kafka.connect.json.JsonSerializer``. This doesn't
+This requires the SchemaRegistry which is open source thanks to Confluent! Alternatively you can send Json + Schema.
+In this case your connect configuration should be set to ``value.converter=org.apache.kafka.connect.json.JsonConverter``. This doesn't
 require the SchemaRegistry.
 
 **Connect entry with Schema.String and payload json String.** Sometimes the producer would find it easier, despite sending
 Avro to produce a GenericRecord, to just send a message with Schema.String and the json string.
 
 **Connect entry without a schema and the payload json String.** There are many existing systems which are publishing json
-over Kafka and bringing them in line with best practices is quite a challenge. Hence we added the support
+over Kafka and bringing them in line with best practices is quite a challenge. Hence we added the support.
 
 Prerequisites
 -------------
 
-- Confluent 3.1.1
+- Confluent 3.2
 - Java 1.8
 - Scala 2.11
 
