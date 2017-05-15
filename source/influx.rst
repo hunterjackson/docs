@@ -15,7 +15,7 @@ The Sink supports three Kafka payloads type:
 **Connect entry with Schema.Struct and payload Struct.** If you follow the best practice while producing the events, each
 message should carry its schema information. Best option is to send Avro. Your connect configurations should be set to
 ``value.converter=io.confluent.connect.avro.AvroConverter``.
-You can fnd an example `here <https://github.com/confluentinc/kafka-connect-blog/blob/master/etc/connect-avro-standalone.properties>`__.
+You can find an example `here <https://github.com/confluentinc/kafka-connect-blog/blob/master/etc/connect-avro-standalone.properties>`__.
 To see how easy is to have your producer serialize to Avro have a look at
 `this <http://docs.confluent.io/3.0.1/schema-registry/docs/serializer-formatter.html?highlight=kafkaavroserializer>`__.
 This requires the SchemaRegistry which is open source thanks to Confluent! Alternatively you can send Json + Schema.
@@ -147,7 +147,7 @@ connect to the Rest API of Kafka Connect of your container.
     connect.influx.connection.database=mydb
     #task ids: 0
 
-The ``elastic-sink.properties`` file defines:
+The ``influx-sink.properties`` file defines:
 
 1. The name of the connector.
 2. The class containing the connector.
@@ -465,13 +465,13 @@ Example
 
 .. sourcecode:: bash
 
-    name=elastic-sink
-    connector.class=com.datamountaineer.streamreactor.connect.elastic.ElasticSinkConnector
-    connect.elastic.url=localhost:9300
-    connect.elastic.cluster.name=elasticsearch
+    name=influxdb-sink
+    connector.class=com.datamountaineer.streamreactor.connect.influx.InfluxSinkConnector
     tasks.max=1
-    topics=test_table
-    connect.elastic.sink.kcql=INSERT INTO INDEX_1 SELECT field1, field2 FROM TOPIC1
+    topics=influx-topic
+    connect.influx.sink.kcql=INSERT INTO influxMeasure SELECT * FROM influx-topic WITHTIMESTAMP sys_time()
+    connect.influx.connection.url=http://localhost:8086
+    connect.influx.connection.database=mydb
 
 Schema Evolution
 ----------------
@@ -479,16 +479,6 @@ Schema Evolution
 Upstream changes to schemas are handled by Schema registry which will validate the addition and removal
 or fields, data type changes and if defaults are set. The Schema Registry enforces Avro schema evolution rules.
 More information can be found `here <http://docs.confluent.io/3.0.1/schema-registry/docs/api.html#compatibility>`_.
-
-Elastic Search is very flexible about what is inserted. All documents in Elasticsearch are stored in an index. We do not
-need to tell Elasticsearch in advance what an index will look like (eg what fields it will contain) as Elasticsearch will
-adapt the index dynamically as more documents are added, but we must at least create the index first. The Sink connector
-automatically creates the index at start up if it doesn't exist.
-
-The Elastic Search Sink will automatically index if new fields are added to the Source topic, if fields are removed
-the Kafka Connect framework will return the default value for this field, dependent of the compatibility settings of the
-Schema registry.
-
 
 Deployment Guidelines
 ---------------------

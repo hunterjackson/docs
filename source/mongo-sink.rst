@@ -21,7 +21,7 @@ The Sink supports three Kafka payloads type:
 **Connect entry with Schema.Struct and payload Struct.** If you follow the best practice while producing the events, each
 message should carry its schema information. Best option is to send Avro. Your connect configurations should be set to
 ``value.converter=io.confluent.connect.avro.AvroConverter``.
-You can fnd an example `here <https://github.com/confluentinc/kafka-connect-blog/blob/master/etc/connect-avro-standalone.properties>`__.
+You can find an example `here <https://github.com/confluentinc/kafka-connect-blog/blob/master/etc/connect-avro-standalone.properties>`__.
 To see how easy is to have your producer serialize to Avro have a look at
 `this <http://docs.confluent.io/3.0.1/schema-registry/docs/serializer-formatter.html?highlight=kafkaavroserializer>`__.
 This requires the SchemaRegistry which is open source thanks to Confluent! Alternatively you can send Json + Schema.
