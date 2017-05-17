@@ -243,13 +243,6 @@ Url of the Elastic cluster.
 * Importance: high
 * Optional  : no
 
-``connect.elastic.port``
-
-Port of the Elastic cluster.
-
-* Data Type : string
-* Importance: high
-* Optional  : no
 
 ``connect.elastic.sink.kcql``
 
