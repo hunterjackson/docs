@@ -27,5 +27,4 @@ Components
    connectors
    tools
    ui
-   python
    faq

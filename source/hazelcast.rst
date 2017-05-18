@@ -471,7 +471,7 @@ All the sink to write in parallel the records received from Kafka on each poll. 
 * Data type  : boolean
 * Importance : medium
 * Optional   : yes
-# Default    : false
+* Default    : false
 
 
 Schema Evolution

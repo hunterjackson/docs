@@ -35,7 +35,7 @@ Avro to produce a GenericRecord, to just send a message with Schema.String and t
 over Kafka and bringing them in line with best practices is quite a challenge. Hence we added the support
 
 Prerequisites!!
--------------
+---------------
 
 -  Cassandra **2.2.4+** if your are on version 2.* or **3.0.1+** if you are on version 3.*
 - Confluent 3.2

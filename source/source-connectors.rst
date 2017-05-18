@@ -12,6 +12,7 @@ Source connectors load or stream data from external systems into Kafka.
    bloomberg
    cassandra-source
    coap-source
+   jms-source
    rethink-source
    yahoo
    mqtt
