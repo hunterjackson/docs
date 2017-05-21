@@ -1,5 +1,5 @@
-Kafka Connect Elastic
-=====================
+Kafka Connect Elastic 5
+=======================
 
 A Connector and Sink to write events from Kafka to Elastic Search using `Elastic4s <https://github.com/sksamuel/elastic4s>`__ client.
 The connector converts the value from the Kafka Connect SinkRecords to Json and uses Elastic4s's JSON insert functionality to index.
@@ -16,7 +16,7 @@ Prerequisites
 -------------
 
 - Confluent 3.2
-- Elastic Search 2.2
+- Elastic Search 5.4
 - Java 1.8
 - Scala 2.11
 
@@ -35,9 +35,9 @@ Download and start Elastic search.
 
 .. sourcecode:: bash
 
-    curl -L -O https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/tar/elasticsearch/2.2.0/elasticsearch-2.2.0.tar.gz
-    tar -xvf elasticsearch-2.2.0.tar.gz
-    cd elasticsearch-2.2.0/bin
+    curl -L -O https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.4.0.tar.gz
+    tar -xvf elasticsearch-5.4.0.tar.gz
+    cd elasticsearch-5.4.0/bin
     ./elasticsearch --cluster.name elasticsearch
 
 
@@ -260,6 +260,54 @@ Examples:
 * Data type : string
 * Importance: high
 * Optional  : no
+
+
+``connect.elastic.error.policy``
+
+Specifies the action to be taken if an error occurs while inserting the data.
+
+There are three available options, **noop**, the error is swallowed, **throw**, the error is allowed to propagate and retry.
+For **retry** the Kafka message is redelivered up to a maximum number of times specified by the ``connect.cassandra.max.retries``
+option. The ``connect.cassandra.retry.interval`` option specifies the interval between retries.
+
+The errors will be logged automatically.
+
+* Type: string
+* Importance: high
+* Default: ``throw``
+
+``connect.elastic.max.retries``
+
+The maximum number of times a message is retried. Only valid when the ``connect.cassandra.error.policy`` is set to ``retry``.
+
+* Type: string
+* Importance: high
+* Default: 10
+
+``connect.elastic.xpack.settings``
+Enables secure connection. `here <https://www.elastic.co/products/x-pack/security>`__ .By providing a value for the entry the sink will end up creating a secure connection.
+The entry is a `;` separated list of key=value sequence
+
+Example:
+
+.. sourcecode:: javascript
+    connect.elastic.xpack.settings=xpack.security.user=transport_client_user:changeme;xpack.ssl.key=/path/to/client.key;xpack.ssl.certificate=/path/to/client.crt
+
+* Type: string
+* Importance: medium
+* Default: null
+* Optional: yes
+
+``connect.elastic.xpack.plugins``
+Provides the list of plugins to enable.
+The entry is a `;` separated list of full class path (The classes need to derive from `org.elasticsearch.plugins.Plugin`)
+
+
+* Type: string
+* Importance: medium
+* Default: null
+* Optional: yes
+
 
 ``connect.elastic.write.timeout``
 Specifies the wait time for pushing the records to ES.
