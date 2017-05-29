@@ -449,6 +449,15 @@ The format is $MQTT_TOPIC=$PATH_TO_AVRO_SCHEMA_FILE
 * Optional:   yes
 * Default:    null
 
+``connect.progress.enabled``
+
+Enables the output for how many records have been processed.
+
+* Type: boolean
+* Importance: medium
+* Optional: yes
+* Default : false
+
 Example
 ~~~~~~~
 

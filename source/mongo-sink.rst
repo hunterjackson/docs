@@ -574,6 +574,15 @@ The interval, in milliseconds between retries if the sink is using ``connect.mon
 * Importance: medium
 * Default : 60000 (1 minute)
 
+``connect.progress.enabled``
+
+Enables the output for how many records have been processed.
+
+* Type: boolean
+* Importance: medium
+* Optional: yes
+* Default : false
+
 Example
 ~~~~~~~
 

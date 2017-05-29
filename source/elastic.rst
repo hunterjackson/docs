@@ -262,12 +262,22 @@ Examples:
 * Optional  : no
 
 ``connect.elastic.write.timeout``
+
 Specifies the wait time for pushing the records to ES.
 
 * Data type : long
 * Importance: low
 * Optional  : yes
 * Default   : 300000 (5mins)
+
+``connect.progress.enabled``
+
+Enables the output for how many records have been processed.
+
+* Type: boolean
+* Importance: medium
+* Optional: yes
+* Default : false
 
 Example
 ~~~~~~~

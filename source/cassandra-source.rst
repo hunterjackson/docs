@@ -629,7 +629,22 @@ The interval, in milliseconds between retries if the Sink is using ``connect.cas
 * Importance: medium
 * Default : 60000 (1 minute)
 
+``connect.cassandra.fetch.size``
 
+The max number of rows the Cassandra driver will fetch at one time.
+
+* Type: int
+* Importance: medium
+* Default : 5000
+
+``connect.progress.enabled``
+
+Enables the output for how many records have been processed.
+
+* Type: boolean
+* Importance: medium
+* Optional: yes
+* Default : false
 
 Bulk Example
 ~~~~~~~~~~~~

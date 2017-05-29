@@ -290,6 +290,24 @@ The key to use to get the certificate chain.
 * Optional  : yes
 * Default   : client
 
+``connect.coap.batch.size``
+
+The number of events to take from the internal queue to batch together to send to Kafka.
+
+* Data Type : init
+* Importance: medium
+* Optional  : yes
+* Default   : 100
+
+``connect.progress.enabled``
+
+Enables the output for how many records have been processed.
+
+* Type: boolean
+* Importance: medium
+* Optional: yes
+* Default : false
+
 .. _coap_schemas:
 
 Schema Evolution

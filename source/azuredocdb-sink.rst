@@ -586,7 +586,6 @@ Specifies the connection proxy details.
 * Optional : yes
 
 
-
 ``connect.documentdb.batch.size``
 
 The number of records the sink would push to DocumentDb at once (improved performance)
@@ -638,6 +637,15 @@ The interval, in milliseconds between retries if the sink is using ``connect.doc
 * Type: int
 * Importance: medium
 * Default : 60000 (1 minute)
+
+``connect.progress.enabled``
+
+Enables the output for how many records have been processed.
+
+* Type: boolean
+* Importance: medium
+* Optional: yes
+* Default : false
 
 Example
 ~~~~~~~

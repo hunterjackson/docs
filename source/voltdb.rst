@@ -417,6 +417,16 @@ calling the Sink it won't wait to fulfill this value but rather execute it.
 * Optional: yes
 * Defaults : 1000
 
+
+``connect.progress.enabled``
+
+Enables the output for how many records have been processed.
+
+* Type: boolean
+* Importance: medium
+* Optional: yes
+* Default : false
+
 Schema Evolution
 ----------------
 

@@ -310,6 +310,14 @@ The interval, in milliseconds between retries if the Sink is using ``connect.jms
 * Optional: yes
 * Default : 60000 (1 minute)
 
+``connect.progress.enabled``
+
+Enables the output for how many records have been processed.
+
+* Type: boolean
+* Importance: medium
+* Optional: yes
+* Default : false
 
 Schema Evolution
 ----------------

@@ -473,6 +473,14 @@ All the sink to write in parallel the records received from Kafka on each poll. 
 * Optional   : yes
 * Default    : false
 
+``connect.progress.enabled``
+
+Enables the output for how many records have been processed.
+
+* Type: boolean
+* Importance: medium
+* Optional: yes
+* Default : false
 
 Schema Evolution
 ----------------

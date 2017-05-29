@@ -285,12 +285,13 @@ The maximum number of times a message is retried. Only valid when the ``connect.
 * Default: 10
 
 ``connect.elastic.xpack.settings``
+
 Enables secure connection. `here <https://www.elastic.co/products/x-pack/security>`__ .By providing a value for the entry the sink will end up creating a secure connection.
 The entry is a `;` separated list of key=value sequence
 
 Example:
 
-.. sourcecode:: bash
+.. sourcecode:: javascript
 
     connect.elastic.xpack.settings=xpack.security.user=transport_client_user:changeme;xpack.ssl.key=/path/to/client.key;xpack.ssl.certificate=/path/to/client.crt
 
@@ -300,6 +301,7 @@ Example:
 * Optional: yes
 
 ``connect.elastic.xpack.plugins``
+
 Provides the list of plugins to enable.
 The entry is a `;` separated list of full class path (The classes need to derive from `org.elasticsearch.plugins.Plugin`)
 
@@ -311,12 +313,22 @@ The entry is a `;` separated list of full class path (The classes need to derive
 
 
 ``connect.elastic.write.timeout``
+
 Specifies the wait time for pushing the records to ES.
 
 * Data type : long
 * Importance: low
 * Optional  : yes
 * Default   : 300000 (5mins)
+
+``connect.progress.enabled``
+
+Enables the output for how many records have been processed.
+
+* Type: boolean
+* Importance: medium
+* Optional: yes
+* Default : false
 
 Example
 ~~~~~~~

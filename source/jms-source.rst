@@ -362,6 +362,15 @@ The format is $JMS_TOPIC=$PATH_TO_AVRO_SCHEMA_FILE
 
 The batch size to take from the JMS destination on each poll of Kafka Connect.
 
+``connect.progress.enabled``
+
+Enables the output for how many records have been processed.
+
+* Type: boolean
+* Importance: medium
+* Optional: yes
+* Default : false
+
 .. _jms_converter_example:
 
 Provide your own Converter

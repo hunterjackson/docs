@@ -340,7 +340,7 @@ Specifies the rethink server port number.
 
 Specifies the action to be taken if an error occurs while inserting the data.
 
-There are three available options, **noop**, the error is swallowed, **throw**, the error is allowed to propagate and retry.
+There are three available options, **noop**, the error is swallowed, **throw**, the error is allowed to propagate and **retry**.
 For **retry** the Kafka message is redelivered up to a maximum number of times specified by the ``connect.rethink.sink.max.retries``
 option. The ``connect.rethink.sink.retry.interval`` option specifies the interval between retries.
 
@@ -370,15 +370,14 @@ The interval, in milliseconds between retries if the Sink is using ``connect.ret
 * Optional: yes
 * Default : 60000 (1 minute)
 
-``connect.rethink.sink.batch.size``
+``connect.progress.enabled``
 
-Specifies how many records to insert together at one time. If the connect framework provides less records when it is
-calling the Sink it won't wait to fulfill this value but rather execute it.
+Enables the output for how many records have been processed.
 
-* Type : int
-* Importance : medium
+* Type: boolean
+* Importance: medium
 * Optional: yes
-* Defaults : 3000
+* Default : false
 
 
 Example

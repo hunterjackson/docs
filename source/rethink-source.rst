@@ -179,7 +179,7 @@ The ReThink Source supports the following:
 
 .. sourcecode:: bash
 
-    INSERT INTO <target table> SELECT <fields> FROM <source topic> <INITIALIZE>
+    INSERT INTO <target table> SELECT <fields> FROM <source topic> <INITIALIZE> <BATCH N>
 
 Example:
 
@@ -190,6 +190,9 @@ Example:
 
     #Insert mode, select all fields from topicA and write to tableA, read from start
     INSERT INTO tableA SELECT * FROM topicA INITIALIZE
+
+    #Insert mode, select all fields from topicA and write to tableA, read from start and batch 100 rows to send to kafka
+    INSERT INTO tableA SELECT * FROM topicA INITIALIZE BATCH = 100
 
 
 Configurations
@@ -225,6 +228,15 @@ Specifies the rethink server port number.
 * Data type : int
 * Importance: high
 * Optional  : yes
+
+``connect.progress.enabled``
+
+Enables the output for how many records have been processed.
+
+* Type: boolean
+* Importance: medium
+* Optional: yes
+* Default : false
 
 Example
 ~~~~~~~
