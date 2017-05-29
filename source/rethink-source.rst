@@ -73,7 +73,7 @@ connect to the Rest API of Kafka Connect of your container.
     connector.class=com.datamountaineer.streamreactor.connect.rethink.source.ReThinkSourceConnector
     tasks.max=1
     connect.rethink.source.db=test
-    connect.rethink.sink.kcql=INSERT INTO rethink-topic SELECT * FROM source-test
+    connect.rethink.source.kcql=INSERT INTO rethink-topic SELECT * FROM source-test
     #task ids: 0
 
 The ``rethink-source.properties`` file defines:
@@ -316,7 +316,7 @@ Example
     connect.rethink.source.port=28015
     connector.class=com.datamountaineer.streamreactor.connect.rethink.source.ReThinkSourceConnector
     tasks.max=1
-    connect.rethink.sink.kcql=INSERT INTO rethink-topic SELECT * FROM source-test
+    connect.rethink.source.kcql=INSERT INTO rethink-topic SELECT * FROM source-test
 
 Schema Evolution
 ----------------
