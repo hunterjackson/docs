@@ -72,8 +72,8 @@ connect to the Rest API of Kafka Connect of your container.
     connect.rethink.source.port=28015
     connector.class=com.datamountaineer.streamreactor.connect.rethink.source.ReThinkSourceConnector
     tasks.max=1
-    connect.rethink.source.db=test
-    connect.rethink.source.kcql=INSERT INTO rethink-topic SELECT * FROM source_test
+    connect.rethink.db=test
+    connect.rethink.kcql=INSERT INTO rethink-topic SELECT * FROM source-test
     #task ids: 0
 
 The ``rethink-source.properties`` file defines:
@@ -305,6 +305,15 @@ Path to keystore.
 * Data type: string
 * Optional : yes
 
+
+``connect.progress.enabled``
+
+Enables the output for how many records have been processed.
+
+* Type: boolean
+* Importance: medium
+* Optional: yes
+* Default : false
 
 Example
 ~~~~~~~

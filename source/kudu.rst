@@ -513,6 +513,15 @@ Enables the output for how many records have been processed.
 * Optional: yes
 * Default : false
 
+``connect.progress.enabled``
+
+Enables the output for how many records have been processed.
+
+* Type: boolean
+* Importance: medium
+* Optional: yes
+* Default : false
+
 Example
 ~~~~~~~
 

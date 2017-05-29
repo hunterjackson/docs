@@ -349,4 +349,3 @@ Enables the output for how many records have been processed.
 * Importance: medium
 * Optional: yes
 * Default : false
-
