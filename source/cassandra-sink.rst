@@ -410,14 +410,14 @@ Port for the native Java driver.
 
 ``connect.cassandra.username``
 
-Username to connect to Cassandra with if ``connect.cassandra.authentication.mode`` is set to *username_password*.
+Username to connect to Cassandra with.
 
 * Data type: string
 * Optional : yes
 
 ``connect.cassandra.password``
 
-Password to connect to Cassandra with if ``connect.cassandra.authentication.mode`` is set to *username_password*.
+Password to connect to Cassandra with.
 
 * Data type: string
 * Optional : yes

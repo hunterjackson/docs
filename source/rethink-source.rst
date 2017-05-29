@@ -238,6 +238,74 @@ Enables the output for how many records have been processed.
 * Optional: yes
 * Default : false
 
+
+``connect.rethink.cert.file``
+
+Certificate file to connect to a TLS enabled ReThink cluster. **Can not be used inconjuction with username/password.
+``connect.rethink.auth.key`` must be set.
+
+* Data type: string
+* Optional : yes
+
+``connect.rethink.auth.key``
+
+Authentication key to connect to a TLS enabled ReThink cluster. **Can not be used inconjuction with username/password.
+``connect.rethink.cert.file`` must be set.
+
+* Data type: string
+* Optional : yes
+
+``connect.rethink.username``
+
+Username to connect to ReThink with.
+
+* Data type: string
+* Optional : yes
+
+``connect.rethink.password``
+
+Password to connect to ReThink with.
+
+* Data type: string
+* Optional : yes
+
+``connect.rethink.ssl.enabled``
+
+Enables SSL communication against an SSL enabled Rethink cluster.
+
+* Data type: boolean
+* Optional : yes
+* Default : false
+
+``connect.rethink.trust.store.password``
+
+Password for truststore.
+
+* Data type: string
+* Optional : yes
+
+``connect.rethink.key.store.path``
+
+Path to truststore.
+
+* Data type: string
+* Optional : yes
+
+``connect.rethink.key.store.password``
+
+Password for key store.
+
+* Data type: string
+* Optional : yes
+
+``connect.rethink.ssl.client.cert.auth``
+
+Path to keystore.
+
+* Data type: string
+* Optional : yes
+
+
 Example
 ~~~~~~~
 
