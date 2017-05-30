@@ -73,7 +73,7 @@ connect to the Rest API of Kafka Connect of your container.
     connector.class=com.datamountaineer.streamreactor.connect.rethink.source.ReThinkSourceConnector
     tasks.max=1
     connect.rethink.source.db=test
-    connect.rethink.source.kcql=INSERT INTO rethink-topic SELECT * FROM source-test
+    connect.rethink.source.kcql=INSERT INTO rethink-topic SELECT * FROM source_test
     #task ids: 0
 
 The ``rethink-source.properties`` file defines:
@@ -116,7 +116,7 @@ We can use the CLI to check if the connector is up but you should be able to see
     [2016-10-05 12:09:35,420] INFO ReThinkSourceConfig values:
         connect.rethink.source.port = 28015
         connect.rethink.source.host = localhost
-        connect.rethink.source.kcql = insert into rethink-topic select * from source-test
+        connect.rethink.source.kcql = insert into rethink-topic select * from source_test
         connect.rethink.source.db = test
 
 
@@ -316,7 +316,7 @@ Example
     connect.rethink.source.port=28015
     connector.class=com.datamountaineer.streamreactor.connect.rethink.source.ReThinkSourceConnector
     tasks.max=1
-    connect.rethink.source.kcql=INSERT INTO rethink-topic SELECT * FROM source-test
+    connect.rethink.source.kcql=INSERT INTO rethink-topic SELECT * FROM source_test
 
 Schema Evolution
 ----------------

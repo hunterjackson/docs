@@ -94,7 +94,7 @@ connect to the Rest API of Kafka Connect of your container.
     connector.class=com.datamountaineer.streamreactor.connect.rethink.sink.ReThinkSinkConnector
     tasks.max=1
     topics=rethink-topic
-    connect.rethink.sink.kcql=INSERT INTO TABLE1 SELECT * FROM rethink-topic
+    connect.rethink.sink.kcql=INSERT INTO TABLE1 SELECT * FROM rethink_topic
     #task ids: 0
 
 The ``rethink-sink.properties`` file defines:
@@ -148,7 +148,7 @@ string a ``lastname`` field of type string, an ``age`` field of type int and a `
 .. sourcecode:: bash
 
     ${CONFLUENT_HOME}/bin/kafka-avro-console-producer \
-      --broker-list localhost:9092 --topic rethink-topic \
+      --broker-list localhost:9092 --topic rethink_topic \
       --property value.schema='{"type":"record","name":"User","namespace":"com.datamountaineer.streamreactor.connect.rethink"
       ,"fields":[{"name":"firstName","type":"string"},{"name":"lastName","type":"string"},{"name":"age","type":"int"},{"name":"salary","type":"double"}]}'
 

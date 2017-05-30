@@ -504,16 +504,6 @@ The url for the Schema registry. This is used to retrieve the latest schema for 
 * Optional : yes
 * Default : http://localhost:8081
 
-``connect.kudu.sink.batch.size``
-
-Specifies how many records to insert together at one time. If the connect framework provides less records when it is
-calling the Sink it won't wait to fulfill this value but rather execute it.
-
-* Type : int
-* Importance : medium
-* Optional : yes
-* Defaults : 3000
-
 ``connect.progress.enabled``
 
 Enables the output for how many records have been processed.
