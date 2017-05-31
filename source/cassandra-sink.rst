@@ -14,7 +14,9 @@ The Sink supports:
    or all fields written to Cassandra.
 2. Topic to table routing via KCQL.
 3. Error policies for handling failures.
-4. Payload support for Schema.Struct and payload Struct, Schema.String and Json payload and Json payload with no schema
+4. Payload support for Schema.Struct and payload Struct, Schema.String and Json payload and Json payload with no schema.
+5. Optional TTL, time to live on inserts. See Cassandras `documentation <https://docs.datastax.com/en/cql/3.3/cql/cql_using/useTTL.html>`__
+   for more information.
 
 The Sink supports three Kafka payloads type:
 
@@ -277,7 +279,7 @@ The Cassandra Sink supports the following:
 
 .. sourcecode:: bash
 
-    INSERT INTO <target table> SELECT <fields> FROM <source topic>
+    INSERT INTO <target table> SELECT <fields> FROM <source topic> TTL=<TTL>
 
 Example:
 
@@ -288,6 +290,10 @@ Example:
 
     #Insert mode, select 3 fields and rename from topicB and write to tableB
     INSERT INTO tableB SELECT x AS a, y AS b and z AS c FROM topicB
+
+
+    #Insert mode, select 3 fields and rename from topicB and write to tableB with TTL
+    INSERT INTO tableB SELECT x AS a, y AS b and z AS c FROM topicB TTL=100000
 
 
 Error Polices
