@@ -88,7 +88,8 @@ connect to the Rest API of Kafka Connect of your container.
     ➜  bin/cli.sh create rethink-sink < rethink-sink.properties
     #Connector name=`rethink-sink`
     name=rethink-sink
-    connect.rethink.sink.db=localhost
+    connect.rethink.sink.db=dbname
+    connect.rethink.sink.host=localhost
     connect.rethink.sink.port=28015
     connector.class=com.datamountaineer.streamreactor.connect.rethink.sink.ReThinkSinkConnector
     tasks.max=1
@@ -99,6 +100,7 @@ connect to the Rest API of Kafka Connect of your container.
 The ``rethink-sink.properties`` file defines:
 
 1.  The name of the sink.
+2.  The name of the rethink database.
 2.  The name of the rethink host to connect to.
 3.  The rethink port to connect to.
 4.  The Sink class.
@@ -385,7 +387,8 @@ Example
 .. sourcecode:: bash
 
     name=rethink-sink
-    connect.rethink.sink.db=localhost
+    connect.rethink.sink.db=dbname
+    connect.rethink.sink.host=localhost
     connect.rethink.sink.port=28015
     connector.class=com.datamountaineer.streamreactor.connect.rethink.sink.ReThinkSinkConnector
     tasks.max=1
