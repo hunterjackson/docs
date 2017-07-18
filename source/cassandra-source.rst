@@ -535,7 +535,7 @@ Default is 1 minute.
 
 * Data type: int
 * Optional : yes
-* Default  : 10
+* Default  : 1
 
 .. warning::
 
