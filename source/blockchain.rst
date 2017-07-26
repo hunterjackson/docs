@@ -10,7 +10,7 @@ for example Kafka Streams.
 Since is a direct websocket connection the Source will only ever use one connector task at any point. There is no point spawning more
 and then have duplicate data.
 
-One thing to remember is the subscription API from blockchain doesn't offer an option to start from a given timestam. This means
+One thing to remember is the subscription API from blockchain doesn't offer an option to start from a given timestamp. This means
 if the connect worker is down then you will miss some data.
 
 The Sink connects to unconfirmed transaction!! Read more about the live data `here <https://blockchain.info/api/>`__
