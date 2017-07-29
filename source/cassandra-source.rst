@@ -530,7 +530,7 @@ Path to keystore.
 ``connect.cassandra.import.poll.interval``
 
 
-The polling interval between queries against tables for bulk mode in milliseconds.
+The polling interval between queries against tables in milliseconds.
 Default is 1 minute.
 
 * Data type: int

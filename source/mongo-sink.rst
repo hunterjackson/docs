@@ -53,7 +53,7 @@ Confluent Setup
 Follow the instructions :ref:`here <install>`.
 
 MongoDb Setup
-~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~
 
 If you already have an instance of Mongo running you can skip this step.
 First download and install MongoDb Community edition. This is the manual approach for installing on Ubuntu. You can
@@ -158,7 +158,7 @@ connect to the Rest API of Kafka Connect of your container.
     connector.class=com.datamountaineer.streamreactor.connect.mongodb.sink.MongoSinkConnector
     tasks.max=1
     topics=orders-topic
-    connect.mongo.sink.kcql=INSERT INTO orders SELECT * FROM orders-topic
+    connect.mongo.kcql=INSERT INTO orders SELECT * FROM orders-topic
     connect.mongo.database=connect
     connect.mongo.connection=mongodb://localhost:27017
     connect.mongo.sink.batch.size=10
@@ -181,7 +181,7 @@ We can use the CLI to check if the connector is up but you should be able to see
 
     [2016-11-06 22:25:29,354] INFO MongoConfig values:
         connect.mongo.retry.interval = 60000
-        connect.mongo.sink.kcql = INSERT INTO orders SELECT * FROM orders-topic
+        connect.mongo.kcql = INSERT INTO orders SELECT * FROM orders-topic
         connect.mongo.connection = mongodb://localhost:27017
         connect.mongo.error.policy = THROW
         connect.mongo.database = connect
@@ -321,11 +321,11 @@ You should see in the terminal where you started Kafka Connect the following ent
 
         [2016-11-06 23:53:09,881] INFO MongoConfig values:
             connect.mongo.retry.interval = 60000
-            connect.mongo.sink.kcql = UPSERT INTO orders_json SELECT id, product as product_name, price as value FROM orders-topic-json PK id
+            connect.mongo.kcql = UPSERT INTO orders_json SELECT id, product as product_name, price as value FROM orders-topic-json PK id
             connect.mongo.connection = mongodb://localhost:27017
             connect.mongo.error.policy = THROW
             connect.mongo.database = connect
-            connect.mongo.sink.batch.size = 10
+            connect.mongo.batch.size = 10
             connect.mongo.max.retires = 20
          (com.datamountaineer.streamreactor.connect.mongodb.config.MongoConfig:178)
         [2016-11-06 23:53:09,927] INFO
@@ -502,6 +502,56 @@ All of this can be easily expressed with KCQL:
  -  Select specific fields and rename some of them from the topic sample_topic and upsert into the sample collection:
     ``INSERT INTO sample SELECT field1 as new_name1,field2, field3 as new_name3 FROM sample_fopic PK new_name3``.
 
+TLS/SSL
+-------
+
+TLS/SSL is support by setting ``?ssl=true`` in the ``connect.mongo.connection`` option. The MongoDB driver will then
+load attempt to load the truststore and keystore using the JVM system properties.
+
+You will need to set several JVM system properties to ensure that the client is able to validate the SSL certificate
+presented by the server:
+
+.. sourcecode:: bash
+
+   javax.net.ssl.trustStore: the path to a trust store containing the certificate of the signing authority
+   javax.net.ssl.trustStorePassword: the password to access this trust store
+
+The trust store is typically created with the keytool command line program provided as part of the JDK. For example:
+
+.. sourcecode:: bash
+
+    keytool -importcert -trustcacerts -file <path to certificate authority file> -keystore <path to trust store> -storepass <password>
+
+You will also need to set several JVM system properties to ensure that the client presents an SSL certificate to the MongoDB server:
+
+.. sourcecode:: bash
+
+    javax.net.ssl.keyStore: the path to a key store containing the client’s SSL certificates
+    javax.net.ssl.keyStorePassword: the password to access this key store
+
+The key store is typically created with the keytool or the openssl command line program.
+
+Authentication Mechanism
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+All authentication methods are supported, X.509, LDAP Plain, Kerberos (GSSAPI), Mongodb-CR and SCRAM-SHA-1. The default as of
+MongoDB version 3.0 SCRAM-SHA-1. To set the authentication mechanism set the ``authMechanism`` in the ``connect.mongo.connection`` option.
+
+e.g.
+
+.. sourcecode:: bash
+    # default of scram
+    mongodb://host1/?authSource=db1
+    # scram explict
+    mongodb://host1/?authSource=db1&authMechanism=SCRAM-SHA-1
+    # mongo-cr
+    mongodb://host1/?authSource=db1&authMechanism=MONGODB-CR
+    # x.509
+    mongodb://host1/?authSource=db1&authMechanism=MONGODB-X509
+    # kerberos
+    mongodb://host1/?authSource=db1&authMechanism=GSSAPI
+    # ldap
+    mongodb://host1/?authSource=db1&authMechanism=PLAIN
 
 Configurations
 --------------
@@ -517,12 +567,17 @@ The target MongoDb database name.
 
 ``connect.mongo.connection``
 
-The mongodb endpoints connections in the format mongodb://[username:password@]host1[:port1][,host2[:port2],...[,hostN[:portN]]][/[database][?options]]
+The mongodb endpoints connections in the format mongodb://host1[:port1][,host2[:port2],...[,hostN[:portN]]][/[database][?options]]
 
 * Data type: string
 * Optional : no
 
-``connect.mongo.sink.batch.size``
+.. note::
+
+    Setting username and password in the endpoints is not secure, they will be pass to Connect as plain text before being
+    given to the driver. Use the ``connect.mongo.username`` and ``connect.mongo.password`` options.
+
+``connect.mongo.batch.size``
 
 The number of records the sink would push to mongo at once (improved performance)
 
@@ -530,7 +585,7 @@ The number of records the sink would push to mongo at once (improved performance
 * Optional : yes
 * Default: 100
 
-``connect.mongo.sink.kcql``
+``connect.mongo.kcql``
 
 Kafka connect query language expression. Allows for expressive topic to collectionrouting, field selection and renaming.
 
@@ -543,6 +598,22 @@ Examples:
 
 * Data Type: string
 * Optional : no
+
+``connect.mongo.username``
+
+The username to use for authenticating
+
+* Data Type: string
+* Option: yes
+* Default:
+
+``connect.mongo.password``
+
+The password to use for authentication
+
+* Data Type: string
+* Optional: yes
+* Default:
 
 ``connect.mongo.error.policy``
 
@@ -592,10 +663,10 @@ Example
     connector.class=com.datamountaineer.streamreactor.connect.mongodb.sink.MongoSinkConnector
     tasks.max=1
     topics=orders-topic
-    connect.mongo.sink.kcql=INSERT INTO orders SELECT * FROM orders-topic
+    connect.mongo.kcql=INSERT INTO orders SELECT * FROM orders-topic
     connect.mongo.database=connect
     connect.mongo.connection=mongodb://localhost:27017
-    connect.mongo.sink.batch.size=10
+    connect.mongo.batch.size=10
 
 Schema Evolution
 ----------------
