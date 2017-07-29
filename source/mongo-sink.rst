@@ -537,6 +537,14 @@ Authentication Mechanism
 All authentication methods are supported, X.509, LDAP Plain, Kerberos (GSSAPI), Mongodb-CR and SCRAM-SHA-1. The default as of
 MongoDB version 3.0 SCRAM-SHA-1. To set the authentication mechanism set the ``authMechanism`` in the ``connect.mongo.connection`` option.
 
+
+.. note::
+
+    The mechanism can either be set in the connection string but this requires the password to be in plain text in the connection string
+    or via the ``connect.mongo.auth.mechanism`` option.
+
+    If the username is set it overrides the username/password set in the connection string and the ``connect.mongo.auth.mechanism`` has precedence.
+
 e.g.
 
 .. sourcecode:: bash
@@ -601,7 +609,8 @@ Examples:
 
 ``connect.mongo.username``
 
-The username to use for authenticating
+The username to use for authentication. If the username is set it overrides the username/password set in the connection
+string and the ``connect.mongo.auth.mechanism`` has precedence.
 
 * Data Type: string
 * Option: yes
@@ -609,11 +618,19 @@ The username to use for authenticating
 
 ``connect.mongo.password``
 
-The password to use for authentication
+The password to use for authentication.
 
 * Data Type: string
 * Optional: yes
 * Default:
+
+``connect.mongo.auth.mechanism``
+
+The mechanism to use for authentication. GSSAPI (Kerberos), PLAIN (LDAP), X.509 or SCRAM-SHA-1.
+
+*   Data Type: string
+*   Optional: yes
+*   Default: SCRAM-SHA-1
 
 ``connect.mongo.error.policy``
 
