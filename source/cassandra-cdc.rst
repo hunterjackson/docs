@@ -384,6 +384,15 @@ Once a file lands in the CDC folder the Connector will pick it up and read the m
 
 The Connect source will process the files in the order they were created and one by one. This ensures the change sequence is retained. Once the records have been pushed to Kafka the CDC file is deleted.
 
+The connector will only be able to read the mutations for the subscribed tables. Via configuration you can express which tables to consider and what topic should receive those mutations information.
+
+```.. sourcecode:: sql
+    INSERT INTO ordersTopic SELECT * FROM datamountaineer.orders
+```
+
+>**Important**
+>Enabling CDC on a new table means you need to restart the connector for the changes to be picked up. The connector is driven by the configurations and not by the list of all the tables with CDC enabled. (Might be a feature, change to do)
+
 Below you can find a flow diagram describing the process mentioned above.
 
 ```flow
@@ -401,6 +410,7 @@ cond(yes)->io
 io->sub1->op2
 op2->op3
 ```
+
 
 -----------------------------------------------------------------------
 
@@ -520,99 +530,36 @@ a SQL like syntax, consolidating typically features in to one configuration opti
 -----------------------------------------------------------------------
 Configurations
 --------------
+Here is a full list of configuration entries the connector knows about.
 
-``connect.cassandra.contact.points``
-
-Contact points (hosts) in Cassandra cluster.
-
-* Data type: string
-* Optional : no
-
-``connect.cassandra.key.space``
-
-Key space the tables to write belong to.
-
-* Data type: string
-* Optional : no
-
-``connect.cassandra.port``
-
-Port for the native Java driver.
-
-* Data type: int
-* Optional : yes
-* Default : 9042
-
-
-``connect.cassandra.username``
-
-Username to connect to Cassandra with if ``connect.cassandra.authentication.mode`` is set to *username_password*.
-
-* Data type: string
-* Optional : yes
-
-``connect.cassandra.password``
-
-Password to connect to Cassandra with if ``connect.cassandra.authentication.mode`` is set to *username_password*.
-
-* Data type: string
-* Optional : yes
-
-``connect.cassandra.ssl.enabled``
-
-Enables SSL communication against SSL enable Cassandra cluster.
-
-* Data type: boolean
-* Optional : yes
-* Default : false
-
-``connect.cassandra.trust.store.password``
-
-Password for truststore.
-
-* Data type: string
-* Optional : yes
-
-``connect.cassandra.key.store.path``
-
-Path to truststore.
-
-* Data type: string
-* Optional : yes
-
-``connect.cassandra.key.store.password``
-
-Password for key store.
-
-* Data type: string
-* Optional : yes
-
-``connect.cassandra.ssl.client.cert.auth``
-
-Path to keystore.
-
-* Data type: string
-* Optional : yes
+| Name             | Description                 | Data Type |  Optional|Default|
+| :--------------- | :---------------------------------| :------| :----| ---------:|
+|connect.cassandra.contact.points|Contact points (hosts) in Cassandra cluster.|string|no| |
+|connect.cassandra.port| Cassandra Node Client connection port|int|yes|9042|
+|connect.cassandra.username|Username to connect to Cassandra with if ``connect.cassandra.authentication.mode`` is set to *username_password*|string|yes||
+|connect.cassandra.password|Password to connect to Cassandra with if ``connect.cassandra.authentication.mode`` is set to *username_password*.|string|yes||
+|connect.cassandra.ssl.enabled|Enables SSL communication against SSL enable Cassandra cluster.|boolean|yes|false|
+|connect.cassandra.trust.store.password|Password for truststore.|string|yes||
+|connect.cassandra.key.store.path|Path to truststore.|string|yes||
+|connect.cassandra.key.store.password|Password for key store.|string|yes||
+|connect.cassandra.ssl.client.cert.auth|Path to keystore.|string|yes||
+|connect.cassandra.kcql|Kafka connect query language expression. Allows for expressive table to topic routing. It describes which CDC tables are monitored and the target Kafka topic for the Cassandra CDC information.|string|no||
+|connect.cassandra.cdc.path.url| The location of the Cassandra Yaml file in URL format:file://{THE_PATH_TO_THE_YAML_FILE}. The connector reads the file to get the cdc folder but also to set the internal of Cassandra API allowing it to read the CDC files|string|no||
+|connect.cassandra.cdc.file.watch.interval|The delay time in milliseconds before the connector checks for Cassandra CDC files.  We poll the CDC folder for new files.|long|yes|2000|
+|connect.cassandra.cdc.mutation.queue.size|The maximum number of Cassandra mutation to buffer. As it reads from the Cassandra CDC files the mutations are buffered before  they  are handed over to Kafka Connect when the framework calls for new records.|int|yes|1000000|
+|connect.cassandra.cdc.enable.delete.while.read | The worker CDC thread will read a CDC file and then check if any of the processed files are ready to be deleted (that means the records have been sent to Kafka). Rather than waiting for a read to complete we can delete the files while reading a CDC file.Default value is true. You can disable it for faster reads by setting the value to false.| boolean |yes|false|
+|connect.cassandra.cdc.single.instance.port|Kafka Connect framework doesn't allow yet configuration where you are saying runnning only one task per worker. If you allocate more tasks than workers then some workers will spin up more tasks. With Cassandra nodes we want one worker and one task - not more. To ensure this we allow the first task to grab a port - subsequent calls to open the port will fail thus not allowing multiple instance running at once|int|yes|64101|
+|connect.cassandra.cdc.decimal.scale|When reading the column family metadata we don't have details about the decimal scale.|int|yes|18|
 
 
 
-``connect.cassandra.kcql``
-
-Kafka connect query language expression. Allows for expressive table to topic routing. It describes which CDC tables are monitored and the target Kafka topic for the Cassandra CDC information
-
-Examples:
-```.. sourcecode:: sql
-    INSERT INTO ordersTopic SELECT * FROM datamountaineer.orders
-```
-* Data type : string
-* Optional  : no
-
-
-
+----------------------------------------------------------------------
 Deployment Guidelines
 ---------------------
 
 TODO
+
+----------------------------------------------------------------------
 
 TroubleShooting
 ---------------
