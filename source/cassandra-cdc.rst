@@ -1,5 +1,7 @@
 Kafka Connect Cassandra CDC
 ===========================
+>**Note**
+>This is still beta version
 
 [TOC]
 
@@ -50,19 +52,19 @@ cdc_enabled
 
 cdc_raw_directory
 :	The directory where the CDC log is stored. Default locations:
-          Package installations(default): /$CASSANDRA_HOME/cdc_raw
-          Tarball installations: install_location/data/cdc_raw
+              Package installations(default): /$CASSANDRA_HOME/cdc_raw
+              Tarball installations: install_location/data/cdc_raw
 
-    cdc_total_space_in_mb
-    :	Total space available for storing CDC data
-      (Default: 4096MB and 1/8th of the total space of the drive where the cdc_raw_directory resides.)
-      If space gets above this value, Cassandra will throw WriteTimeoutException on Mutations including tables with CDC enabled.
+        cdc_total_space_in_mb
+        :	Total space available for storing CDC data
+          (Default: 4096MB and 1/8th of the total space of the drive where the cdc_raw_directory resides.)
+          If space gets above this value, Cassandra will throw WriteTimeoutException on Mutations including tables with CDC enabled.
 
-    cdc_free_space_check_interval_ms
-    :  Default: 250 ms
-      When the cdc_raw limit is hit and the Consumer is either running behind or experiencing backpressure, this interval is checked to see if any new space for cdc-tracked tables has been made available.
+        cdc_free_space_check_interval_ms
+        :  Default: 250 ms
+          When the cdc_raw limit is hit and the Consumer is either running behind or experiencing backpressure, this interval is checked to see if any new space for cdc-tracked tables has been made available.
 
-    >**Important**
+        >**Important**
 After changing properties in the cassandra.yaml file, you must restart the node for the changes to take effect. ``
 
 -----------------------------------------------------------------------
@@ -88,21 +90,24 @@ cluster available.
 
 ``` sourcecode:: bash
 
-    #make a folder for cassandra
-    mkdir cassandra
+#make a folder for cassandra
+mkdir cassandra
 
-    #Download Cassandra
-    wget http://apache.mirror.anlx.net/cassandra/3.11.0/apache-cassandra-3.11.0-bin.tar.gz
+#Download Cassandra
+wget http://apache.mirror.anlx.net/cassandra/3.11.0/apache-cassandra-3.11.0-bin.tar.gz
 
-    #extract archive to cassandra folder
-    tar xvf apache-cassandra-3.11.0-bin.tar.gz -C cassandra --strip-components=1
+#extract archive to cassandra folder
+tar xvf apache-cassandra-3.11.0-bin.tar.gz -C cassandra --strip-components=1
 
-    #enable the CDC in the yaml configuration
-    sed -i -- 's/cdc_enabled: false/cdc_enabled: true/g'  conf/cassandra.yaml
+#enable the CDC in the yaml configuration
+sed -i -- 's/cdc_enabled: false/cdc_enabled: true/g'  conf/cassandra.yaml
 
-    #Start Cassandra
-    cd cassandra
-    sudo sh /bin/cassandra
+#set CASSANDRA_HOME
+export CASSANDRA_HOME=$(pwd)/cassandra
+
+#Start Cassandra
+cd cassandra
+sudo sh /bin/cassandra
 ```
 
 >**NOTE**
@@ -467,43 +472,146 @@ Starting the Connector (Distributed)
 Download, unpack and install the Stream Reactor. Follow the instructions :ref:`here <install>` if you haven't already done so.
 All paths in the quickstart are based in the location you installed the Stream Reactor.
 
-Start Kafka Connect in distributed more by running the ``start-connect.sh`` script in the ``bin`` folder.
+Start Kafka Connect in distributed more by running:
 
 ```.. sourcecode:: bash
-    ./bin/start-connect.sh
+#make sure you have $CASSANDRA_HOME variable setup (see  Cassandra setup)
+ $CONFLUENT_HOME/bin/connect-distributed.sh $CONFLUENT_HOME/etc/schema-registry/connect-avro-distributed.properties
 ```
-Once the connector has started we can now use the kafka-connect-tools cli to post in our distributed properties file for Cassandra.
-If you are using the :ref:`dockers <dockers>` you will have to set the following environment variable to for the CLI to connect to the Rest API of Kafka Connect of your container.
+
+```.. sourcecode:: bash
+#make sure you have $CASSANDRA_HOME variable setup (see Cassandra setup)
+$ cat <<EOF > cassandra-cdc-source.json
+{
+  "name": "cassandra-connect-cdc",
+  "config":{
+    "name":"cassandra-connct-cdc",
+    "tasks": 1,
+    "connector.class":"com.datamountaineer.streamreactor.connect.cassandra.cdc.CassandraCdcSourceConnector",
+    "connect.cassandra.kcql":"INSERT INTO users-topic SELECT * FROM datamountaineer.users",
+    "connect.cassandra.yaml.path.url": "$CASSANDRA_HOME/conf/cassandra.yaml",
+    "connect.cassandra.port": "9042",
+    "connect.cassandra.contact.points":"localhost"
+  }
+}
+EOF
+```
+
+If you visualize the file it should print something like (I used the `..` because you might have a different path to where you stored Cassandra)
+```.. sourcecode:: javascript
+   {
+  "name": "cassandra-connect-cdc",
+  "config":{
+    "name":"cassandra-connct-cdc",
+    "tasks": 1,
+    "connector.class":"com.datamountaineer.streamreactor.connect.cassandra.cdc.CassandraCdcSourceConnector",
+    "connect.cassandra.kcql":"INSERT INTO orders-topic SELECT * FROM datamountaineer.orders",
+    "connect.cassandra.yaml.path.url": "../cassandra/conf/cassandra.yaml",
+    "connect.cassandra.port": "9042",
+    "connect.cassandra.contact.points":"localhost"
+  }
+}
+
+```
+
+Next step is to spin up the connector. And for that we run the following bash script:
+
+```.. sourcecode:: bash
+curl -X POST -H "Content-Type: application/json" --data @cassandra-cdc-source.json http://localhost:8083/connectors
+```
+
+The output from the connect-distributed should read something similar to this:
+
+```
+[2017-08-01 22:34:35,653] INFO Acquiring port 64101 to enforce single instance being run on Stepi (com.datamountaineer.streamreactor.connect.cassandra.cdc.CassandraCdcSourceTask:53)
+[2017-08-01 22:34:35,660] INFO
+  ____        _        __  __                   _        _
+ |  _ \  __ _| |_ __ _|  \/  | ___  _   _ _ __ | |_ __ _(_)_ __   ___  ___ _ __
+ | | | |/ _` | __/ _` | |\/| |/ _ \| | | | '_ \| __/ _` | | '_ \ / _ \/ _ \ '__|
+ | |_| | (_| | || (_| | |  | | (_) | |_| | | | | || (_| | | | | |  __/  __/ |
+ |____/ \__,_|\__\__,_|_|  |_|\___/ \__,_|_| |_|\__\__,_|_|_| |_|\___|\___|_|
+   ____   by Stefan Bocutiu          _              ____ ____   ____
+  / ___|__ _ ___ ___  __ _ _ __   __| |_ __ __ _   / ___|  _ \ / ___|
+ | |   / _` / __/ __|/ _` | '_ \ / _` | '__/ _` | | |   | | | | |
+ | |__| (_| \__ \__ \ (_| | | | | (_| | | | (_| | | |___| |_| | |___
+  \____\__,_|___/___/\__,_|_| |_|\__,_|_|  \__,_|  \____|____/ \____|
+
+ (com.datamountaineer.streamreactor.connect.cassandra.cdc.CassandraCdcSourceTask:65)
+[2017-08-01 22:34:36,088] INFO CDC path is not set in Yaml. Using the default location (com.datamountaineer.streamreactor.connect.cassandra.cdc.logs.CdcCassandra:55)
+[2017-08-01 22:34:36,411] INFO Detected Guava >= 19 in the classpath, using modern compatibility layer (com.datastax.driver.core.GuavaCompatibility:132)
+
+```
+
+Let's go back to the cqlsh terminal and insert some records into the users table and then perform some updates and deletes.
+
+```.. sourcecode:: sql
+INSERT INTO datamountaineer.users(id, name) VALUES (62c36092-82a1-3a00-93d1-46196ee77204,{firstname:'Marie-Claude',lastname:'Josset'});
+
+UPDATE datamountaineer.users
+  SET
+  addresses = addresses + {
+  'home': {
+      street: '191 Rue St. Charles',
+      city: 'Paris',
+      zip_code: 75015,
+      phones: {'33 6 78 90 12 34'}
+  },
+  'work': {
+      street: '81 Rue de Paradis',
+      city: 'Paris',
+      zip_code: 7500,
+      phones: {'33 7 12 99 11 00'}
+  }
+}
+WHERE id=62c36092-82a1-3a00-93d1-46196ee77204;
+
+INSERT INTO datamountaineer.users(id, direct_reports) VALUES (11c11111-82a1-3a00-93d1-46196ee77204,{{firstname:'Jean-Claude',lastname:'Van Damme'}, {firstname:'Arnold', lastname:'Schwarzenegger'}});
+
+INSERT INTO datamountaineer.users(id, other_reports) VALUES (22c11111-82a1-3a00-93d1-46196ee77204,[{firstname:'Jean-Claude',lastname:'Van Damme'}, {firstname:'Arnold', lastname:'Schwarzenegger'}]);
+
+DELETE name.firstname FROm datamountaineer.users WHERE id=62c36092-82a1-3a00-93d1-46196ee77204;
+
+```
+
+You will notice from the logs there are no new CDC files picked up and if you navigate to the CDC ouput folder you will see it is empty. The memtables needs to fill up to be flushed to disk.
+Let's use the tool provided by Apache Cassandra to flush the table:``nodetool``
+
+```.. sourcecode:: bash
+$ $CASSANDRA_HOME/bin/nodetool drain
+
+```
+
+Once this completes your connect distributed log should print something along these lines:
+
+```
+[2017-08-01 23:10:42,842] INFO Reading mutations from the CDC file:/home/stepi/work/programs/cassandra/data/cdc_raw/CommitLog-6-1501625205002.log. Checking file is still being written... (com.datamountaineer.streamreactor.connect.cassandra.cdc.logs.CdcCassandra:158)
+[2017-08-01 23:10:43,352] INFO Global buffer pool is enabled, when pool is exhausted (max is 0.000KiB) it will allocate on heap (org.apache.cassandra.utils.memory.BufferPool:230)
+[2017-08-01 23:10:43,355] INFO Maximum memory usage reached (0.000KiB), cannot allocate chunk of 1.000MiB (org.apache.cassandra.utils.memory.BufferPool:91)
+[2017-08-01 23:10:43,390] ERROR [Control connection] Cannot connect to any host, scheduling retry in 4000 milliseconds (com.datastax.driver.core.ControlConnection:153)
+[2017-08-01 23:10:43,569] INFO 5 changes detected in /home/stepi/work/programs/cassandra/data/cdc_raw/CommitLog-6-1501625205002.log (com.datamountaineer.streamreactor.connect.cassandra.cdc.logs.CdcCassandra:173)
+...
+```
+
+Let's see what was sent over to the users topic. We will run ``kafka-avro-console-consumer`` to read the records
+
 ```
 .. sourcecode:: bash
-$export KAFKA_CONNECT_REST="http://myserver:myport"
-```
-```.. sourcecode:: bash
-$./bin/cli.sh create cassandra-source-orders < conf/cassandra-source-cdc.properties
-    #Connector `cassandra-source-cdc`:
-name=cassandra-source-cdc       connector.class=com.datamountaineer.streamreactor.connect.cassandra.source.CassandraSourceConnector
-connect.cassandra.source.kcql=INSERT INTO users-topic SELECT * FROM users connect.cassandra.contact.points=localhost
+$ ./bin/kafka-avro-console-consumer     --zookeeper localhost:2181     --topic users-topic     --from-beginning --property print.key=true
+SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/home/stepi/work/programs/confluent-3.2.2/share/java/kafka-serde-tools/slf4j-log4j12-1.7.6.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/home/stepi/work/programs/confluent-3.2.2/share/java/schema-registry/slf4j-log4j12-1.7.6.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J: Actual binding is of type [org.slf4j.impl.Log4jLoggerFactory]
+Using the ConsoleConsumer with old consumer is deprecated and will be removed in a future major release. Consider using the new consumer by passing [bootstrap-server] instead of [zookeeper].
+{"keyspace":"datamountaineer","table":"users","changeType":"INSERT","deleted_columns":null,"keys":{"id":{"string":"62c36092-82a1-3a00-93d1-46196ee77204"}},"timestamp":1501625394958965}	{"name":{"fullname":{"firstname":{"string":"Marie-Claude"},"lastname":{"string":"Josset"}}},"addresses":null,"direct_reports":null,"id":{"string":"62c36092-82a1-3a00-93d1-46196ee77204"},"other_reports":null}
+{"keyspace":"datamountaineer","table":"users","changeType":"INSERT","deleted_columns":null,"keys":{"id":{"string":"62c36092-82a1-3a00-93d1-46196ee77204"}},"timestamp":1501625395008930}	{"name":null,"addresses":{"array":[{"key":{"string":"work"},"value":{"address":{"street":{"string":"81 Rue de Paradis"},"city":{"string":"Paris"},"zip_code":{"int":7500},"phones":{"array":[{"string":"33 7 12 99 11 00"}]}}}},{"key":{"string":"home"},"value":{"address":{"street":{"string":"191 Rue St. Charles"},"city":{"string":"Paris"},"zip_code":{"int":75015},"phones":{"array":[{"string":"33 6 78 90 12 34"}]}}}}]},"direct_reports":null,"id":{"string":"62c36092-82a1-3a00-93d1-46196ee77204"},"other_reports":null}
+{"keyspace":"datamountaineer","table":"users","changeType":"INSERT","deleted_columns":null,"keys":{"id":{"string":"11c11111-82a1-3a00-93d1-46196ee77204"}},"timestamp":1501625395013654}	{"name":null,"addresses":null,"direct_reports":{"array":[{"fullname":{"firstname":{"string":"Arnold"},"lastname":{"string":"Schwarzenegger"}}},{"fullname":{"firstname":{"string":"Jean-Claude"},"lastname":{"string":"Van Damme"}}}]},"id":{"string":"11c11111-82a1-3a00-93d1-46196ee77204"},"other_reports":null}
+{"keyspace":"datamountaineer","table":"users","changeType":"INSERT","deleted_columns":null,"keys":{"id":{"string":"22c11111-82a1-3a00-93d1-46196ee77204"}},"timestamp":1501625395015668}	{"name":null,"addresses":null,"direct_reports":null,"id":{"string":"22c11111-82a1-3a00-93d1-46196ee77204"},"other_reports":{"array":[{"fullname":{"firstname":{"string":"Jean-Claude"},"lastname":{"string":"Van Damme"}}},{"fullname":{"firstname":{"string":"Arnold"},"lastname":{"string":"Schwarzenegger"}}}]}}
+{"keyspace":"datamountaineer","table":"users","changeType":"DELETE_COLUMN","deleted_columns":{"array":["name.firstname"]},"keys":{"id":{"string":"62c36092-82a1-3a00-93d1-46196ee77204"}},"timestamp":1501625395018481}	{"name":null,"addresses":null,"direct_reports":null,"id":{"string":"62c36092-82a1-3a00-93d1-46196ee77204"},"other_reports":null}
 
 ```
 
-We can use the CLI to check if the connector is up but you should be able to see this in logs as-well.
-```.. sourcecode:: bash
-    #check for running connectors with the CLI
-$./bin/cli.sh ps
-   cassandra-cdc-source
-```
-//TODO
-
-```
-.. sourcecode:: bash
-
-    ➜  $CONFLUENT_HOME/bin/kafka-avro-console-consumer \
-    --zookeeper localhost:2181 \
-    --topic users-topic \
-    --from-beginning
-```
-
-
+Exactly what was changed!!!
 
 -----------------------------------------------------------------------
 Features
