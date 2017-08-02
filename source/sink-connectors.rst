@@ -11,6 +11,7 @@ Sink connectors stream data from Kafka into external systems.
    coap-sink
    druid
    elastic
+   elastic5
    hazelcast
    hbase
    influx
