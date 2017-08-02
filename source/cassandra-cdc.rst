@@ -48,7 +48,7 @@ The Kafka Connect Source consumes the CDC log information and pushes it to Kafka
 
     Upon flushing the memtable to disk, CommitLogSegments containing data for CDC-enabled tables are moved to the
     configured cdc_raw directory. Once the disk space limit is reached, writes to CDC enabled tables will be rejected
-    until space is freed.``
+    until space is freed.
 
 **Four CDC settings are configured in the cassandra.yaml**
 
