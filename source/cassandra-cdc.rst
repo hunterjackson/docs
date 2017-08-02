@@ -60,8 +60,9 @@ Enables/Disables CDC logging per node
 ``cdc_raw_directory``
 
 The directory where the CDC log is stored.
-Package installations(default): /$CASSANDRA_HOME/cdc_raw.
-Tarball installations: install_location/data/cdc_raw.
+
+*   Package installations(default):  /$CASSANDRA_HOME/cdc_raw.
+*   Tarball installations:          install_location/data/cdc_raw.
 
 ``cdc_total_space_in_mb``
 
@@ -76,7 +77,7 @@ checked to see if any new space for cdc-tracked tables has been made available.
 
 .. warning::
 
-    After changing properties in the cassandra.yaml file, you must restart the node for the changes to take effect. ``
+    After changing properties in the cassandra.yaml file, you must restart the node for the changes to take effect.
 
 
 Prerequisites
