@@ -61,7 +61,7 @@ Enables/Disables CDC logging per node
 
 The directory where the CDC log is stored.
 
-*   Package installations(default):  /$CASSANDRA_HOME/cdc_raw.
+*   Package installations(default): $CASSANDRA_HOME/cdc_raw.
 *   Tarball installations:          install_location/data/cdc_raw.
 
 ``cdc_total_space_in_mb``
@@ -479,21 +479,23 @@ tables to consider and what topic should receive those mutations information.
 
 Below you can find a flow diagram describing the process mentioned above.
 
-.. sourcecode:: bash
+.. mermaid::
 
-    st=>start: Cassandra Client/Cqlsh
-    e=>end:
-    op1=>operation: Cassandra Ring Node | current
-    cond=>condition: SST tables flushed?
-    io=>inputoutput: Commit Log Dropped in CDC_RAW Folder
-    op2=>operation: Kafka Connect CDC
-    sub1=>subroutine: File Watcher
-    op3=>operation: Kafka
+    graph TD;
+    start(Cassandra Client/Cqlsh)
+    op1[CassandraRingNode]
+    con1{SST tables flushed?}
+    inputoutput[Commit Log Dropped in CDC_RAW Folder]
+    op2[Kafka Connect CDC]
+    sub1[File Watcher]
+    op3[Kafka]
 
-    st->op1->cond
-    cond(yes)->io
-    io->sub1->op2
-    op2->op3
+    start-->op1
+    con1-->inputoutput
+    op1-->con1
+    inputoutput-- Yes -->op2
+    op2-->sub1
+    sub1-->op3
 
 
 Source Connector QuickStart
@@ -778,7 +780,7 @@ Here is a full list of configuration entries the connector knows about.
 |                                                | faster reads by setting the value to false.  |         |       |           |
 +------------------------------------------------+----------------------------------------------+---------+-------+-----------+
 | connect.cassandra.cdc.single.instance.port     | Kafka Connect framework doesn’t allow yet    | int     | yes   | 64101     |
-| ra.cdc.single.i                                | configuration where you are running only     |         |       |           |
+|                                                | configuration where you are running only     |         |       |           |
 |                                                | one task per worker. If you allocate more    |         |       |           |
 |                                                | tasks than workers then some will spin up    |         |       |           |
 |                                                | more tasks. With Cassandra nodes we want one |         |       |           |

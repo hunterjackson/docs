@@ -290,7 +290,8 @@ The entry is a `;` separated list of key=value sequence
 
 Example:
 
-.. sourcecode:: javascript
+.. sourcecode:: bash
+
     connect.elastic.xpack.settings=xpack.security.user=transport_client_user:changeme;xpack.ssl.key=/path/to/client.key;xpack.ssl.certificate=/path/to/client.crt
 
 * Type: string
