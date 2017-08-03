@@ -37,8 +37,7 @@ extensions = [
     'sphinx.ext.mathjax',
     'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
-    'sphinxcontrib.httpdomain',
-    'sphinxcontrib.mermaid'
+    'sphinxcontrib.httpdomain'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
