@@ -110,3 +110,5 @@ To do that, and in ``/opt/confluent-3.0.0/etc/schema-registry/schema-registry.pr
 
     access.control.allow.methods=GET,POST,OPTIONS
     access.control.allow.origin=*
+
+

@@ -44,3 +44,4 @@ Client
 
 The documentation of the package can be found [here](https://godoc.org/github.com/datamountaineer/schema-registry).
 
+

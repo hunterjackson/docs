@@ -72,3 +72,4 @@ Examples
     SELECT * FROM mytopic PK field1,field2        //Select all & with primary keys (for the sources where primary keys are required)
     SELECT * FROM mytopic AUTOCREATE              //Select all and create the target Source (table for databases)
     SELECT * FROM mytopic AUTOEVOLVE              //Select all & reflect the new fields added to the avro payload into the target
+

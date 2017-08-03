@@ -78,7 +78,7 @@ Command: ``ps``
 
 Example:
 
-::
+.. sourcecode:: bash
 
     $ ./cli ps
     twitter-source
@@ -90,7 +90,7 @@ Command: ``get``
 
 Example:
 
-::
+.. sourcecode:: bash
 
     $ ./cli get twitter-source
     #Connector `twitter-source`:
@@ -109,7 +109,7 @@ Command: ``rm``
 
 Example:
 
-::
+.. sourcecode:: bash
 
     $ ./cli rm twitter-source
 
@@ -122,7 +122,7 @@ Command: ``create``
 
 Example:
 
-::
+.. sourcecode:: bash
 
     $ ./cli create twitter-source <twitter.properties
     #Connector `twitter-source`:
@@ -144,7 +144,7 @@ Command: ``run``
 
 Example:
 
-::
+.. sourcecode:: bash
 
     $ ./cli run twitter-source <twitter.properties
     #Connector `twitter-source`:
@@ -155,3 +155,5 @@ Example:
 
     track.terms=test
     #task ids: 0
+
+

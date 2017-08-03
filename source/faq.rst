@@ -111,3 +111,4 @@ file.
     # The group ID is a unique identifier for the set of workers that form a single Kafka Connect
     # cluster
     group.id=connect-cluster
+

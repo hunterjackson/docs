@@ -341,3 +341,4 @@ The interval, in milliseconds between retries if the Sink is using ``connect.coa
 * Optional: yes
 * Default : 60000 (1 minute)
 
+
