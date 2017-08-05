@@ -134,10 +134,10 @@ We can use the CLI to check if the connector is up but you should be able to see
         connect.jms.password = null
         connect.jms.queues = [jms-queue]
         connect.jms.retry.interval = 60000
-        connect.jms.source.converters =
+        connect.jms.converters =
         connect.jms.topics = []
         connect.jms.url = tcp://localhost:61616
-        connect.jms.user = null
+        connect.jms.username = null
      (com.datamountaineer.streamreactor.connect.jms.config.JMSConfig:180)
     INFO Instantiated connector jms-source with version null of type class com.datamountaineer.streamreactor.connect.jms.source.JMSSourceConnector (org.apache.kafka.connect.runtime.Worker:181)
     INFO Finished creating connector jms-source (org.apache.kafka.connect.runtime.Worker:194)
@@ -254,7 +254,7 @@ Provides the JMS broker url
 * Importance: high
 * Optional : no
 
-``connect.jms.user``
+``connect.jms.username``
 
 Provides the user for the JMS connection.
 
@@ -328,7 +328,7 @@ Comma separated list of all the jms target queues.
 * Optional : yes
 
 
-``connect.jms.source.converters``
+``connect.jms.converters``
 
 Contains a tuple (jms source topic and the canonical class name for the converter to convert the JMS message to a SourceRecord).
 If the source topic is not matched it will default to the BytesConverter. This will send an avro message over Kafka using Schema.BYTES
@@ -343,7 +343,7 @@ If the source topic is not matched it will default to the BytesConverter. This w
   jms_source1=com.datamountaineer.streamreactor.connect.source.converters.AvroConverter;jms_source2=com.datamountaineer.streamreactor.connect.source.converters.JsonSimpleConverter
 
 
-``connect.source.converter.avro.schemas``
+``connect.converter.avro.schemas``
 
 If the AvroConverter is used you need to provide an avro Schema to be able to read and translate the raw bytes to an avro record.
 The format is $JMS_TOPIC=$PATH_TO_AVRO_SCHEMA_FILE
@@ -361,6 +361,15 @@ The format is $JMS_TOPIC=$PATH_TO_AVRO_SCHEMA_FILE
 * Default: 100
 
 The batch size to take from the JMS destination on each poll of Kafka Connect.
+
+``connect.progress.enabled``
+
+Enables the output for how many records have been processed.
+
+* Type: boolean
+* Importance: medium
+* Optional: yes
+* Default : false
 
 .. _jms_converter_example:
 

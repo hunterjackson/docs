@@ -38,6 +38,7 @@ extensions = [
     'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
     'sphinxcontrib.httpdomain'
+    # ,'sphinxcontrib.mermaid'
 ]
 
 # Add any paths that contain templates here, relative to this directory.

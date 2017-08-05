@@ -156,13 +156,13 @@ We can use the CLI to check if the connector is up but you should be able to see
                           /_/ (com.datamountaineer.streamreactor.connect.coap.sink.CoapSinkTask:52)
     [2017-01-10 12:57:32,238] INFO CoapSinkConfig values:
         connect.coap.uri = coap://localhost:5683
-        connect.coap.sink.bind.port = 0
+        connect.coap.port = 0
         connect.coap.retry.interval = 60000
         connect.coap.truststore.pass = [hidden]
         connect.coap.cert.chain.key = client
         connect.coap.error.policy = THROW
         connect.coap.kcql = INSERT INTO unsecure SELECT * FROM coap_topic
-        connect.coap.sink.bind.host = localhost
+        connect.coap.host = localhost
         connect.coap.certs = []
         connect.coap.max.retires = 20
         connect.coap.keystore.path =
@@ -234,7 +234,7 @@ The KCQL statement to select and route resources to topics.
 * Importance: high
 * Optional  : no
 
-``connect.coap.bind.port``
+``connect.coap.port``
 
 The port the DTLS connector will bind to on the Connector host.
 
@@ -243,7 +243,7 @@ The port the DTLS connector will bind to on the Connector host.
 * Optional  : yes
 * Default   : 0
 
-``connect.coap.bind.host``
+``connect.coap.host``
 
 The hostname the DTLS connector will bind to on the Connector host.
 
@@ -331,7 +331,6 @@ The maximum number of times a message is retried. Only valid when the ``connect.
 * Optional: yes
 * Default: 10
 
-
 ``connect.coap.retry.interval``
 
 The interval, in milliseconds between retries if the Sink is using ``connect.coap.error.policy`` set to **RETRY**.
@@ -341,4 +340,11 @@ The interval, in milliseconds between retries if the Sink is using ``connect.coa
 * Optional: yes
 * Default : 60000 (1 minute)
 
+``connect.progress.enabled``
 
+Enables the output for how many records have been processed.
+
+* Type: boolean
+* Importance: medium
+* Optional: yes
+* Default : false

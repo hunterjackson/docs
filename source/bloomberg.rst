@@ -93,11 +93,11 @@ Now we need to see records pushed on the topic. We can use the ``kafka-avro-cons
 
 .. sourcecode:: bash
 
-    $ ./bin/kafka-avro-console-consumer --topic blockchain-test \
+    $ ./bin/kafka-avro-console-consumer --topic bloomberg \
          --zookeeper localhost:2181 \
          --from-beginning
 
-Now the console is reading blockchain transaction data which would print on the terminal.
+Now the console is reading bloomberg transaction data which would print on the terminal.
 
 Features
 --------
@@ -160,6 +160,14 @@ The topic to write to.
 * Data type : string
 * Optional  : no
 
+``connect.progress.enabled``
+
+Enables the output for how many records have been processed.
+
+* Type: boolean
+* Importance: medium
+* Optional: yes
+* Default : false
 
 Example
 ~~~~~~~

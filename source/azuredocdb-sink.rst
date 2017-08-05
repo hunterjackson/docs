@@ -327,17 +327,17 @@ You should see in the terminal where you started Kafka Connect the following ent
 .. sourcecode:: bash
 
     [2017-02-28 21:55:52,192] INFO DocumentDbConfig values:
-            connect.documentdb.database.name = dm
+            connect.documentdb.db.name = dm
             connect.documentdb.endpoint = [hidden]
             connect.documentdb.error.policy = THROW
             connect.documentdb.master.key = [hidden]
             connect.documentdb.max.retires = 20
             connect.documentdb.proxy = null
             connect.documentdb.retry.interval = 60000
-            connect.documentdb.sink.batch.size = 10
-            connect.documentdb.sink.consistency.level = Session
-            connect.documentdb.sink.database.create = true
-            connect.documentdb.sink.kcql = INSERT INTO orders_j SELECT * FROM orders-topic-json
+            connect.documentdb.batch.size = 10
+            connect.documentdb.consistency.level = Session
+            connect.documentdb.db.create = true
+            connect.documentdb.kcql = INSERT INTO orders_j SELECT * FROM orders-topic-json
      (com.datamountaineer.streamreactor.connect.azure.documentdb.config.DocumentDbConfig:180)
     [2017-02-28 21:55:52,193] INFO
       _____        _        __  __                   _        _
@@ -488,8 +488,8 @@ Kafka connect framework to pause and replay the message. Offsets are not committ
 it will cause a write failure, the message can be replayed. With the Retry policy the issue can be fixed without stopping
 the sink.
 
-The length of time the sink will retry can be controlled by using the ``connect.documentdb.sink.max.retires`` and the
-``connect.documentdb.sink.retry.interval``.
+The length of time the sink will retry can be controlled by using the ``connect.documentdb.max.retires`` and the
+``connect.documentdb.retry.interval``.
 
 Topic Routing
 ^^^^^^^^^^^^^
@@ -540,7 +540,7 @@ Configurations
 
 Configurations parameters:
 
-``connect.documentdb.sink.database``
+``connect.documentdb.db``
 
 The Azure DocumentDb target database.
 
@@ -570,7 +570,7 @@ Determines the write visibility. There are four possible values: Strong,BoundedS
 * Default  : Session
 
 
-``connect.documentdb.sink.database.create``
+``connect.documentdb.db.create``
 
 If set to true it will create the database if it doesn't exist. If this is set to default(false) an exception will be raised
 
@@ -584,7 +584,6 @@ Specifies the connection proxy details.
 
 * Data type: String
 * Optional : yes
-
 
 
 ``connect.documentdb.batch.size``
@@ -639,6 +638,15 @@ The interval, in milliseconds between retries if the sink is using ``connect.doc
 * Importance: medium
 * Default : 60000 (1 minute)
 
+``connect.progress.enabled``
+
+Enables the output for how many records have been processed.
+
+* Type: boolean
+* Importance: medium
+* Optional: yes
+* Default : false
+
 Example
 ~~~~~~~
 
@@ -648,12 +656,12 @@ Example
     connector.class=com.datamountaineer.streamreactor.connect.azure.documentdb.sink.DocumentDbSinkConnector
     tasks.max=1
     topics=orders-avro
-    connect.documentdb.sink.kcql=INSERT INTO orders SELECT * FROM orders-avro
-    connect.documentdb.database.name=dm
+    connect.documentdb.kcql=INSERT INTO orders SELECT * FROM orders-avro
+    connect.documentdb.db=dm
     connect.documentdb.endpoint=[YOUR_AZURE_ENDPOINT]
-    connect.documentdb.sink.database.create=true
+    connect.documentdb.db.create=true
     connect.documentdb.master.key=[YOUR_MASTER_KEY]
-    connect.documentdb.sink.batch.size=10
+    connect.documentdb.batch.size=10
 
 Schema Evolution
 ----------------

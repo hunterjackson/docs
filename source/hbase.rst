@@ -127,8 +127,8 @@ connect to the Rest API of Kafka Connect of your container.
     connector.class=com.datamountaineer.streamreactor.connect.hbase.HbaseSinkConnector
     tasks.max=1
     topics=hbase-topic
-    connect.hbase.sink.column.family=d
-    connect.hbase.sink.kcql=INSERT INTO person SELECT * FROM hbase-topic PK firstName, lastName
+    connect.hbase.column.family=d
+    connect.hbase.kcql=INSERT INTO person SELECT * FROM hbase-topic PK firstName, lastName
     #task ids: 0
 
 This ``hbase-sink.properties`` configuration defines:
@@ -254,7 +254,7 @@ Example:
     #Insert mode, select 3 fields and rename from topicB and write to tableB, use field y from the topic as the row key
     INSERT INTO tableB SELECT x AS a, y AS b and z AS c FROM topicB PK y
 
-This is set in the ``connect.hbase.sink.kcql`` option.
+This is set in the ``connect.hbase.kcql`` option.
 
 Error Polices
 ~~~~~~~~~~~~~
@@ -285,14 +285,14 @@ Kafka connect framework to pause and replay the message. Offsets are not committ
 it will cause a write failure, the message can be replayed. With the Retry policy the issue can be fixed without stopping
 the sink.
 
-The length of time the Sink will retry can be controlled by using the ``connect.hbase.sink.max.retries`` and the
-``connect.hbase.sink.retry.interval``.
+The length of time the Sink will retry can be controlled by using the ``connect.hbase.max.retries`` and the
+``connect.hbase.retry.interval``.
 
 
 Configurations
 --------------
 
-``connect.hbase.sink.column.family``
+``connect.hbase.column.family``
 
 The hbase column family.
 
@@ -300,7 +300,7 @@ The hbase column family.
 * Importance: high
 * Optional: no
 
-``connect.hbase.sink.kcql``
+``connect.hbase.kcql``
 
 Kafka connect query language expression. Allows for expressive topic to table routing, field selection and renaming. Fields
 to be used as the row key can be set by specifing the ``PK``. The below example uses field1 and field2 are the row key.
@@ -317,13 +317,13 @@ If no primary keys are specified the topic name, partition and offset converted 
 * Importance: high
 * Optional: no
 
-``connect.hbase.sink.error.policy``
+``connect.hbase.error.policy``
 
 Specifies the action to be taken if an error occurs while inserting the data.
 
 There are three available options, **noop**, the error is swallowed, **throw**, the error is allowed to propagate and retry.
-For **retry** the Kafka message is redelivered up to a maximum number of times specified by the ``connect.hbase.sink.max.retries``
-option. The ``connect.hbase.sink.retry.interval`` option specifies the interval between retries.
+For **retry** the Kafka message is redelivered up to a maximum number of times specified by the ``connect.hbase.max.retries``
+option. The ``connect.hbase.retry.interval`` option specifies the interval between retries.
 
 The errors will be logged automatically.
 
@@ -332,32 +332,40 @@ The errors will be logged automatically.
 * Optional: yes
 * Default: RETRY
 
-``connect.hbase.sink.max.retries``
+``connect.hbase.max.retries``
 
-The maximum number of times a message is retried. Only valid when the ``connect.habse.sink.error.policy`` is set to ``retry``.
+The maximum number of times a message is retried. Only valid when the ``connect.hbase.error.policy`` is set to ``retry``.
 
 * Type: string
 * Importance: medium
 * Optional: yes
 * Default: 10
 
-``connect.hbase.sink.retry.interval``
+``connect.hbase.retry.interval``
 
-The interval, in milliseconds between retries if the Sink is using ``connect.hbase.sink.error.policy`` set to **RETRY**.
+The interval, in milliseconds between retries if the Sink is using ``connect.hbase.error.policy`` set to **RETRY**.
 
 * Type: int
 * Importance: medium
 * Optional: yes
 * Default : 60000 (1 minute)
 
+``connect.progress.enabled``
+
+Enables the output for how many records have been processed.
+
+* Type: boolean
+* Importance: medium
+* Optional: yes
+* Default : false
 
 Example
 ~~~~~~~
 
 .. sourcecode:: bash
 
-    connect.hbase.sink.column.family=d
-    connect.hbase.sink.kcql=INSERT INTO person SELECT * FROM TOPIC1
+    connect.hbase.column.family=d
+    connect.hbase.kcql=INSERT INTO person SELECT * FROM TOPIC1
     connector.class=com.datamountaineer.streamreactor.connect.hbase.HbaseSinkConnector
     tasks.max=1
     topics=TOPIC1

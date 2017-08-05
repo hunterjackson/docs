@@ -112,6 +112,17 @@ Now we need to see records pushed on the topic. We can use the ``kafka-avro-cons
 
 Now the console is reading blockchain transaction data which would print on the terminal.
 
+Configurations
+--------------
+
+``connect.progress.enabled``
+
+Enables the output for how many records have been processed.
+
+* Type: boolean
+* Importance: medium
+* Optional: yes
+* Default : false
 
 Deployment Guidelines
 ---------------------

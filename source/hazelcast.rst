@@ -103,10 +103,10 @@ connect to the Rest API of Kafka Connect of your container.
     connector.class=com.datamountaineer.streamreactor.connect.hazelcast.sink.HazelCastSinkConnector
     max.tasks=1
     topics = hazelcast-topic
-    connect.hazelcast.sink.cluster.members=locallhost
-    connect.hazelcast.sink.group.name=dev
-    connect.hazelcast.sink.group.password=dev-pass
-    connect.hazelcast.sink.kcql=INSERT INTO sink-test SELECT * FROM hazelcast-topic WITHFORMAT JSON
+    connect.hazelcast.cluster.members=locallhost
+    connect.hazelcast.group.name=dev
+    connect.hazelcast.group.password=dev-pass
+    connect.hazelcast.kcql=INSERT INTO sink-test SELECT * FROM hazelcast-topic WITHFORMAT JSON
     #task ids: 0
 
 The ``hazelcast-sink.properties`` configuration defines:
@@ -156,20 +156,20 @@ We can use the CLI to check if the connector is up but you should be able to see
     by Andrew Stevenson
            (com.datamountaineer.streamreactor.connect.hazelcast.sink.HazelCastSinkTask:41)
     [2016-08-20 16:45:39,521] INFO HazelCastSinkConfig values:
-        connect.hazelcast.connection.buffer.size = 32
-        connect.hazelcast.connection.keep.alive = true
-        connect.hazelcast.connection.tcp.no.delay = true
-        connect.hazelcast.sink.group.password = [hidden]
+        connect.hazelcast.buffer.size = 32
+        connect.hazelcast.keep.alive = true
+        connect.hazelcast.tcp.no.delay = true
+        connect.hazelcast.group.password = [hidden]
         connect.hazelcast.connection.retries = 2
         connect.hazelcast.connection.linger.seconds = 3
         connect.hazelcast.sink.retry.interval = 60000
         connect.hazelcast.max.retires = 20
-        connect.hazelcast.sink.batch.size = 1000
+        connect.hazelcast.batch.size = 1000
         connect.hazelcast.connection.reuse.address = true
-        connect.hazelcast.sink.group.name = dev
-        connect.hazelcast.sink.cluster.members = [192.168.99.100]
-        connect.hazelcast.sink.error.policy = THROW
-        connect.hazelcast.sink.kcql = INSERT INTO sink-test SELECT * FROM hazelcast-topic WITHFORMAT JSON
+        connect.hazelcast.group.name = dev
+        connect.hazelcast.cluster.members = [192.168.99.100]
+        connect.hazelcast.error.policy = THROW
+        connect.hazelcast.kcql = INSERT INTO sink-test SELECT * FROM hazelcast-topic WITHFORMAT JSON
         connect.hazelcast.connection.timeout = 5000
      (com.datamountaineer.streamreactor.connect.hazelcast.config.HazelCastSinkConfig:178)
     Aug 20, 2016 4:45:39 PM com.hazelcast.core.LifecycleService
@@ -245,7 +245,7 @@ Example:
     #Insert mode, select 3 fields and rename from topicB and write to tableB, store as serialized avro encoded byte arrays
     INSERT INTO tableB SELECT x AS a, y AS b and z AS c FROM topicB WITHFORMAT avro STOREAS RING_BUFFER
 
-This is set in the ``connect.hazelcast.sink.kcql`` option.
+This is set in the ``connect.hazelcast.kcql`` option.
 
 Error Polices
 ~~~~~~~~~~~~~
@@ -276,8 +276,8 @@ Kafka connect framework to pause and replay the message. Offsets are not committ
 it will cause a write failure, the message can be replayed. With the Retry policy the issue can be fixed without stopping
 the sink.
 
-The length of time the Sink will retry can be controlled by using the ``connect.hazelcast.sink.max.retries`` and the
-``connect.hazelcast.sink.retry.interval``.
+The length of time the Sink will retry can be controlled by using the ``connect.hazelcast.max.retries`` and the
+``connect.hazelcast.retry.interval``.
 
 With Format
 ~~~~~~~~~~~
@@ -287,14 +287,14 @@ Hazelcast requires that data stored in collections and topics is serializable. T
 *Avro* In this mode the Sink converts the SinkRecords from Kafka to Avro encoded byte arrays.
 *Json* In this mode the Sink converts the SinkRecords from Kafka to Json strings.
 
-This behaviour is controlled by the KCQL statement in the ``connect.hazelcast.sink.kcql`` option. The default
+This behaviour is controlled by the KCQL statement in the ``connect.hazelcast.kcql`` option. The default
 is JSON.
 
 Stored As
 ~~~~~~~~~
 
 The Hazelcast Sink supports storing data in RingBuffers, ReliableTopics, Queues, Sets, Lists, IMaps, Multi-maps and
-ICaches. This behaviour is controlled by the KCQL statement in the ``connect.hazelcast.sink.kcql`` option. Note that
+ICaches. This behaviour is controlled by the KCQL statement in the ``connect.hazelcast.kcql`` option. Note that
 IMaps, Multi-maps and ICaches support a key as well as a value.
 
 .. sourcecode:: bash
@@ -330,7 +330,7 @@ To enable parallel writes set the ``connect.hazelcast.parallel.write`` configura
 Configurations
 --------------
 
-``connect.hazelcast.sink.kcql``
+``connect.hazelcast.kcql``
 
 KCQL expression describing field selection and routes.
 
@@ -338,13 +338,13 @@ KCQL expression describing field selection and routes.
 * Importance: high
 * Optional  : no
 
-``connect.hazelcast.sink.error.policy``
+``connect.hazelcast.error.policy``
 
 Specifies the action to be taken if an error occurs while inserting the data.
 
 There are three available options, **noop**, the error is swallowed, **throw**, the error is allowed to propagate and retry.
-For **retry** the Kafka message is redelivered up to a maximum number of times specified by the ``connect.hazelcast.sink.max.retries``
-option. The ``connect.hazelcast.sink.retry.interval`` option specifies the interval between retries.
+For **retry** the Kafka message is redelivered up to a maximum number of times specified by the ``connect.hazelcast.max.retries``
+option. The ``connect.hazelcast.retry.interval`` option specifies the interval between retries.
 
 The errors will be logged automatically.
 
@@ -353,25 +353,25 @@ The errors will be logged automatically.
 * Optional: yes
 * Default: ``throw``
 
-``connect.hazelcast.sink.max.retries``
+``connect.hazelcast.max.retries``
 
-The maximum number of times a message is retried. Only valid when the ``connect.hazelcast.sink.error.policy`` is set to ``retry``.
+The maximum number of times a message is retried. Only valid when the ``connect.hazelcast.error.policy`` is set to ``retry``.
 
 * Type: string
 * Importance: medium
 * Optional: yes
 * Default: 10
 
-``connect.hazelcast.sink.retry.interval``
+``connect.hazelcast.retry.interval``
 
-The interval, in milliseconds between retries if the Sink is using ``connect.hazelcast.sink.error.policy`` set to **RETRY**.
+The interval, in milliseconds between retries if the Sink is using ``connect.hazelcast.error.policy`` set to **RETRY**.
 
 * Type: int
 * Importance: medium
 * Optional: yes
 * Default : 60000 (1 minute)
 
-``connect.hazelcast.sink.batch.size``
+``connect.hazelcast.batch.size``
 
 Specifies how many records to insert together at one time. If the connect framework provides less records when it is
 calling the Sink it won't wait to fulfill this value but rather execute it.
@@ -381,7 +381,7 @@ calling the Sink it won't wait to fulfill this value but rather execute it.
 * Optional: yes
 * Defaults : 1000
 
-``connect.hazelcast.sink.cluster.members``
+``connect.hazelcast.cluster.members``
 
 Address List is the initial list of cluster addresses to which the client will connect. The client uses this list to
 find an alive node. Although it may be enough to give only oneaddress of a node in the cluster (since all nodes
@@ -392,7 +392,7 @@ communicate with each other),it is recommended that you give the addresses for a
 * Optional: no
 * Default: localhost
 
-``connect.hazelcast.sink.group.name``
+``connect.hazelcast.group.name``
 
 The group name of the connector in the target Hazelcast cluster.
 
@@ -401,7 +401,7 @@ The group name of the connector in the target Hazelcast cluster.
 * Optional: no
 * Default: dev
 
-``connect.hazelcast.sink.group.password``
+``connect.hazelcast.group.password``
 
 The password for the group name.
 
@@ -410,7 +410,7 @@ The password for the group name.
 * Optional  : yes
 * Default	: dev-pass
 
-``connect.hazelcast.connection.timeout``
+``connect.hazelcast.timeout``
 
 Connection timeout is the timeout value in milliseconds for nodes to accept client connection requests.
 
@@ -419,7 +419,7 @@ Connection timeout is the timeout value in milliseconds for nodes to accept clie
 * Optional  : yes
 * Default	: 5000
 
-``connect.hazelcast.connection.retries``
+``connect.hazelcast.retries``
 
 Number of times a client will retry the connection at startup.
 
@@ -428,7 +428,7 @@ Number of times a client will retry the connection at startup.
 * Optional  : yes
 * Default	: 2
 
-``connect.hazelcast.connection.keep.alive``
+``connect.hazelcast.keep.alive``
 
 Enables/disables the SO_KEEPALIVE socket option. The default value is true.
 
@@ -437,7 +437,7 @@ Enables/disables the SO_KEEPALIVE socket option. The default value is true.
 * Optional  : yes
 * Default	: true
 
-``connect.hazelcast.connection.tcp.no.delay``
+``connect.hazelcast.tcp.no.delay``
 
 Enables/disables the SO_REUSEADDR socket option. The default value is true.
 
@@ -446,7 +446,7 @@ Enables/disables the SO_REUSEADDR socket option. The default value is true.
 * Optional  : yes
 * Default	: true
 
-``connect.hazelcast.connection.linger.seconds``
+``connect.hazelcast.linger.seconds``
 
 Enables/disables SO_LINGER with the specified linger time in seconds. The default value is 3.
 
@@ -455,7 +455,7 @@ Enables/disables SO_LINGER with the specified linger time in seconds. The defaul
 * Optional  : yes
 * Default	: 3
 
-``connect.hazelcast.connection.buffer.size``
+``connect.hazelcast.buffer.size``
 
 Sets the SO_SNDBUF and SO_RCVBUF options to the specified value in KB for this Socket. The default value is 32.
 
@@ -464,7 +464,7 @@ Sets the SO_SNDBUF and SO_RCVBUF options to the specified value in KB for this S
 * Optional  : yes
 * Default	: 32
 
-``connect.hazelcast.parallel.write```
+``connect.hazelcast.parallel.write``
 
 All the sink to write in parallel the records received from Kafka on each poll. Order of writes in not guaranteed.
 
@@ -473,6 +473,14 @@ All the sink to write in parallel the records received from Kafka on each poll. 
 * Optional   : yes
 * Default    : false
 
+``connect.progress.enabled``
+
+Enables the output for how many records have been processed.
+
+* Type: boolean
+* Importance: medium
+* Optional: yes
+* Default : false
 
 Schema Evolution
 ----------------

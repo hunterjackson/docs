@@ -24,7 +24,7 @@ Setup
 -----
 
 Kudu Setup
-~~~~~~~~~~~
+~~~~~~~~~~
 
 Download and check Kudu QuickStart VM starts up.
 
@@ -92,7 +92,7 @@ connect to the Rest API of Kafka Connect of your container.
     connector.class=com.datamountaineer.streamreactor.connect.kudu.KuduSinkConnector
     tasks.max=1
     connect.kudu.master=quickstart
-    connect.kudu.sink.kcql = INSERT INTO kudu_test SELECT * FROM kudu-test
+    connect.kudu.kcql = INSERT INTO kudu_test SELECT * FROM kudu-test
     topics=kudu_test
     #task ids: 0
 
@@ -166,7 +166,7 @@ Now the producer is waiting for input. Paste in the following:
     {"id": 888, "random_field": "bar"}
 
 Check for records in Kudu
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Now check the logs of the connector you should see this:
 
@@ -284,8 +284,8 @@ Kafka connect framework to pause and replay the message. Offsets are not committ
 it will cause a write failure, the message can be replayed. With the Retry policy the issue can be fixed without stopping
 the sink.
 
-The length of time the Sink will retry can be controlled by using the ``connect.kudu.sink.max.retries`` and the
-``connect.kudu.sink.retry.interval``.
+The length of time the Sink will retry can be controlled by using the ``connect.kudu.max.retries`` and the
+``connect.kudu.retry.interval``.
 
 Auto conversion of Connect records to Kudu
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -296,7 +296,7 @@ Topic Routing
 ~~~~~~~~~~~~~
 
 The Sink supports topic routing that allows mapping the messages from topics to a specific table. For example, map a
-topic called "bloomberg_prices" to a table called "prices". This mapping is set in the ``connect.kudu.sink.kcql``
+topic called "bloomberg_prices" to a table called "prices". This mapping is set in the ``connect.kudu.kcql``
 option.
 
 Example:
@@ -309,7 +309,7 @@ Example:
 Field Selection
 ~~~~~~~~~~~~~~~
 
-The Kudu Sink supports field selection and mapping. This mapping is set in the ``connect.kudu.sink.kcql`` option.
+The Kudu Sink supports field selection and mapping. This mapping is set in the ``connect.kudu.kcql`` option.
 
 Examples:
 
@@ -334,7 +334,7 @@ Examples:
 Write Modes
 ~~~~~~~~~~~
 
-The Sink supports both **insert** and **upsert** modes.  This mapping is set in the ``connect.kudu.sink.export.mappings`` option.
+The Sink supports both **insert** and **upsert** modes.  This mapping is set in the ``connect.kudu.kcql`` option.
 
 **Insert**
 
@@ -367,9 +367,9 @@ Redelivery produces the same result.
 Auto Create Tables
 ~~~~~~~~~~~~~~~~~~
 
-The Sink supports auto creation of tables for each topic. This mapping is set in the ``connect.kudu.sink.kcql`` option.
+The Sink supports auto creation of tables for each topic. This mapping is set in the ``connect.kudu.kcql`` option.
 
-Primary keys are set in the ``DISTRIBUTEBY`` clause of the ``connect.kudu.sink.kcql``.
+Primary keys are set in the ``DISTRIBUTEBY`` clause of the ``connect.kudu.kcql``.
 
 Tables are created with the Kudu hash partition strategy. The number of buckets must be specified in the ``kcql``
 statement.
@@ -379,7 +379,7 @@ statement.
     #AutoCreate the target table
     INSERT INTO table1 SELECT * FROM topic AUTOCREATE DISTRIBUTEBY field1, field2 INTO 10 BUCKETS
 
-..	note::
+.. note::
 
     The fields specified as the primary keys (distributeby) must be in the SELECT clause or all fields must be selected
 
@@ -389,7 +389,7 @@ schema is found the table is created when the first record is received for the t
 Auto Evolve Tables
 ~~~~~~~~~~~~~~~~~~
 
-The Sink supports auto evolution of tables for each topic. This mapping is set in the ``connect.kudu.sink.kcql`` option.
+The Sink supports auto evolution of tables for each topic. This mapping is set in the ``connect.kudu.kcql`` option.
 When set the Sink will identify new schemas for each topic based on the schema version from the Schema registry. New columns
 will be identified and an alter table DDL statement issued against Kudu.
 
@@ -411,6 +411,38 @@ as a value is always supplied to it.
 
 Downstream changes are handled by the sink. If columns are removed, the mapped fields from the topic are ignored. If
 columns are added, we attempt to find a matching field by name in the topic.
+
+Error Polices
+~~~~~~~~~~~~~
+
+The Sink has three error policies that determine how failed writes to the target database are handled. The error policies
+affect the behaviour of the schema evolution characteristics of the sink. See the schema evolution section for more
+information.
+
+**Throw**
+
+Any error on write to the target database will be propagated up and processing is stopped. This is the default
+behaviour.
+
+**Noop**
+
+Any error on write to the target database is ignored and processing continues.
+
+.. warning::
+
+    This can lead to missed errors if you don't have adequate monitoring. Data is not lost as it's still in Kafka
+    subject to Kafka's retention policy. The Sink currently does **not** distinguish between integrity constraint
+    violations and or other expections thrown by drivers..
+
+**Retry**
+
+Any error on write to the target database causes the RetryIterable exception to be thrown. This causes the
+Kafka connect framework to pause and replay the message. Offsets are not committed. For example, if the table is offline
+it will cause a write failure, the message can be replayed. With the Retry policy the issue can be fixed without stopping
+the sink.
+
+The length of time the Sink will retry can be controlled by using the ``connect.kudu.max.retries`` and the
+``connect.cassandra.retry.interval``.
 
 Data Type Mappings
 ~~~~~~~~~~~~~~~~~~
@@ -446,7 +478,7 @@ Specifies a Kudu server.
 * Importance: high
 * Optional  : no
 
-``connect.kudu.sink.kcql``
+``connect.kudu.kcql``
 
 Kafka connect query language expression. Allows for expressive topic to table routing, field selection and renaming.
 
@@ -461,13 +493,13 @@ Examples:
 * Importance: high
 * Optional : no
 
-``connect.kudu.sink.error.policy``
+``connect.kudu.error.policy``
 
 Specifies the action to be taken if an error occurs while inserting the data.
 
 There are three available options, **noop**, the error is swallowed, **throw**, the error is allowed to propagate and retry.
-For **retry** the Kafka message is redelivered up to a maximum number of times specified by the ``connect.kudu.sink.max.retries``
-option. The ``connect.kudu.sink.retry.interval`` option specifies the interval between retries.
+For **retry** the Kafka message is redelivered up to a maximum number of times specified by the ``connect.kudu.max.retries``
+option. The ``connect.kudu.retry.interval`` option specifies the interval between retries.
 
 The errors will be logged automatically.
 
@@ -476,9 +508,9 @@ The errors will be logged automatically.
 * Optional : yes
 * Default: RETRY
 
-``connect.kudu.sink.max.retries``
+``connect.kudu.max.retries``
 
-The maximum number of times a message is retried. Only valid when the ``connect.kudu.sink.error.policy`` is set to ``retry``.
+The maximum number of times a message is retried. Only valid when the ``connect.kudu.error.policy`` is set to ``retry``.
 
 * Type: string
 * Importance: medium
@@ -486,16 +518,16 @@ The maximum number of times a message is retried. Only valid when the ``connect.
 * Default: 10
 
 
-``connect.kudu.sink.retry.interval``
+``connect.kudu.retry.interval``
 
-The interval, in milliseconds between retries if the Sink is using ``connect.kudu.sink.error.policy`` set to **RETRY**.
+The interval, in milliseconds between retries if the Sink is using ``connect.kudu.error.policy`` set to **RETRY**.
 
 * Type: int
 * Importance: medium
 * Optional : yes
 * Default : 60000 (1 minute)
 
-``connect.kudu.sink.schema.registry.url``
+``connect.kudu.schema.registry.url``
 
 The url for the Schema registry. This is used to retrieve the latest schema for table creation.
 
@@ -504,15 +536,15 @@ The url for the Schema registry. This is used to retrieve the latest schema for 
 * Optional : yes
 * Default : http://localhost:8081
 
-``connect.kudu.sink.batch.size``
+``connect.progress.enabled``
 
-Specifies how many records to insert together at one time. If the connect framework provides less records when it is
-calling the Sink it won't wait to fulfill this value but rather execute it.
+Enables the output for how many records have been processed.
 
-* Type : int
-* Importance : medium
-* Optional : yes
-* Defaults : 3000
+* Type: boolean
+* Importance: medium
+* Optional: yes
+* Default : false
+
 
 Example
 ~~~~~~~
@@ -523,9 +555,9 @@ Example
     connector.class=com.datamountaineer.streamreactor.connect.kudu.KuduSinkConnector
     tasks.max=1
     connect.kudu.master=quickstart
-    connect.kudu.sink.kcql=INSERT INTO kudu_test SELECT * FROM kudu_test AUTOCREATE DISTRIBUTEBY id INTO 5 BUCKETS
+    connect.kudu.kcql=INSERT INTO kudu_test SELECT * FROM kudu_test AUTOCREATE DISTRIBUTEBY id INTO 5 BUCKETS
     topics=kudu_test
-    connect.kudu.sink.schema.registry.url=http://myhost:8081
+    connect.kudu.schema.registry.url=http://myhost:8081
 
 Deployment Guidelines
 ---------------------

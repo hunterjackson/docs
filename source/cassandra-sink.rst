@@ -14,7 +14,9 @@ The Sink supports:
    or all fields written to Cassandra.
 2. Topic to table routing via KCQL.
 3. Error policies for handling failures.
-4. Payload support for Schema.Struct and payload Struct, Schema.String and Json payload and Json payload with no schema
+4. Payload support for Schema.Struct and payload Struct, Schema.String and Json payload and Json payload with no schema.
+5. Optional TTL, time to live on inserts. See Cassandras `documentation <https://docs.datastax.com/en/cql/3.3/cql/cql_using/useTTL.html>`__
+   for more information.
 
 The Sink supports three Kafka payloads type:
 
@@ -277,7 +279,7 @@ The Cassandra Sink supports the following:
 
 .. sourcecode:: bash
 
-    INSERT INTO <target table> SELECT <fields> FROM <source topic>
+    INSERT INTO <target table> SELECT <fields> FROM <source topic> TTL=<TTL>
 
 Example:
 
@@ -288,6 +290,10 @@ Example:
 
     #Insert mode, select 3 fields and rename from topicB and write to tableB
     INSERT INTO tableB SELECT x AS a, y AS b and z AS c FROM topicB
+
+
+    #Insert mode, select 3 fields and rename from topicB and write to tableB with TTL
+    INSERT INTO tableB SELECT x AS a, y AS b and z AS c FROM topicB TTL=100000
 
 
 Error Polices
@@ -327,7 +333,7 @@ Topic Routing
 
 The Sink supports topic routing that allows mapping the messages from topics to a specific table. For example map
 a topic called "bloomberg_prices" to a table called "prices". This mapping is set in the
-``connect.cassandra.sink.kcql`` option.
+``connect.cassandra.kcql`` option.
 
 Field Selection
 ^^^^^^^^^^^^^^^
@@ -336,7 +342,7 @@ The Sink supports selecting fields from the Source topic or selecting all fields
 in the target table. For example, map a field called "qty"  in a topic to a column called "quantity" in the target
 table.
 
-All fields can be selected by using "*" in the field part of ``connect.cassandra.sink.kcql``.
+All fields can be selected by using "*" in the field part of ``connect.cassandra.kcql``.
 
 Leaving the column name empty means trying to map to a column in the target table with the same name as the field in the
 source topic.
@@ -407,17 +413,16 @@ Port for the native Java driver.
 * Optional : yes
 * Default : 9042
 
-
 ``connect.cassandra.username``
 
-Username to connect to Cassandra with if ``connect.cassandra.authentication.mode`` is set to *username_password*.
+Username to connect to Cassandra with.
 
 * Data type: string
 * Optional : yes
 
 ``connect.cassandra.password``
 
-Password to connect to Cassandra with if ``connect.cassandra.authentication.mode`` is set to *username_password*.
+Password to connect to Cassandra with.
 
 * Data type: string
 * Optional : yes
@@ -459,7 +464,7 @@ Path to keystore.
 * Optional : yes
 
 
-``connect.cassandra.sink.kcql``
+``connect.cassandra.kcql``
 
 Kafka connect query language expression. Allows for expressive topic to table routing, field selection and renaming.
 
@@ -503,6 +508,15 @@ The interval, in milliseconds between retries if the Sink is using ``connect.cas
 * Importance: medium
 * Default : 60000 (1 minute)
 
+``connect.progress.enabled``
+
+Enables the output for how many records have been processed.
+
+* Type: boolean
+* Importance: medium
+* Optional: yes
+* Default : false
+
 Example
 ~~~~~~~
 
@@ -512,7 +526,7 @@ Example
     connector.class=com.datamountaineer.streamreactor.connect.cassandra.sink.CassandraSinkConnector
     tasks.max=1
     topics=orders-topic
-    connect.cassandra.sink.kcql = INSERT INTO TABLE1 SELECT * FROM TOPIC1;INSERT INTO TABLE2 SELECT field1,
+    connect.cassandra.kcql = INSERT INTO TABLE1 SELECT * FROM TOPIC1;INSERT INTO TABLE2 SELECT field1,
     field2, field3 as renamedField FROM TOPIC2
     connect.cassandra.contact.points=localhost
     connect.cassandra.port=9042

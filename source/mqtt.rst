@@ -87,10 +87,10 @@ connect to the Rest API of Kafka Connect of your container.
     tasks.max=1
     connect.mqtt.connection.clean=true
     connect.mqtt.connection.timeout=1000
-    connect.mqtt.source.kcql=INSERT INTO kjson SELECT * FROM /mjson;INSERT INTO kavro SELECT * FROM /mavro
+    connect.mqtt.kcql=INSERT INTO kjson SELECT * FROM /mjson;INSERT INTO kavro SELECT * FROM /mavro
     connect.mqtt.connection.keep.alive=1000
-    connect.mqtt.source.converters=/mjson=com.datamountaineer.streamreactor.connect.converters.source.JsonSimpleConverter;/mavro=com.datamountaineer.streamreactor.connect.converters.source.AvroConverter
-    connect.source.converter.avro.schemas=/mavro=$PATH_TO/temperaturemeasure.avro
+    connect.mqtt.converters=/mjson=com.datamountaineer.streamreactor.connect.converters.source.JsonSimpleConverter;/mavro=com.datamountaineer.streamreactor.connect.converters.source.AvroConverter
+    connect.converter.avro.schemas=/mavro=$PATH_TO/temperaturemeasure.avro
     connect.mqtt.client.id=dm_source_id,
     connect.mqtt.converter.throw.on.error=true
     connect.mqtt.hosts=tcp://127.0.0.1:11883
@@ -142,12 +142,12 @@ We can use the CLI to check if the connector is up but you should be able to see
         connect.mqtt.source.kcql = INSERT INTO kjson SELECT * FROM /mjson;INSERT INTO kavro SELECT * FROM /mavro
         connect.mqtt.service.quality = 1
         connect.mqtt.connection.ssl.cert = null
-        connect.mqtt.source.converters = /mjson=com.datamountaineer.streamreactor.connect.converters.source.JsonSimpleConverter;/mavro=com.datamountaineer.streamreactor.connect.converters.source.AvroConverter
+        connect.mqtt.converters = /mjson=com.datamountaineer.streamreactor.connect.converters.source.JsonSimpleConverter;/mavro=com.datamountaineer.streamreactor.connect.converters.source.AvroConverter
         connect.mqtt.connection.keep.alive = 1000
         connect.mqtt.hosts = tcp://127.0.0.1:11883
         connect.mqtt.converter.throw.on.error = true
         connect.mqtt.connection.timeout = 1000
-        connect.mqtt.user = null
+        connect.mqtt.username = null
         connect.mqtt.connection.clean = true
         connect.mqtt.connection.ssl.ca.cert = null
         connect.mqtt.connection.ssl.key = null
@@ -287,7 +287,7 @@ Example:
 Configurations
 --------------
 
-``connect.mqtt.source.kcql``
+``connect.mqtt.kcql``
 
 Kafka connect query language expression. Allows for expressive Mqtt topic to Kafka topic routing. Currently there is no support
 for filtering the fields from the incoming payload.
@@ -327,7 +327,7 @@ At most once (0); At least once (1); Exactly once (2).
 * Optional  : yes
 * Default:    1
 
-``connect.mqtt.user``
+``connect.mqtt.username``
 
 Contains the Mqtt connection user name
 
@@ -416,7 +416,7 @@ Certificate private key file path.
 * Optional:   yes
 * Default:    null
 
-``connect.mqtt.source.converters``
+``connect.mqtt.converters``
 
 Contains a tuple (mqtt source topic and the canonical class name for the converter of a raw Mqtt message bytes to a SourceRecord).
 If the source topic is not matched it will default to the BytesConverter. This will send an avro message over Kafka using Schema.BYTES
@@ -439,7 +439,7 @@ If set to false the conversion exception will be swallowed and everything carrie
 * Optional:   yes
 * Default:    false
 
-``connect.source.converter.avro.schemas``
+``connect.converter.avro.schemas``
 
 If the AvroConverter is used you need to provide an avro Schema to be able to read and translate the raw bytes to an avro record.
 The format is $MQTT_TOPIC=$PATH_TO_AVRO_SCHEMA_FILE
@@ -448,6 +448,15 @@ The format is $MQTT_TOPIC=$PATH_TO_AVRO_SCHEMA_FILE
 * Importance: medium
 * Optional:   yes
 * Default:    null
+
+``connect.progress.enabled``
+
+Enables the output for how many records have been processed.
+
+* Type: boolean
+* Importance: medium
+* Optional: yes
+* Default : false
 
 Example
 ~~~~~~~
@@ -458,10 +467,10 @@ Example
     tasks.max=1
     connect.mqtt.connection.clean=true
     connect.mqtt.connection.timeout=1000
-    connect.mqtt.source.kcql=INSERT INTO kjson SELECT * FROM /mjson;INSERT INTO kavro SELECT * FROM /mavro
+    connect.mqtt.kcql=INSERT INTO kjson SELECT * FROM /mjson;INSERT INTO kavro SELECT * FROM /mavro
     connect.mqtt.connection.keep.alive=1000
-    connect.mqtt.source.converters=/mjson=com.datamountaineer.streamreactor.connect.converters.source.JsonSimpleConverter;/mavro=com.datamountaineer.streamreactor.connect.converters.source.AvroConverter
-    connect.source.converter.avro.schemas=/mavro=$PATH_TO/temperaturemeasure.avro
+    connect.mqtt.converters=/mjson=com.datamountaineer.streamreactor.connect.converters.source.JsonSimpleConverter;/mavro=com.datamountaineer.streamreactor.connect.converters.source.AvroConverter
+    connect.converter.avro.schemas=/mavro=$PATH_TO/temperaturemeasure.avro
     connect.mqtt.client.id=dm_source_id,
     connect.mqtt.converter.throw.on.error=true
     connect.mqtt.hosts=tcp://127.0.0.1:11883
