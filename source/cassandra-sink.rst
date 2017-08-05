@@ -333,7 +333,7 @@ Topic Routing
 
 The Sink supports topic routing that allows mapping the messages from topics to a specific table. For example map
 a topic called "bloomberg_prices" to a table called "prices". This mapping is set in the
-``connect.cassandra.sink.kcql`` option.
+``connect.cassandra.kcql`` option.
 
 Field Selection
 ^^^^^^^^^^^^^^^
@@ -342,7 +342,7 @@ The Sink supports selecting fields from the Source topic or selecting all fields
 in the target table. For example, map a field called "qty"  in a topic to a column called "quantity" in the target
 table.
 
-All fields can be selected by using "*" in the field part of ``connect.cassandra.sink.kcql``.
+All fields can be selected by using "*" in the field part of ``connect.cassandra.kcql``.
 
 Leaving the column name empty means trying to map to a column in the target table with the same name as the field in the
 source topic.
@@ -413,7 +413,6 @@ Port for the native Java driver.
 * Optional : yes
 * Default : 9042
 
-
 ``connect.cassandra.username``
 
 Username to connect to Cassandra with.
@@ -465,7 +464,7 @@ Path to keystore.
 * Optional : yes
 
 
-``connect.cassandra.sink.kcql``
+``connect.cassandra.kcql``
 
 Kafka connect query language expression. Allows for expressive topic to table routing, field selection and renaming.
 
@@ -527,7 +526,7 @@ Example
     connector.class=com.datamountaineer.streamreactor.connect.cassandra.sink.CassandraSinkConnector
     tasks.max=1
     topics=orders-topic
-    connect.cassandra.sink.kcql = INSERT INTO TABLE1 SELECT * FROM TOPIC1;INSERT INTO TABLE2 SELECT field1,
+    connect.cassandra.kcql = INSERT INTO TABLE1 SELECT * FROM TOPIC1;INSERT INTO TABLE2 SELECT field1,
     field2, field3 as renamedField FROM TOPIC2
     connect.cassandra.contact.points=localhost
     connect.cassandra.port=9042

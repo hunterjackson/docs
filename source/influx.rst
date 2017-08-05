@@ -142,9 +142,9 @@ connect to the Rest API of Kafka Connect of your container.
     connector.class=com.datamountaineer.streamreactor.connect.influx.InfluxSinkConnector
     tasks.max=1
     topics=influx-topic
-    connect.influx.sink.kcql=INSERT INTO influxMeasure SELECT * FROM influx-topic WITHTIMESTAMP sys_time()
-    connect.influx.connection.url=http://localhost:8086
-    connect.influx.connection.database=mydb
+    connect.influx.kcql=INSERT INTO influxMeasure SELECT * FROM influx-topic WITHTIMESTAMP sys_time()
+    connect.influx.url=http://localhost:8086
+    connect.influx.db=mydb
     #task ids: 0
 
 The ``influx-sink.properties`` file defines:
@@ -185,12 +185,12 @@ We can use the CLI to check if the connector is up but you should be able to see
     [INFO InfluxSinkConfig values:
         connect.influx.retention.policy = autogen
         connect.influx.error.policy = THROW
-        connect.influx.connection.user = root
-        connect.influx.connection.database = mydb
-        connect.influx.connection.password = [hidden]
-        connect.influx.connection.url = http://localhost:8086
+        connect.influx.username = root
+        connect.influx.db = mydb
+        connect.influx.password = [hidden]
+        connect.influx.url = http://localhost:8086
         connect.influx.retry.interval = 60000
-        connect.influx.sink.kcql = INSERT INTO influxMeasure SELECT * FROM influx-topic WITHTIMESTAMP sys_time()
+        connect.influx.kcql = INSERT INTO influxMeasure SELECT * FROM influx-topic WITHTIMESTAMP sys_time()
         connect.influx.max.retires = 20
      (com.datamountaineer.streamreactor.connect.influx.config.InfluxSinkConfig:178)
 
@@ -261,7 +261,8 @@ Features
 
 
 Tag
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~
+
 InfluxDB allows via the client API to provide a set of tags (key-value) to each point added.
 The current connector version allows you to provide them via the KCQL
 
@@ -284,10 +285,11 @@ Example:
     INSERT INTO measureA SELECT * FROM topicA  WITHTAG (from, to, provider=DataMountaineer)
 
 
-Limitations:
-At the moment you can only reference the payload fields but if the structure is nested you can't address nested fields.
-Support for such functionality will be provided soon.
-You can't tag with fields present in the Kafka message key, or use the message metadata(partition, topic, index).
+.. note::
+
+    At the moment you can only reference the payload fields but if the structure is nested you can't address nested fields.
+    Support for such functionality will be provided soon. You can't tag with fields present in the Kafka message key,
+    or use the message metadata(partition, topic, index).
 
 
 Kafka Connect Query Language
@@ -316,7 +318,7 @@ Example:
     #Point measurement
     INSERT INTO measureB SELECT x AS a, y AS b and z AS c FROM topicB WITHTIMESTAMP sys_time()
 
-This is set in the ``connect.influx.sink.kcql`` option.
+This is set in the ``connect.influx.kcql`` option.
 
 Error Polices
 ~~~~~~~~~~~~~
@@ -347,13 +349,13 @@ Kafka connect framework to pause and replay the message. Offsets are not committ
 it will cause a write failure, the message can be replayed. With the Retry policy the issue can be fixed without stopping
 the sink.
 
-The length of time the Sink will retry can be controlled by using the ``connect.influx.sink.max.retries`` and the
-``connect.influx.sink.retry.interval``.
+The length of time the Sink will retry can be controlled by using the ``connect.influx.max.retries`` and the
+``connect.influx.retry.interval``.
 
 Configurations
 --------------
 
-``connect.influx.sink.kcql``
+``connect.influx.kcql``
 
 Kafka connect query language expression. Allows for expressive topic to table routing, field selection and renaming. For
 InfluxDB it allows either setting a default or selecting a field from the topic as the Point measurement.
@@ -362,7 +364,7 @@ InfluxDB it allows either setting a default or selecting a field from the topic 
 * Importance: high
 * Optional  : no
 
-``connect.influx.connection.url``
+``connect.influx.url``
 
 The InfluxDB database url.
 
@@ -370,7 +372,7 @@ The InfluxDB database url.
 * Importance: high
 * Optional  : no
 
-``connect.influx.connection.database``
+``connect.influx.db``
 
 The InfluxDB database.
 
@@ -378,7 +380,7 @@ The InfluxDB database.
 * Importance: high
 * Optional  : no
 
-``connect.influx.connection.username``
+``connect.influx.username``
 
 The InfluxDB username.
 
@@ -386,7 +388,7 @@ The InfluxDB username.
 * Importance: high
 * Optional  : yes
 
-``connect.influx.connection.password``
+``connect.influx.password``
 
 The InfluxDB password.
 
@@ -425,13 +427,13 @@ Default retention is `autogen` from 1.0 onwards or `default` for any previous ve
 * Optional  : yes
 
 
-``connect.influx.sink.error.policy``
+``connect.influx.error.policy``
 
 Specifies the action to be taken if an error occurs while inserting the data.
 
 There are three available options, **noop**, the error is swallowed, **throw**, the error is allowed to propagate and retry.
-For **retry** the Kafka message is redelivered up to a maximum number of times specified by the ``connect.influx.sink.max.retries``
-option. The ``connect.influx.sink.retry.interval`` option specifies the interval between retries.
+For **retry** the Kafka message is redelivered up to a maximum number of times specified by the ``connect.influx.max.retries``
+option. The ``connect.influx.retry.interval`` option specifies the interval between retries.
 
 The errors will be logged automatically.
 
@@ -441,9 +443,9 @@ The errors will be logged automatically.
 * Default: RETRY
 
 
-``connect.influx.sink.max.retries``
+``connect.influx.max.retries``
 
-The maximum number of times a message is retried. Only valid when the ``connect.influx.sink.error.policy`` is set to ``retry``.
+The maximum number of times a message is retried. Only valid when the ``connect.influx.error.policy`` is set to ``retry``.
 
 * Type: string
 * Importance: medium
@@ -451,9 +453,9 @@ The maximum number of times a message is retried. Only valid when the ``connect.
 * Default: 10
 
 
-``connect.influx.sink.retry.interval``
+``connect.influx.retry.interval``
 
-The interval, in milliseconds between retries if the Sink is using ``connect.influx.sink.error.policy`` set to **RETRY**.
+The interval, in milliseconds between retries if the Sink is using ``connect.influx.error.policy`` set to **RETRY**.
 
 * Type: int
 * Importance: high
@@ -478,9 +480,9 @@ Example
     connector.class=com.datamountaineer.streamreactor.connect.influx.InfluxSinkConnector
     tasks.max=1
     topics=influx-topic
-    connect.influx.sink.kcql=INSERT INTO influxMeasure SELECT * FROM influx-topic WITHTIMESTAMP sys_time()
-    connect.influx.connection.url=http://localhost:8086
-    connect.influx.connection.database=mydb
+    connect.influx.kcql=INSERT INTO influxMeasure SELECT * FROM influx-topic WITHTIMESTAMP sys_time()
+    connect.influx.url=http://localhost:8086
+    connect.influx.db=mydb
 
 Schema Evolution
 ----------------

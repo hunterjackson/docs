@@ -68,12 +68,12 @@ connect to the Rest API of Kafka Connect of your container.
     ➜  bin/cli.sh create rethink-source < conf/rethink-source.properties
     #Connector name=`rethink-source`
     name=rethink-source
-    connect.rethink.source.host=localhost
-    connect.rethink.source.port=28015
+    connect.rethink.host=localhost
+    connect.rethink.port=28015
     connector.class=com.datamountaineer.streamreactor.connect.rethink.source.ReThinkSourceConnector
     tasks.max=1
-    connect.rethink.source.db=test
-    connect.rethink.source.kcql=INSERT INTO rethink-topic SELECT * FROM source-test
+    connect.rethink.db=test
+    connect.rethink.kcql=INSERT INTO rethink-topic SELECT * FROM source-test
     #task ids: 0
 
 The ``rethink-source.properties`` file defines:
@@ -114,10 +114,10 @@ We can use the CLI to check if the connector is up but you should be able to see
 
      By Andrew Stevenson (com.datamountaineer.streamreactor.connect.rethink.source.ReThinkSourceTask:48)
     [2016-10-05 12:09:35,420] INFO ReThinkSourceConfig values:
-        connect.rethink.source.port = 28015
-        connect.rethink.source.host = localhost
-        connect.rethink.source.kcql = insert into rethink-topic select * from source-test
-        connect.rethink.source.db = test
+        connect.rethink.port = 28015
+        connect.rethink.host = localhost
+        connect.rethink.kcql = insert into rethink-topic select * from source-test
+        connect.rethink.db = test
 
 
 Test Records
@@ -198,7 +198,7 @@ Example:
 Configurations
 --------------
 
-``connect.rethink.source.kcql``
+``connect.rethink.kcql``
 
 Kafka connect query language expression. Allows for expressive topic to table routing, field selection and renaming. Fields
 to be used as the row key can be set by specifing the ``PK``. The below example uses field1 as the primary key.
@@ -213,7 +213,7 @@ Examples:
 
     INSERT INTO TOPIC1 SELECT * FROM TABLE1;INSERT INTO TOPIC2 SELECT * FROM TABLE2
 
-``connect.rethink.source.host``
+``connect.rethink.host``
 
 Specifies the rethink server.
 
@@ -221,27 +221,46 @@ Specifies the rethink server.
 * Importance: high
 * Optional  : no
 
-``connect.rethink.source.port``
+``connect.rethink.port``
 
 Specifies the rethink server port number.
 
 * Data type : int
 * Importance: high
 * Optional  : yes
+* Default   : 28015
 
-``connect.progress.enabled``
+``connect.rethink.db``
 
-Enables the output for how many records have been processed.
+Specifies the rethink database to connect to.
 
-* Type: boolean
+* Data type : string
+* Importance: high
+* Optional  : yes
+* Default   : connect_rethink_sink
+
+``connect.rethink.batch.size``
+
+The number of records to drain from the internal queue on each poll.
+
+* Data type : int
 * Importance: medium
-* Optional: yes
-* Default : false
+* Optional  : yes
+* Default   : 1000
 
+``connect.rethink.linger.ms``
+
+The number of milliseconds to wait before flushing the received messages to Kafka. The records will be flushed if the
+batch size is reached before the linger period has expired.
+
+* Data type : int
+* Importance: medium
+* Optional  : yes
+* Default   : 5000
 
 ``connect.rethink.cert.file``
 
-Certificate file to connect to a TLS enabled ReThink cluster. **Can not be used inconjuction with username/password.
+Certificate file to connect to a TLS enabled ReThink cluster. **Cannot** be used in conjunction with username/password.
 ``connect.rethink.auth.key`` must be set.
 
 * Data type: string
@@ -249,7 +268,7 @@ Certificate file to connect to a TLS enabled ReThink cluster. **Can not be used 
 
 ``connect.rethink.auth.key``
 
-Authentication key to connect to a TLS enabled ReThink cluster. **Can not be used inconjuction with username/password.
+Authentication key to connect to a TLS enabled ReThink cluster. **Cannot** be used in conjunction with username/password.
 ``connect.rethink.cert.file`` must be set.
 
 * Data type: string
@@ -321,11 +340,11 @@ Example
 .. sourcecode:: bash
 
     name=rethink-source
-    connect.rethink.source.db=localhost
-    connect.rethink.source.port=28015
+    connect.rethink.host=localhost
+    connect.rethink.port=28015
     connector.class=com.datamountaineer.streamreactor.connect.rethink.source.ReThinkSourceConnector
     tasks.max=1
-    connect.rethink.source.kcql=INSERT INTO rethink-topic SELECT * FROM source-test
+    connect.rethink.kcql=INSERT INTO rethink-topic SELECT * FROM source-test
 
 Schema Evolution
 ----------------

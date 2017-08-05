@@ -113,7 +113,7 @@ We can use the CLI to check if the connector is up but you should be able to see
                         /_/ (com.datamountaineer.streamreactor.connect.coap.source.CoapSourceTask:54)
     [2017-01-09 20:42:44,830] INFO CoapConfig values:
         connect.coap.uri = coap://californium.eclipse.org:5683
-        connect.coap.bind.port = 0
+        connect.coap.port = 0
         connect.coap.truststore.pass = [hidden]
         connect.coap.cert.chain.key = client
         connect.coap.keystore.path =
@@ -121,7 +121,7 @@ We can use the CLI to check if the connector is up but you should be able to see
         connect.coap.truststore.path =
         connect.coap.certs = []
         connect.coap.keystore.pass = [hidden]
-        connect.coap.bind.host = localhost
+        connect.coap.host = localhost
      (com.datamountaineer.streamreactor.connect.coap.configs.CoapConfig:178)
     [2017-01-09 20:42:44,831] INFO Source task WorkerSourceTask{id=coap-source-0} finished initialization and start (org.apache.kafka.connect.runtime.WorkerSourceTask:138)
     [2017-01-09 20:42:45,927] INFO Discovered resources /.well-known/core (com.datamountaineer.streamreactor.connect.coap.source.CoapReader:60)
@@ -217,7 +217,7 @@ The KCQL statement to select and route resources to topics.
 * Importance: high
 * Optional  : no
 
-``connect.coap.bind.port``
+``connect.coap.port``
 
 The port the DTLS connector will bind to on the Connector host.
 
@@ -226,7 +226,7 @@ The port the DTLS connector will bind to on the Connector host.
 * Optional  : yes
 * Default   : 0
 
-``connect.coap.bind.host``
+``connect.coap.host``
 
 The hostname the DTLS connector will bind to on the Connector host.
 
@@ -252,7 +252,6 @@ The path to the keystore.
 * Importance: medium
 * Optional  : yes
 * Default   :
-
 
 ``connect.coap.truststore.pass``
 

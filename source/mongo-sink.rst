@@ -324,7 +324,7 @@ You should see in the terminal where you started Kafka Connect the following ent
             connect.mongo.kcql = UPSERT INTO orders_json SELECT id, product as product_name, price as value FROM orders-topic-json PK id
             connect.mongo.connection = mongodb://localhost:27017
             connect.mongo.error.policy = THROW
-            connect.mongo.database = connect
+            connect.mongo.db = connect
             connect.mongo.batch.size = 10
             connect.mongo.max.retires = 20
          (com.datamountaineer.streamreactor.connect.mongodb.config.MongoConfig:178)
@@ -532,7 +532,7 @@ You will also need to set several JVM system properties to ensure that the clien
 The key store is typically created with the keytool or the openssl command line program.
 
 Authentication Mechanism
-^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 All authentication methods are supported, X.509, LDAP Plain, Kerberos (GSSAPI), Mongodb-CR and SCRAM-SHA-1. The default as of
 MongoDB version 3.0 SCRAM-SHA-1. To set the authentication mechanism set the ``authMechanism`` in the ``connect.mongo.connection`` option.
@@ -548,6 +548,7 @@ MongoDB version 3.0 SCRAM-SHA-1. To set the authentication mechanism set the ``a
 e.g.
 
 .. sourcecode:: bash
+
     # default of scram
     mongodb://host1/?authSource=db1
     # scram explict
@@ -566,7 +567,7 @@ Configurations
 
 Configurations parameters:
 
-``connect.mongo.database``
+``connect.mongo.db``
 
 The target MongoDb database name.
 
@@ -681,7 +682,7 @@ Example
     tasks.max=1
     topics=orders-topic
     connect.mongo.kcql=INSERT INTO orders SELECT * FROM orders-topic
-    connect.mongo.database=connect
+    connect.mongo.db=connect
     connect.mongo.connection=mongodb://localhost:27017
     connect.mongo.batch.size=10
 

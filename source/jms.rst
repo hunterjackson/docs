@@ -204,7 +204,7 @@ Provides the JMS broker url
 * Importance: high
 * Optional : no
 
-``connect.jms.user``
+``connect.jms.username``
 
 Provides the user for the JMS connection.
 

@@ -76,12 +76,12 @@ connect to the Rest API of Kafka Connect of your container.
 
     #Connector name=`elastic-sink`
     name=elastic-sink
-    connector.class=com.datamountaineer.streamreactor.connect.elastic.ElasticSinkConnector
+    connector.class=com.datamountaineer.streamreactor.connect.elastic5.ElasticSinkConnector
     connect.elastic.url=localhost:9300
     connect.elastic.cluster.name=elasticsearch
     tasks.max=1
     topics=TOPIC1
-    connect.elastic.sink.kcql=INSERT INTO INDEX_1 SELECT field1, field2 FROM TOPIC1
+    connect.elastic.kcql=INSERT INTO INDEX_1 SELECT field1, field2 FROM TOPIC1
     #task ids: 0
 
 The ``elastic-sink.properties`` file defines:
@@ -247,7 +247,7 @@ Url of the Elastic cluster.
 * Optional  : no
 
 
-``connect.elastic.sink.kcql``
+``connect.elastic.kcql``
 
 Kafka connect query language expression. Allows for expressive table to topic routing, field selection and renaming.
 
@@ -267,8 +267,8 @@ Examples:
 Specifies the action to be taken if an error occurs while inserting the data.
 
 There are three available options, **noop**, the error is swallowed, **throw**, the error is allowed to propagate and retry.
-For **retry** the Kafka message is redelivered up to a maximum number of times specified by the ``connect.cassandra.max.retries``
-option. The ``connect.cassandra.retry.interval`` option specifies the interval between retries.
+For **retry** the Kafka message is redelivered up to a maximum number of times specified by the ``connect.elastic.max.retries``
+option. The ``connect.elastic.retry.interval`` option specifies the interval between retries.
 
 The errors will be logged automatically.
 
@@ -278,7 +278,7 @@ The errors will be logged automatically.
 
 ``connect.elastic.max.retries``
 
-The maximum number of times a message is retried. Only valid when the ``connect.cassandra.error.policy`` is set to ``retry``.
+The maximum number of times a message is retried. Only valid when the ``connect.elastic.error.policy`` is set to ``retry``.
 
 * Type: string
 * Importance: high
@@ -321,6 +321,70 @@ Specifies the wait time for pushing the records to ES.
 * Optional  : yes
 * Default   : 300000 (5mins)
 
+``connect.elastic.url.prefix``
+
+URL connection string prefix.
+
+* Data type : string
+* Importance: low
+* Optional  : yes
+* Default   : elasticsearch
+
+``connect.elastic.cluster.name``
+
+Name of the elastic search cluster, used in local mode for setting the connection
+
+* Data type : string
+* Importance: low
+* Optional  : yes
+* Default   : elasticsearch
+
+``connect.elastic.use.http``
+
+TCP or HTTP. Elastic4s client type to use, http or tcp, default is tcp.
+
+.. note::
+
+    The HTTP Client is not support with Xpack.
+
+* Data type : string
+* Importance: low
+* Optional  : yes
+* Default   : TCP
+
+``connect.elastic.error.policy``
+
+Specifies the action to be taken if an error occurs while inserting the data.
+
+There are three available options, **noop**, the error is swallowed, **throw**, the error is allowed to propagate and retry.
+For **retry** the Kafka message is redelivered up to a maximum number of times specified by the ``connect.elastic.max.retries``
+option. The ``connect.elastic.retry.interval`` option specifies the interval between retries.
+
+The errors will be logged automatically.
+
+* Type: string
+* Importance: high
+* Optional : yes
+* Default: RETRY
+
+``connect.elastic.max.retries``
+
+The maximum number of times a message is retried. Only valid when the ``connect.elastic.error.policy`` is set to ``retry``.
+
+* Type: string
+* Importance: medium
+* Optional : yes
+* Default: 10
+
+``connect.elastic.retry.interval``
+
+The interval, in milliseconds between retries if the Sink is using ``connect.elastic.error.policy`` set to **RETRY**.
+
+* Type: int
+* Importance: medium
+* Optional : yes
+* Default : 60000 (1 minute)
+
 ``connect.progress.enabled``
 
 Enables the output for how many records have been processed.
@@ -341,7 +405,7 @@ Example
     connect.elastic.cluster.name=elasticsearch
     tasks.max=1
     topics=test_table
-    connect.elastic.sink.kcql=INSERT INTO INDEX_1 SELECT field1, field2 FROM TOPIC1
+    connect.elastic.kcql=INSERT INTO INDEX_1 SELECT field1, field2 FROM TOPIC1
 
 Schema Evolution
 ----------------

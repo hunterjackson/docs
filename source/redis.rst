@@ -88,8 +88,8 @@ connect to the Rest API of Kafka Connect of your container.
 
     ➜  bin/cli.sh create redis-sink < conf/redis-sink.properties
     #Connector name=`redis-sink`
-    connect.redis.connection.host=localhost
-    connect.redis.connection.port=6379
+    connect.redis.host=localhost
+    connect.redis.port=6379
     connector.class=com.datamountaineer.streamreactor.connect.redis.sink.RedisSinkConnector
     tasks.max=1
     topics=redis-topic
@@ -234,7 +234,7 @@ Example:
     #Insert mode, select 3 fields and rename from topicB and write to tableB, use field y from the topic as the primary key
     INSERT INTO tableB SELECT x AS a, y AS b and z AS c FROM topicB PK y
 
-This is set in the ``connect.redis.sink.kcql`` option.
+This is set in the ``connect.redis.kcql`` option.
 
 Error Polices
 ~~~~~~~~~~~~~
@@ -265,13 +265,13 @@ Kafka connect framework to pause and replay the message. Offsets are not committ
 it will cause a write failure, the message can be replayed. With the Retry policy the issue can be fixed without stopping
 the sink.
 
-The length of time the Sink will retry can be controlled by using the ``connect.redis.sink.max.retries`` and the
-``connect.redis.sink.retry.interval``.
+The length of time the Sink will retry can be controlled by using the ``connect.redis.max.retries`` and the
+``connect.redis.retry.interval``.
 
 Configurations
 --------------
 
-``connect.redis.sink.kcql``
+``connect.redis.kcql``
 
 Kafka connect query language expression. Allows for expressive topic to table routing, field selection and renaming. Fields
 to be used as the row key can be set by specifing the ``PK``. The below example uses field1 as the primary key.
@@ -292,7 +292,7 @@ Examples:
 
     INSERT INTO TABLE1 SELECT * FROM TOPIC1;INSERT INTO TABLE2 SELECT * FROM TOPIC2 PK field1, field2
 
-``connect.redis.sink.connection.host``
+``connect.redis.sink.host``
 
 Specifies the Redis server.
 
@@ -300,7 +300,7 @@ Specifies the Redis server.
 * Importance: high
 * Optional  : no
 
-``connect.redis.sink.connection.port``
+``connect.redis.port``
 
 Specifies the Redis server port number.
 
@@ -308,7 +308,7 @@ Specifies the Redis server port number.
 * Importance: high
 * Optional  : no
 
-``connect.redis.sink.connection.password``
+``connect.redis.password``
 
 Specifies the authorization password.
 
@@ -317,13 +317,13 @@ Specifies the authorization password.
 * Optional  : yes
 * Description: If you don't have a password set up on the redis server don't provide the value or you will see this error: "ERR Client sent AUTH, but no password is set"
 
-``connect.redis.sink.error.policy``
+``connect.redis.error.policy``
 
 Specifies the action to be taken if an error occurs while inserting the data.
 
 There are three available options, **noop**, the error is swallowed, **throw**, the error is allowed to propagate and retry.
-For **retry** the Kafka message is redelivered up to a maximum number of times specified by the ``connect.redis.sink.max.retries``
-option. The ``connect.redis.sink.retry.interval`` option specifies the interval between retries.
+For **retry** the Kafka message is redelivered up to a maximum number of times specified by the ``connect.redis.max.retries``
+option. The ``connect.redis.retry.interval`` option specifies the interval between retries.
 
 The errors will be logged automatically.
 
@@ -333,9 +333,9 @@ The errors will be logged automatically.
 * Default: RETRY
 
 
-``connect.redis.sink.max.retries``
+``connect.redis.max.retries``
 
-The maximum number of times a message is retried. Only valid when the ``connect.redis.sink.error.policy`` is set to ``retry``.
+The maximum number of times a message is retried. Only valid when the ``connect.redis.error.policy`` is set to ``retry``.
 
 * Type: string
 * Importance: medium
@@ -343,9 +343,9 @@ The maximum number of times a message is retried. Only valid when the ``connect.
 * Default: 10
 
 
-``connect.redis.sink.retry.interval``
+``connect.redis.retry.interval``
 
-The interval, in milliseconds between retries if the Sink is using ``connect.redis.sink.error.policy`` set to **RETRY**.
+The interval, in milliseconds between retries if the Sink is using ``connect.redis.error.policy`` set to **RETRY**.
 
 * Type: int
 * Importance: high
@@ -367,12 +367,12 @@ Example
 .. sourcecode:: bash
 
     name=redis-sink
-    connect.redis.connection.host=localhost
-    connect.redis.connection.port=6379
+    connect.redis.host=localhost
+    connect.redis.port=6379
     connector.class=com.datamountaineer.streamreactor.connect.redis.sink.RedisSinkConnector
     tasks.max=1
     topics=redis-topic
-    connect.redis.sink.kcql=INSERT INTO TABLE1 SELECT * FROM redis-topic
+    connect.redis.kcql=INSERT INTO TABLE1 SELECT * FROM redis-topic
 
 Schema Evolution
 ----------------

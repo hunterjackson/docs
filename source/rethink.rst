@@ -101,13 +101,13 @@ The ``rethink-sink.properties`` file defines:
 
 1.  The name of the sink.
 2.  The name of the rethink database.
-2.  The name of the rethink host to connect to.
-3.  The rethink port to connect to.
-4.  The Sink class.
-5.  The max number of tasks the connector is allowed to created. Should not be greater than the number of partitions in
+3.  The name of the rethink host to connect to.
+4.  The rethink port to connect to.
+5.  The Sink class.
+6.  The max number of tasks the connector is allowed to created. Should not be greater than the number of partitions in
     the Source topics otherwise tasks will be idle.
-6.  The Source kafka topics to take events from.
-7.  :ref:`The KCQL routing querying. <kcql>`
+7.  The Source kafka topics to take events from.
+8.  :ref:`The KCQL routing querying. <kcql>`
 
 If you switch back to the terminal you started the Connector in you should see the ReThinkDB Sink being accepted and the
 task starting.
@@ -295,17 +295,49 @@ called ``id`` is used. The value for the default key is the topic name, partitio
     #AutoCreate the target table
     INSERT INTO table1 SELECT * FROM topic AUTOCREATE PK field1
 
-..	note::
+.. note::
 
     The fields specified as the primary keys must be in the SELECT clause or all fields must be selected
 
 The Sink will try and create the table at start up if a schema for the topic is found in the Schema Registry. If no
 schema is found the table is created when the first record is received for the topic.
 
+Error Polices
+~~~~~~~~~~~~~
+
+The Sink has three error policies that determine how failed writes to the target database are handled. The error policies
+affect the behaviour of the schema evolution characteristics of the sink. See the schema evolution section for more
+information.
+
+**Throw**
+
+Any error on write to the target database will be propagated up and processing is stopped. This is the default
+behaviour.
+
+**Noop**
+
+Any error on write to the target database is ignored and processing continues.
+
+.. warning::
+
+    This can lead to missed errors if you don't have adequate monitoring. Data is not lost as it's still in Kafka
+    subject to Kafka's retention policy. The Sink currently does **not** distinguish between integrity constraint
+    violations and or other expections thrown by drivers..
+
+**Retry**
+
+Any error on write to the target database causes the RetryIterable exception to be thrown. This causes the
+Kafka connect framework to pause and replay the message. Offsets are not committed. For example, if the table is offline
+it will cause a write failure, the message can be replayed. With the Retry policy the issue can be fixed without stopping
+the sink.
+
+The length of time the Sink will retry can be controlled by using the ``connect.rethink.max.retries`` and the
+``connect.cassandra.retry.interval``.
+
 Configurations
 --------------
 
-``connect.rethink.sink.kcql``
+``connect.rethink.kcql``
 
 Kafka connect query language expression. Allows for expressive topic to table routing, field selection and renaming. Fields
 to be used as the row key can be set by specifing the ``PK``. The below example uses field1 as the primary key.
@@ -320,7 +352,7 @@ Examples:
 
     INSERT INTO TABLE1 SELECT * FROM TOPIC1;INSERT INTO TABLE2 SELECT * FROM TOPIC2 PK field1
 
-``connect.rethink.sink.host``
+``connect.rethink.host``
 
 Specifies the rethink server.
 
@@ -328,7 +360,7 @@ Specifies the rethink server.
 * Importance: high
 * Optional  : no
 
-``connect.rethink.sink.port``
+``connect.rethink.port``
 
 Specifies the rethink server port number.
 
@@ -336,38 +368,113 @@ Specifies the rethink server port number.
 * Importance: high
 * Optional  : yes
 
-``connect.rethink.sink.error.policy``
+``connect.rethink.db``
+
+Specifies the rethink database to connect to.
+
+* Data type : string
+* Importance: high
+* Optional  : yes
+* Default   : connect_rethink_sink
+
+``connect.rethink.cert.file``
+
+Certificate file to connect to a TLS enabled ReThink cluster. **Cannot** be used in conjunction with username/password.
+``connect.rethink.auth.key`` must be set.
+
+* Data type: string
+* Optional : yes
+
+``connect.rethink.auth.key``
+
+Authentication key to connect to a TLS enabled ReThink cluster. **Cannot** be used in conjunction with username/password.
+``connect.rethink.cert.file`` must be set.
+
+* Data type: string
+* Optional : yes
+
+``connect.rethink.username``
+
+Username to connect to ReThink with.
+
+* Data type: string
+* Optional : yes
+
+``connect.rethink.password``
+
+Password to connect to ReThink with.
+
+* Data type: string
+* Optional : yes
+
+``connect.rethink.ssl.enabled``
+
+Enables SSL communication against an SSL enabled Rethink cluster.
+
+* Data type: boolean
+* Optional : yes
+* Default : false
+
+``connect.rethink.trust.store.password``
+
+Password for truststore.
+
+* Data type: string
+* Optional : yes
+
+``connect.rethink.key.store.path``
+
+Path to truststore.
+
+* Data type: string
+* Optional : yes
+
+``connect.rethink.key.store.password``
+
+Password for key store.
+
+* Data type: string
+* Optional : yes
+
+``connect.rethink.ssl.client.cert.auth``
+
+Path to keystore.
+
+* Data type: string
+* Optional : yes
+
+``connect.rethink.error.policy``
 
 Specifies the action to be taken if an error occurs while inserting the data.
 
-There are three available options, **noop**, the error is swallowed, **throw**, the error is allowed to propagate and **retry**.
-For **retry** the Kafka message is redelivered up to a maximum number of times specified by the ``connect.rethink.sink.max.retries``
-option. The ``connect.rethink.sink.retry.interval`` option specifies the interval between retries.
+There are three available options, **noop**, the error is swallowed, **throw**, the error is allowed to propagate and retry.
+For **retry** the Kafka message is redelivered up to a maximum number of times specified by the ``connect.rethink.max.retries``
+option. The ``connect.rethink.retry.interval`` option specifies the interval between retries.
 
 The errors will be logged automatically.
 
 * Type: string
-* Importance: medium
-* Optional: yes
+* Importance: high
+* Optional : yes
 * Default: RETRY
 
-``connect.rethink.sink.max.retries``
+``connect.rethink.max.retries``
 
-The maximum number of times a message is retried. Only valid when the ``connect.rethink.sink.error.policy`` is set to ``retry``.
+The maximum number of times a message is retried. Only valid when the ``connect.rethink.error.policy`` is set to ``retry``.
 
 * Type: string
-* Importance: high
-* Optional: yes
+* Importance: medium
+* Optional : yes
 * Default: 10
 
 
-``connect.rethink.sink.retry.interval``
+``connect.rethink.retry.interval``
 
-The interval, in milliseconds between retries if the Sink is using ``connect.rethink.sink.error.policy`` set to **RETRY**.
+The interval, in milliseconds between retries if the Sink is using ``connect.rethink.error.policy`` set to **RETRY**.
 
 * Type: int
 * Importance: medium
-* Optional: yes
+* Optional : yes
 * Default : 60000 (1 minute)
 
 ``connect.progress.enabled``
@@ -378,142 +485,6 @@ Enables the output for how many records have been processed.
 * Importance: medium
 * Optional: yes
 * Default : false
-* Default : false
-
-``connect.rethink.cert.file``
-
-Certificate file to connect to a TLS enabled ReThink cluster. **Can not be used inconjuction with username/password.
-``connect.rethink.auth.key`` must be set.
-
-* Data type: string
-* Optional : yes
-
-``connect.rethink.auth.key``
-
-Authentication key to connect to a TLS enabled ReThink cluster. **Can not be used inconjuction with username/password.
-``connect.rethink.cert.file`` must be set.
-
-* Data type: string
-* Optional : yes
-
-``connect.rethink.username``
-
-Username to connect to ReThink with.
-
-* Data type: string
-* Optional : yes
-
-``connect.rethink.password``
-
-Password to connect to ReThink with.
-
-* Data type: string
-* Optional : yes
-
-``connect.rethink.ssl.enabled``
-
-Enables SSL communication against an SSL enabled Rethink cluster.
-
-* Data type: boolean
-* Optional : yes
-* Default : false
-
-``connect.rethink.trust.store.password``
-
-Password for truststore.
-
-* Data type: string
-* Optional : yes
-
-``connect.rethink.key.store.path``
-
-Path to truststore.
-
-* Data type: string
-* Optional : yes
-
-``connect.rethink.key.store.password``
-
-Password for key store.
-
-* Data type: string
-* Optional : yes
-
-``connect.rethink.ssl.client.cert.auth``
-
-Path to keystore.
-
-* Data type: string
-* Optional : yes
-
-
-``connect.rethink.cert.file``
-
-Certificate file to connect to a TLS enabled ReThink cluster. **Can not be used inconjuction with username/password.
-``connect.rethink.auth.key`` must be set.
-
-* Data type: string
-* Optional : yes
-
-``connect.rethink.auth.key``
-
-Authentication key to connect to a TLS enabled ReThink cluster. **Can not be used inconjuction with username/password.
-``connect.rethink.cert.file`` must be set.
-
-* Data type: string
-* Optional : yes
-
-``connect.rethink.username``
-
-Username to connect to ReThink with.
-
-* Data type: string
-* Optional : yes
-
-``connect.rethink.password``
-
-Password to connect to ReThink with.
-
-* Data type: string
-* Optional : yes
-
-``connect.rethink.ssl.enabled``
-
-Enables SSL communication against an SSL enabled Rethink cluster.
-
-* Data type: boolean
-* Optional : yes
-* Default : false
-
-``connect.rethink.trust.store.password``
-
-Password for truststore.
-
-* Data type: string
-* Optional : yes
-
-``connect.rethink.key.store.path``
-
-Path to truststore.
-
-* Data type: string
-* Optional : yes
-
-``connect.rethink.key.store.password``
-
-Password for key store.
-
-* Data type: string
-* Optional : yes
-
-``connect.rethink.ssl.client.cert.auth``
-
-Path to keystore.
-
-* Data type: string
-* Optional : yes
-
-
 
 Example
 ~~~~~~~
@@ -521,13 +492,13 @@ Example
 .. sourcecode:: bash
 
     name=rethink-sink
-    connect.rethink.sink.db=dbname
-    connect.rethink.sink.host=localhost
-    connect.rethink.sink.port=28015
+    connect.rethink.db=dbname
+    connect.rethink.host=localhost
+    connect.rethink.port=28015
     connector.class=com.datamountaineer.streamreactor.connect.rethink.sink.ReThinkSinkConnector
     tasks.max=1
     topics=person_rethink
-    connect.rethink.sink.kcql=INSERT INTO TABLE1 SELECT * FROM person_rethink
+    connect.rethink.kcql=INSERT INTO TABLE1 SELECT * FROM person_rethink
 
 Schema Evolution
 ----------------

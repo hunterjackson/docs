@@ -1,5 +1,5 @@
 Kafka Connect VoltDB
-=======================
+====================
 
 A Connector and Sink to write events from Kafka to VoltDB. The connector used the built in stored procedures
 for inserts and upserts but requires the tables to be pre-created.
@@ -117,10 +117,10 @@ connect to the Rest API of Kafka Connect of your container.
     connector.class=com.datamountaineer.streamreactor.connect.voltdb.VoltSinkConnector
     max.tasks=1
     topics=sink-test
-    connect.volt.connection.servers=localhost:21212
-    connect.volt.sink.kcql=INSERT INTO person SELECT * FROM sink-test
-    connect.volt.connection.password=
-    connect.volt.connection.user=
+    connect.volt.servers=localhost:21212
+    connect.volt.kcql=INSERT INTO person SELECT * FROM sink-test
+    connect.volt.password=
+    connect.volt.username=
     #task ids:
 
 The ``voltdb-sink.properties`` file defines:
@@ -166,11 +166,11 @@ We can use the CLI to check if the connector is up but you should be able to see
     [2016-08-21 20:31:36,407] INFO VoltSinkConfig values:
         connect.volt.error.policy = THROW
         connect.volt.retry.interval = 60000
-        connect.volt.sink.kcql = INSERT INTO person SELECT * FROM sink-test
+        connect.volt.kcql = INSERT INTO person SELECT * FROM sink-test
         connect.volt.max.retires = 20
-        connect.volt.connection.servers = localhost:21212
-        connect.volt.connection.user =
-        connect.volt.connection.password =
+        connect.volt.servers = localhost:21212
+        connect.volt.username =
+        connect.volt.password =
      (com.datamountaineer.streamreactor.connect.voltdb.config.VoltSinkConfig:178)
     [2016-08-21 20:31:36,501] INFO Settings:com.datamountaineer.streamreactor.connect.voltdb.config.VoltSettings$@34c34c3e (com.datamountaineer.streamreactor.connect.voltdb.VoltSinkTask:71)
     [2016-08-21 20:31:36,565] INFO Connecting to VoltDB... (com.datamountaineer.streamreactor.connect.voltdb.writers.VoltConnectionConnectFn$:28)
@@ -259,7 +259,7 @@ Example:
     #Upsert mode, select 3 fields and rename from topicB and write to tableB
     UPSERT INTO tableB SELECT x AS a, y AS b and z AS c FROM topicB
 
-This is set in the ``connect.volt.sink.kcql`` option.
+This is set in the ``connect.volt.kcql`` option.
 
 Error Polices
 ~~~~~~~~~~~~~
@@ -289,14 +289,14 @@ Kafka connect framework to pause and replay the message. Offsets are not committ
 it will cause a write failure, the message can be replayed. With the Retry policy the issue can be fixed without stopping
 the sink.
 
-The length of time the Sink will retry can be controlled by using the ``connect.hazelcast.sink.max.retries`` and the
-``connect.hazelcast.sink.retry.interval``.
+The length of time the Sink will retry can be controlled by using the ``connect.volt.max.retries`` and the
+``connect.volt.retry.interval``.
 
 Topic Routing
 ~~~~~~~~~~~~~
 
 The Sink supports topic routing that allows mapping the messages from topics to a specific table. For example, map a
-topic called "bloomberg_prices" to a table called "prices". This mapping is set in the ``connect.volt.sink.kcql``
+topic called "bloomberg_prices" to a table called "prices". This mapping is set in the ``connect.volt.kcql``
 option.
 
 Example:
@@ -309,7 +309,7 @@ Example:
 Write Modes
 ~~~~~~~~~~~
 
-The Sink supports both **insert** and **upsert** modes.  This mapping is set in the ``connect.volt.sink.export.mappings`` option.
+The Sink supports both **insert** and **upsert** modes.  This mapping is set in the ``connect.volt.kcql`` option.
 
 **Insert**
 
@@ -342,7 +342,7 @@ Redelivery produces the same result.
 Configurations
 --------------
 
-``connect.volt.sink.kcql``
+``connect.volt.kcql``
 
 KCQL expression describing field selection and routes.
 
@@ -350,7 +350,7 @@ KCQL expression describing field selection and routes.
 * Importance : high
 * Optional  : no
 
-``connect.volt.connection.servers``
+``connect.volt.servers``
 
 Comma separated server[:port].
 
@@ -358,7 +358,7 @@ Comma separated server[:port].
 * Importance : high
 * Optional  : no
 
-``connect.volt.connection.user``
+``connect.volt.username``
 
 The user to connect to the volt database.
 
@@ -366,7 +366,7 @@ The user to connect to the volt database.
 * Importance : high
 * Optional  : no
 
-``connect.volt.connection.password``
+``connect.volt.password``
 
 The password for the voltdb user.
 
@@ -374,13 +374,13 @@ The password for the voltdb user.
 * Importance : high
 * Optional  : no
 
-``connect.volt.sink.error.policy``
+``connect.volt.error.policy``
 
 Specifies the action to be taken if an error occurs while inserting the data.
 
 There are three available options, **noop**, the error is swallowed, **throw**, the error is allowed to propagate and retry.
-For **retry** the Kafka message is redelivered up to a maximum number of times specified by the ``connect.volt.sink.max.retries``
-option. The ``connect.volt.sink.retry.interval`` option specifies the interval between retries.
+For **retry** the Kafka message is redelivered up to a maximum number of times specified by the ``connect.volt.max.retries``
+option. The ``connect.volt.retry.interval`` option specifies the interval between retries.
 
 The errors will be logged automatically.
 
@@ -388,9 +388,9 @@ The errors will be logged automatically.
 * Importance: high
 * Default: ``throw``
 
-``connect.volt.sink.max.retries``
+``connect.volt.max.retries``
 
-The maximum number of times a message is retried. Only valid when the ``connect.volt.sink.error.policy`` is set to ``retry``.
+The maximum number of times a message is retried. Only valid when the ``connect.volt.error.policy`` is set to ``retry``.
 
 * Type: string
 * Importance: medium
@@ -398,16 +398,16 @@ The maximum number of times a message is retried. Only valid when the ``connect.
 * Default: 10
 
 
-``connect.volt.sink.retry.interval``
+``connect.volt.retry.interval``
 
-The interval, in milliseconds between retries if the Sink is using ``connect.volt.sink.error.policy`` set to **RETRY**.
+The interval, in milliseconds between retries if the Sink is using ``connect.volt.error.policy`` set to **RETRY**.
 
 * Type: int
 * Importance: medium
 * Optional: yes
 * Default : 60000 (1 minute)
 
-``connect.volt.sink.batch.size``
+``connect.volt.batch.size``
 
 Specifies how many records to insert together at one time. If the connect framework provides less records when it is
 calling the Sink it won't wait to fulfill this value but rather execute it.

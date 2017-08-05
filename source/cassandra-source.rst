@@ -155,12 +155,12 @@ connect to the Rest API of Kafka Connect of your container.
     name=cassandra-source-orders
     connector.class=com.datamountaineer.streamreactor.connect.cassandra.source.CassandraSourceConnector
     connect.cassandra.key.space=demo
-    connect.cassandra.source.kcql=INSERT INTO orders-topic SELECT * FROM orders PK created
+    connect.cassandra.kcql=INSERT INTO orders-topic SELECT * FROM orders PK created
     connect.cassandra.import.mode=incremental
     connect.cassandra.contact.points=localhost
     connect.cassandra.username=cassandra
     connect.cassandra.password=cassandra
-    connect.cassandra.source.timestamp.type=timeuuid
+    connect.cassandra.timestamp.type=timeuuid
     #task ids: 0
 
 The ``cassandra-source-incr.properties`` file defines:
@@ -416,7 +416,7 @@ Topic Routing
 
 The Sink supports topic routing that allows mapping the messages from topics to a specific table. For example map
 a topic called "bloomberg_prices" to a table called "prices". This mapping is set in the
-``connect.cassandra.source.kcql`` option.
+``connect.cassandra.kcql`` option.
 
 Error Polices
 ~~~~~~~~~~~~~
@@ -447,8 +447,8 @@ Kafka connect framework to pause and replay the message. Offsets are not committ
 it will cause a write failure, the message can be replayed. With the Retry policy the issue can be fixed without stopping
 the sink.
 
-The length of time the Sink will retry can be controlled by using the ``connect.cassandra.source.max.retries`` and the
-``connect.cassandra.source.retry.interval``.
+The length of time the Sink will retry can be controlled by using the ``connect.cassandra.max.retries`` and the
+``connect.cassandra.retry.interval``.
 
 Configurations
 --------------
@@ -529,7 +529,6 @@ Path to keystore.
 
 ``connect.cassandra.import.poll.interval``
 
-
 The polling interval between queries against tables in milliseconds.
 Default is 1 minute.
 
@@ -548,7 +547,7 @@ Either bulk or incremental.
 * Data type : string
 * Optional  : no
 
-``connect.cassandra.source.timestamp.type``
+``connect.cassandra.timestamp.type``
 
 The Cassandra data type of the timestamp column, either timeuuid (default) or timestamp.
 
@@ -556,7 +555,7 @@ The Cassandra data type of the timestamp column, either timeuuid (default) or ti
 * Optional: yes
 * Default: timeuuid
 
-``connect.cassandra.source.kcql``
+``connect.cassandra.kcql``
 
 Kafka connect query language expression. Allows for expressive table to topic routing, field selection and renaming.
 In incremental mode the timestampColumn can be specified by ``PK colName``.
@@ -582,7 +581,7 @@ The fetch size for the Cassandra driver to read.
 * Optional  : yes
 * Default   : 1000
 
-``connect.cassandra.source.task.buffer.size``
+``connect.cassandra.task.buffer.size``
 
 The size of the queue for buffering resultset records before write to Kafka.
 
@@ -590,22 +589,21 @@ The size of the queue for buffering resultset records before write to Kafka.
 * Optional  : yes
 * Default   : 10000
 
+``connect.cassandra.task.batch.size``
 
-``connect.cassandra.source.task.batch.size``
-
-The number of records the Source  task should drain from the reader queue.
+The number of records the Source task should drain from the reader queue.
 
 * Data type : int
 * Optional  : yes
 * Default   : 1000
 
-``connect.cassandra.source.error.policy``
+``connect.cassandra.error.policy``
 
 Specifies the action to be taken if an error occurs while inserting the data.
 
 There are three available options, **noop**, the error is swallowed, **throw**, the error is allowed to propagate and retry.
-For **retry** the Kafka message is redelivered up to a maximum number of times specified by the ``connect.cassandra.source.max.retries``
-option. The ``connect.cassandra.sink.retry.interval`` option specifies the interval between retries.
+For **retry** the Kafka message is redelivered up to a maximum number of times specified by the ``connect.cassandra.max.retries``
+option. The ``connect.cassandra.retry.interval`` option specifies the interval between retries.
 
 The errors will be logged automatically.
 
@@ -613,17 +611,17 @@ The errors will be logged automatically.
 * Importance: high
 * Default: ``throw``
 
-``connect.cassandra.source.max.retries``
+``connect.cassandra.max.retries``
 
-The maximum number of times a message is retried. Only valid when the ``connect.cassandra.source.error.policy`` is set to ``retry``.
+The maximum number of times a message is retried. Only valid when the ``connect.cassandra.error.policy`` is set to ``retry``.
 
 * Type: string
 * Importance: high
 * Default: 10
 
-``connect.cassandra.source.retry.interval``
+``connect.cassandra.retry.interval``
 
-The interval, in milliseconds between retries if the Sink is using ``connect.cassandra.source.error.policy`` set to **RETRY**.
+The interval, in milliseconds between retries if the Sink is using ``connect.cassandra.error.policy`` set to **RETRY**.
 
 * Type: int
 * Importance: medium
@@ -654,7 +652,7 @@ Bulk Example
     name=cassandra-source-orders-bulk
     connector.class=com.datamountaineer.streamreactor.connect.cassandra.source.CassandraSourceConnector
     connect.cassandra.key.space=demo
-    connect.cassandra.source.kcql=INSERT INTO TABLE_X SELECT * FROM TOPIC_Y
+    connect.cassandra.kcql=INSERT INTO TABLE_X SELECT * FROM TOPIC_Y
     connect.cassandra.import.mode=bulk
     connect.cassandra.contact.points=localhost
     connect.cassandra.username=cassandra
@@ -668,7 +666,7 @@ Incremental Example
     name=cassandra-source-orders-incremental
     connector.class=com.datamountaineer.streamreactor.connect.cassandra.source.CassandraSourceConnector
     connect.cassandra.key.space=demo
-    connect.cassandra.source.kcql=INSERT INTO TABLE_X SELECT * FROM TOPIC_Y PK created
+    connect.cassandra.kcql=INSERT INTO TABLE_X SELECT * FROM TOPIC_Y PK created
     connect.cassandra.import.mode=incremental
     connect.cassandra.contact.points=localhost
     connect.cassandra.username=cassandra
