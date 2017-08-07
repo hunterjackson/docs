@@ -254,10 +254,10 @@ Check in InfluxDB.
 Features
 --------
 
-1. Topic to index mapping.
-3. Auto mapping of the Kafka topic schema to the index.
-4. Field selection
-5. Tagging the data points using constants or fields from the payload
+1.  Topic to index mapping.
+3.  Auto mapping of the Kafka topic schema to the index.
+4.  Field selection
+5.  Tagging the data points using constants or fields from the payload
 
 
 Tag
