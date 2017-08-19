@@ -6,7 +6,7 @@ Kafka Connect Cassandra is a Source Connector for reading data from Cassandra an
 The Source supports:
 
 1. :ref:`The KCQL routing querying <kcql>` - Allows for table to topic routing.
-2. Incremental mode
+2. Incremental mode with timestamp, timeuuid and tokens support via kcql.
 3. Bulk mode
 4. Error policies for handling failures.
 
@@ -64,8 +64,7 @@ Connect record. These records are then written to Kafka by the Kafka Connect fra
 The Source connector operates in two modes:
 
 1. Bulk - Each table is selected in full each time it is polled.
-2. Incremental - Each table is querying with lower and upper bounds to
-   extract deltas.
+2. Incremental - Each table is querying with lower and upper bounds to extract deltas.
 
 In incremental mode the column used to identify new or delta rows has to be provided. Due to Cassandra's and CQL restrictions
 this should be a primary key or part of a composite primary keys. ALLOW\_FILTERING can also be supplied as an configuration.
@@ -75,7 +74,14 @@ this should be a primary key or part of a composite primary keys. ALLOW\_FILTERI
     TimeUUIDs are converted to strings. Use the `UUIDs <https://docs.datastax.com/en/drivers/java/2.0/com/datastax/driver/core/utils/UUIDs.html>`__
     helpers to convert to Dates.
 
-    Only TimeUUID and Timestamp Cassandra data types are supported for tracking new rows in incremental mode.
+    Only TimeUUID and Timestamp Cassandra data types are supported for tracking new rows in incremental mode. It is also possible to use TOKENS. 
+    When the connector is set with incremental mode as TOKEN, Cassandra's token functionality is used in the CQL statement that is generated.
+
+The incremental mode is set in the via the ``connect.cassandra.kcql`` option. Allowed options are TIMESTAMP, TIMEUUID and TOKEN. For example:
+
+.. sourcecode:: bash
+
+    INSERT INTO sink_test SELECT id, string_field FROM $TABLE5 PK id INCREMENTALMODE=TOKEN    
 
 Source Connector QuickStart
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -155,12 +161,10 @@ connect to the Rest API of Kafka Connect of your container.
     name=cassandra-source-orders
     connector.class=com.datamountaineer.streamreactor.connect.cassandra.source.CassandraSourceConnector
     connect.cassandra.key.space=demo
-    connect.cassandra.kcql=INSERT INTO orders-topic SELECT * FROM orders PK created
-    connect.cassandra.import.mode=incremental
+    connect.cassandra.kcql=INSERT INTO orders-topic SELECT * FROM orders PK created INCREMENTALMODE=TIMEUUID
     connect.cassandra.contact.points=localhost
     connect.cassandra.username=cassandra
     connect.cassandra.password=cassandra
-    connect.cassandra.timestamp.type=timeuuid
     #task ids: 0
 
 The ``cassandra-source-incr.properties`` file defines:
@@ -168,14 +172,9 @@ The ``cassandra-source-incr.properties`` file defines:
 1.  The name of the connector, must be unique.
 2.  The name of the connector class.
 3.  The keyspace (demo) we are connecting to.
-4.  The table to topic import map. This allows you to route tables to different topics. Each mapping is comma separated
-    and for each mapping the table and topic are separated by a colon, if no topic is provided the records from the table
-    will be routed to a topic matching the table name. In this example the orders table records are routed to the topic
-    orders-topic. This property sets the tables to import!
-5.  The import mode, either incremental or bulk.
-6.  The ip or host name of the nodes in the Cassandra cluster to connect to.
-7.  Username and password, ignored unless you have set Cassandra to use the PasswordAuthenticator.
-8.  The timestamp column Cassandra data type, either ``timeuuid`` or ``timestamp``.
+4.  The KCQL statement. 
+5.  The ip or host name of the nodes in the Cassandra cluster to connect to.
+6.  Username and password, ignored unless you have set Cassandra to use the PasswordAuthenticator.
 
 We can use the CLI to check if the connector is up but you should be able to see this in logs as-well.
 
@@ -301,14 +300,17 @@ a SQL like syntax, consolidating typically features in to one configuration opti
 
 ..  sourcecode:: sql
 
-    INSERT INTO <topic> SELECT * FROM <TABLE> PK <TIMESTAMP_COLUMN>
+    INSERT INTO <topic> SELECT * FROM <TABLE> PK <TRACKER_COLUMN> <INCREMENTALMODE=TIMESTAMP|TIMEUUID|TOKEN>
 
-    #Select all columns from table orders and insert into a topic called orders-topic, use column created to track new rows.
-    INSERT INTO orders-topic SELECT * FROM orders PK created
+    #Select all columns from table orders and insert into a topic called orders-topic, use column created to track new rows. 
+    #Incremental mode set to TIMEUUID
+    INSERT INTO orders-topic SELECT * FROM orders PK created INCREMENTALMODE=TIMEUUID
 
     #Select created, product, price from table orders and insert into a topic called orders-topic, use column created to track new rows.
-    INSERT INTO orders-topic SELECT created, product, price FROM orders PK created
+    INSERT INTO orders-topic SELECT created, product, price FROM orders PK created.
 
+    The `PK` key word identifies the column used to track deltas in the target tables. If the incremental mode is set to TOKEN this column
+    value is wrapped inside Cassandras `token` function.
 
 Data Types
 ^^^^^^^^^^
@@ -374,28 +376,32 @@ The following CQL data types are supported:
 Modes
 ^^^^^
 
-The Source connector runs in both bulk and incremental mode.
-
-Each mode has a polling interval. This interval determines how often the readers execute queries against the Cassandra
-tables. It applies to both incremental and bulk modes. The ``cassandra.import.mode`` setting controls the import behaviour.
-
 Incremental
 '''''''''''
 
-In ``incremental`` mode the connector supports querying based on a column in the tables with CQL data type of TimeUUID.
+In ``incremental`` mode the connector supports querying based on a column in the tables with CQL data type of Timestamp or TimeUUID. 
+
+Incremental mode is set by specifiy ``INCREMENTALMODE`` in the ``kcql`` statement as either TIMESTAMP, TIMEUUID or TOKEN.
 
 Kafka Connect tracks the latest record it retrieved from each table, so it can start at the correct location on the next
 iteration (or in case of a crash). In this case the maximum value of the records returned by the result-set is tracked
 and stored in Kafka by the framework. If no offset is found for the table at startup a default timestamp of 1900-01-01
-is used. This is then passed to a prepared statement containing a range query. For example:
+is used. This is then passed to a prepared statement containing a range query. 
+
+Specifiying TOKEN causes the connector to wrap the values in the `token` function.
+
+For example:
 
 .. sourcecode:: sql
 
     #for timestamp type `timeuuid`
     SELECT * FROM demo.orders WHERE created > maxTimeuuid(?) AND created <= minTimeuuid(?)
 
-    #form timestamp type as `timestamp`
+    #for timestamp type as `timestamp`
     SELECT * FROM demo.orders WHERE created > ? AND created <= ?
+
+    #for token
+    SELECT * FROM demo.orders WHERE created > token(?) and created <= token(?) 
 
 .. warning::::
 
@@ -405,7 +411,8 @@ is used. This is then passed to a prepared statement containing a range query. F
 Bulk
 ''''
 
-In ``bulk`` mode the connector extracts the full table, no where clause is attached to the query.
+In ``bulk`` mode the connector extracts the full table, no where clause is attached to the query. Bulk mode is set when no incremental mode
+is present in the KCQL statement.
 
 .. warning::
 
@@ -415,15 +422,13 @@ Topic Routing
 ^^^^^^^^^^^^^
 
 The Sink supports topic routing that allows mapping the messages from topics to a specific table. For example map
-a topic called "bloomberg_prices" to a table called "prices". This mapping is set in the
-``connect.cassandra.kcql`` option.
+a topic called "bloomberg_prices" to a table called "prices". This mapping is set in the ``connect.cassandra.kcql`` option.
 
 Error Polices
 ~~~~~~~~~~~~~
 
 The Sink has three error policies that determine how failed writes to the target database are handled. The error policies
-affect the behaviour of the schema evolution characteristics of the sink. See the schema evolution section for more
-information.
+affect the behaviour of the schema evolution characteristics of the sink. See the schema evolution section for more information.
 
 **Throw**
 
@@ -547,14 +552,6 @@ Either bulk or incremental.
 * Data type : string
 * Optional  : no
 
-``connect.cassandra.timestamp.type``
-
-The Cassandra data type of the timestamp column, either timeuuid (default) or timestamp.
-
-* Data type: string
-* Optional: yes
-* Default: timeuuid
-
 ``connect.cassandra.kcql``
 
 Kafka connect query language expression. Allows for expressive table to topic routing, field selection and renaming.
@@ -572,14 +569,6 @@ Examples:
 .. warning::
 
     The timestamp column must be of CQL Type TimeUUID.
-
-``connect.cassandra.import.fetch.size``
-
-The fetch size for the Cassandra driver to read.
-
-* Data type : int
-* Optional  : yes
-* Default   : 1000
 
 ``connect.cassandra.task.buffer.size``
 
@@ -653,7 +642,6 @@ Bulk Example
     connector.class=com.datamountaineer.streamreactor.connect.cassandra.source.CassandraSourceConnector
     connect.cassandra.key.space=demo
     connect.cassandra.kcql=INSERT INTO TABLE_X SELECT * FROM TOPIC_Y
-    connect.cassandra.import.mode=bulk
     connect.cassandra.contact.points=localhost
     connect.cassandra.username=cassandra
     connect.cassandra.password=cassandra
@@ -666,8 +654,7 @@ Incremental Example
     name=cassandra-source-orders-incremental
     connector.class=com.datamountaineer.streamreactor.connect.cassandra.source.CassandraSourceConnector
     connect.cassandra.key.space=demo
-    connect.cassandra.kcql=INSERT INTO TABLE_X SELECT * FROM TOPIC_Y PK created
-    connect.cassandra.import.mode=incremental
+    connect.cassandra.kcql=INSERT INTO TABLE_X SELECT * FROM TOPIC_Y PK created INCREMENTALMODE=TIMEUUID
     connect.cassandra.contact.points=localhost
     connect.cassandra.username=cassandra
     connect.cassandra.password=cassandra
@@ -693,5 +680,5 @@ TODO
 TroubleShooting
 ---------------
 
-TODO
+Please review the :ref:`FAQs <faq>` and join our `slack channel <https://slackpass.io/datamountaineers>`_.
 

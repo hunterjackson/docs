@@ -348,3 +348,8 @@ Enables the output for how many records have been processed.
 * Importance: medium
 * Optional: yes
 * Default : false
+
+TroubleShooting
+---------------
+
+Please review the :ref:`FAQs <faq>` and join our `slack channel <https://slackpass.io/datamountaineers>`_.

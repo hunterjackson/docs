@@ -399,3 +399,7 @@ The following schema is used for the payload:
     | payload         | Optional String           |
     +-----------------+---------------------------+
 
+TroubleShooting
+---------------
+
+Please review the :ref:`FAQs <faq>` and join our `slack channel <https://slackpass.io/datamountaineers>`_.

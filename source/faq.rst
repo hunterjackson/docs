@@ -1,4 +1,4 @@
-.. faq:
+.. _faq:
 
 FAQS
 ====
@@ -112,3 +112,10 @@ file.
     # cluster
     group.id=connect-cluster
 
+**HBase Sink isn't connecting to Zookeeper Quroum***
+
+Ensure you have your HBase clusters ``hbase-site.xml`` in your classpath.
+
+.. sourcecode:: bash
+
+    export CLASSPATH=hbase-site.xml

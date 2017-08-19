@@ -432,5 +432,5 @@ TODO
 TroubleShooting
 ---------------
 
-TODO
+Please review the :ref:`FAQs <faq>` and join our `slack channel <https://slackpass.io/datamountaineers>`_.
 

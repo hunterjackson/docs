@@ -143,8 +143,7 @@ The Sink supports:
 2. Topic to JMS Destination routing.
 3. Payload format selection.
 4. Error policies for handling failures.
-5. Payload support for Schema.Struct and payload Struct, Schema.String and Json payload and Json payload with no schema.
-   Only supported when storing as JSON
+5. Payload support for Schema.Struct and payload Struct, Schema.String and Json payload and Json payload with no schema. Only supported when storing as JSON
 
 Kafka Connect Query Language
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -332,6 +331,6 @@ TODO
 TroubleShooting
 ---------------
 
-TODO
+Please review the :ref:`FAQs <faq>` and join our `slack channel <https://slackpass.io/datamountaineers>`_.
 
 

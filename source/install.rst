@@ -8,6 +8,8 @@ optionally the Schema Registry provided by this distribution.
 
 The following releases are available:
 
+-  `0.3.0 <https://github.com/datamountaineer/stream-reactor/releases/tag/v0.3.0>`__
+-  `0.2.6 <https://github.com/datamountaineer/stream-reactor/releases/tag/v0.2.6>`__
 -  `0.2.5 <https://github.com/datamountaineer/stream-reactor/releases/tag/v0.2.5>`__
 -  `0.2.4 <https://github.com/datamountaineer/stream-reactor/releases/tag/v0.2.4>`__
 -  `0.2.3 <https://github.com/datamountaineer/stream-reactor/releases/tag/v0.2.3>`__
@@ -16,6 +18,10 @@ The following releases are available:
 +------------------------+------------------------+------------------------+
 | Kafka Version          | Confluent Version      | Stream reactor version |
 +========================+========================+========================+
+| 0.11.0.0               | 3.3                    | 0.3.0                  |
++------------------------+------------------------+------------------------+
+| 0.10.2.0               | 3.2.2                  | 0.2.6                  |
++------------------------+------------------------+------------------------+
 | 0.10.2.0               | 3.2                    | 0.2.5                  |
 +------------------------+------------------------+------------------------+
 | 0.10.0.1               | 3.1                    | 0.2.4                  |
@@ -24,52 +30,6 @@ The following releases are available:
 +------------------------+------------------------+------------------------+
 | 0.10.0.1               | 3.0.1                  | 0.2.2                  |
 +------------------------+------------------------+------------------------+
-
-+------------------------+------------------------+
-| Connector              | Versions               |
-+========================+========================+
-| Azure DocumentDB       | 1.9.5                  |
-+------------------------+------------------------+
-| BlockChain             | Not applicable         |
-+------------------------+------------------------+
-| Bloomberg              | blpapi-3.8.8-2         |
-+------------------------+------------------------+
-| Cassandra              | Driver 3.0.0,          |
-|                        | Server 3.0.9           |
-+------------------------+------------------------+
-| CoAP                   | Californium 2.0.0-M2   |
-+------------------------+------------------------+
-| Druid                  | Tranquility 0.7.4      |
-+------------------------+------------------------+
-| Elastic                | Elastic 2.2.0,         |
-|                        | Elastic4s 2.3.0        |
-+------------------------+------------------------+
-| FTP                    | commons-net 0.5        |
-+------------------------+------------------------+
-| HazelCast              | HazelCast 3.6.0        |
-+------------------------+------------------------+
-| HBase                  | HBase Server 1.2.0,    |
-|                        | HBase Client 1.2.0     |
-+------------------------+------------------------+
-| InfluxDB               | InfluxDB 2.3           |
-+------------------------+------------------------+
-| JMS                    | javax.jms 1.1-rev-1,   |
-|                        | active-mq-code 1.26.0  |
-+------------------------+------------------------+
-| Kudu                   | Kudu Client 0.9.0      |
-+------------------------+------------------------+
-| MongoDB                | MongoDB 3.3.0          |
-+------------------------+------------------------+
-| MQTT                   | Mqtt 1.1.0             |
-+------------------------+------------------------+
-| Redis                  | Redis 2.8.1            |
-+------------------------+------------------------+
-| ReThinkDB              | ReThinkDB 2.3.3        |
-+------------------------+------------------------+
-| VoltDB                 | VoltDB 6.4             |
-+------------------------+------------------------+
-| Yahoo                  | yahoofinance-api 1.3.0 |
-+------------------------+------------------------+
 
 Install Confluent
 ~~~~~~~~~~~~~~~~~
@@ -82,13 +42,13 @@ Confluent can be downloaded for `here <http://www.confluent.io/download/>`__
     ➜  mkdir confluent
 
     #download confluent
-    ➜  wget http://packages.confluent.io/archive/3.2/confluent-3.2.0-2.11.tar.gz
+    ➜  wget http://packages.confluent.io/archive/3.3/confluent-3.3.0-2.11.tar.gz
 
     #extract archive to confluent folder
-    ➜  tar -xvf confluent-3.2.0-2.11.tar.gz -C confluent
+    ➜  tar -xvf confluent-3.3.0-2.11.tar.gz -C confluent
 
     #setup variables
-    ➜  export CONFLUENT_HOME=~/confluent/confluent-3.2.0
+    ➜  export CONFLUENT_HOME=~/confluent/confluent-3.3.0
 
 Start the Confluent platform.
 
@@ -108,7 +68,7 @@ Unpack the archive:
 
 .. sourcecode:: bash
 
-    #Stream reactor release 0.2.5
+    #Stream reactor release
     mkdir stream-reactor
     tar xvf stream-reactor-0.2.5-3.2.0.tar.gz -C stream-reactor
 
@@ -116,63 +76,8 @@ Within the unpacked directory you will find the following structure:
 
 .. sourcecode:: bash
 
-    stream-reactor-0.2.5-3.2.0
-    |-- LICENSE
-    |-- README.md
-    |-- bin
-    |   |-- cli.sh
-    |   |-- install-ui.sh
-    |   |-- sr-cli-linux
-    |   |-- sr-cli-osx
-    |   |-- start-connect.sh
-    |   `-- start-ui.sh
-    |-- conf
-    |   |-- blockchain-source.properties
-    |   |-- bloomberg-source.properties
-    |   |-- cassandra-sink.properties
-    |   |-- cassandra-source-incr.properties
-    |   |-- cassandra-source.properties
-    |   |-- coap-hazelcast-sink.properties
-    |   |-- coap-hazelcast-source.properties
-    |   |-- coap-sink.properties
-    |   |-- coap-source.properties
-    |   |-- druid-sink.properties
-    |   |-- elastic-sink.properties
-    |   |-- ftp-source.properties
-    |   |-- hazelcast-sink.properties
-    |   |-- hbase-sink.properties
-    |   |-- influxdb-sink.properties
-    |   |-- jms-sink.properties
-    |   |-- jms-source.properties
-    |   |-- kudu-sink.properties
-    |   |-- mongodb-sink.properties
-    |   |-- mqtt-source.properties
-    |   |-- redis-sink.properties
-    |   |-- rethink-sink.properties
-    |   |-- rethink-source.properties
-    |   |-- voltdb-sink.properties
-    |   `-- yahoo-source.properties
-    `-- libs
-        |-- kafka-connect-azure-documentdb-0.2.5-3.2.0-all.jar
-        |-- kafka-connect-blockchain-0.2.5-3.2.0-all.jar
-        |-- kafka-connect-bloomberg-0.2.5-3.2.0-all.jar
-        |-- kafka-connect-cassandra-0.2.5-3.2.0-all.jar
-        |-- kafka-connect-cli-1.0-all.jar
-        |-- kafka-connect-coap-0.2.5-3.2.0-all.jar
-        |-- kafka-connect-druid-0.2.5-3.2.0-all.jar
-        |-- kafka-connect-elastic-0.2.5-3.2.0-all.jar
-        |-- kafka-connect-ftp-0.2.5-3.2.0-all.jar
-        |-- kafka-connect-hazelcast-0.2.5-3.2.0-all.jar
-        |-- kafka-connect-hbase-0.2.5-3.2.0-all.jar
-        |-- kafka-connect-influxdb-0.2.5-3.2.0-all.jar
-        |-- kafka-connect-jms-0.2.5-3.2.0-all.jar
-        |-- kafka-connect-kudu-0.2.5-3.2.0-all.jar
-        |-- kafka-connect-mongodb-0.2.5-3.2.0-all.jar
-        |-- kafka-connect-mqtt-0.2.5-3.2.0-all.jar
-        |-- kafka-connect-redis-0.2.5-3.2.0-all.jar
-        |-- kafka-connect-rethink-0.2.5-3.2.0-all.jar
-        |-- kafka-connect-voltdb-0.2.5-3.2.0-all.jar
-        `-- kafka-connect-yahoo-0.2.5-3.2.0-all.jar
+ADDDDDDDDDDDDDD
+
 
 The ``libs`` folder contains all the Stream Reactor Connector jars.
 
@@ -205,8 +110,130 @@ environment variables starting with `CONNECTOR_` to create a properties files fo
 
 Set the `CONNECT_` and `CONNECTOR_` environment variables accordingly when running the images.
 
+.. important::
+
+    We strongly recommend using Landoop's Fast Data Dev dockers. The stream reactor is prepackaged and UI's are included.
+
 Release Notes
 -------------
+
+0.3.0
+~~~~~
+
+Feature
+^^^^^^^
+
+*   Upgrade to Confluent 3.3 and Kafka 0.11.0.0
+
+0.2.6
+~~~~~
+
+Feature
+^^^^^^^
+
+*   Upgrade to KCQL 2x
+*   Add CQL generator to Cassandra source
+*   Add KCQL INCREMENTALMODE support to the Cassandra source, bulk mode and the timestamp column type is now take from KCQL
+*   Support for setting key and truststore type on Cassandra connectors
+*   Added token based paging support for Cassandra source
+*   Added default bytes converter to JMS Source
+*   Added default connection factory to JMS Source
+*   Added support for SharedDurableConsumers to JMS Connectors
+*   Upgraded JMS Connector to JMS 2.0
+*   Moved to Elastic4s 2.4
+*   Added Elastic5s with TCP, TCP+XPACK and HTTP client support
+*   Upgrade Azure Documentdb to 1.11.0
+*   Added optional progress counter to all connectors, it can be enabled with ``connect.progress.enabled`` which will periodically report log messages processed
+*   Added authentication and TLS to ReThink Connectors
+*   Added TLS support for ReThinkDB, add batch size option to source for draining the internal queues.
+*   Upgrade Kudu Client to 1.4.0
+*   Support for dates in Elastic Indexes and custom document types
+*   Upgrade CoAP to 2.0.0-M4
+
+Bug Fixes
+^^^^^^^^^
+
+*   Fixes for high CPU on CoAP source
+*   Fixes for high CPU on Cassandra source
+*   Fixed Avro double fields mapping to Kudu columns
+*   Fixes on JMS properties converter, Invalid schema when extracting properties
+
+Misc
+^^^^
+
+*   Refactored Cassandra Tests to use only one embedded instance
+*   Removed unused batch size and bucket size options from Kudu, they are taken from KCQL
+*   Removed unused batch size option from DocumentDb
+*   Rename Azure DocumentDb `connect.documentdb.db` to `connect.documentdb.db`
+*   Rename Azure DocumentDb `connect.documentdb.database.create` to `connect.documentdb.db.create`
+*   Rename Cassandra Source `connect.cassandra.source.kcql` to `connect.cassandra.kcql`
+*   Rename Cassandra Source `connect.cassandra.source.timestamp.type` to `connect.cassandra.timestamp.type`
+*   Rename Cassandra Source `connect.cassandra.source.import.poll.interval` to `connect.cassandra.import.poll.interval`
+*   Rename Cassandra Source `connect.cassandra.source.error.policy` to `connect.cassandra.error.policy`
+*   Rename Cassandra Source `connect.cassandra.source.max.retries` to `connect.cassandra.max.retries`
+*   Rename Cassandra Sink `connect.cassandra.source.retry.interval` to `connect.cassandra.retry.interval`
+*   Rename Cassandra Sink `connect.cassandra.sink.kcql` to `connect.cassandra.kcql`
+*   Rename Cassandra Sink `connect.cassandra.sink.error.policy` to `connect.cassandra.error.policy`
+*   Rename Cassandra Sink `connect.cassandra.sink.max.retries` to `connect.cassandra.max.retries`
+*   Rename Cassandra Sink Sink `connect.cassandra.sink.retry.interval` to `connect.cassandra.retry.interval`
+*   Rename Coap Source `connect.coap.bind.port` to `connect.coap.port`
+*   Rename Coap Sink `connect.coap.bind.port` to `connect.coap.port`
+*   Rename Coap Source `connect.coap.bind.host` to `connect.coap.host`
+*   Rename Coap Sink `connect.coap.bind.host` to `connect.coap.host`
+*   Rename MongoDb `connect.mongo.database` to `connect.mongo.db`
+*   Rename MongoDb `connect.mongo.sink.batch.size` to `connect.mongo.batch.size`
+*   Rename Druid `connect.druid.sink.kcql` to `connect.druid.kcql`
+*   Rename Druid `connect.druid.sink.conf.file` to `connect.druid.kcql`
+*   Rename Druid `connect.druid.sink.write.timeout` to `connect.druid.write.timeout`
+*   Rename Elastic `connect.elastic.sink.kcql` to `connect.elastic.kcql`
+*   Rename HBase `connect.hbase.sink.column.family` to `connect.hbase.column.family`
+*   Rename HBase `connect.hbase.sink.kcql` to `connect.hbase.kcql`
+*   Rename HBase `connect.hbase.sink.error.policy` to `connect.hbase.error.policy`
+*   Rename HBase `connect.hbase.sink.max.retries` to `connect.hbase.max.retries`
+*   Rename HBase `connect.hbase.sink.retry.interval` to `connect.hbase.retry.interval`
+*   Rename Influx `connect.influx.sink.kcql` to `connect.influx.kcql`
+*   Rename Influx `connect.influx.connection.user` to `connect.influx.username`
+*   Rename Influx `connect.influx.connection.password` to `connect.influx.password`
+*   Rename Influx `connect.influx.connection.database` to `connect.influx.db`
+*   Rename Influx `connect.influx.connection.url` to `connect.influx.url`
+*   Rename Kudu `connect.kudu.sink.kcql` to `connect.kudu.kcql`
+*   Rename Kudu `connect.kudu.sink.error.policy` to `connect.kudu.error.policy`
+*   Rename Kudu `connect.kudu.sink.retry.interval` to `connect.kudu.retry.interval`
+*   Rename Kudu `connect.kudu.sink.max.retries` to `connect.kudu.max.reties`
+*   Rename Kudu `connect.kudu.sink.schema.registry.url` to `connect.kudu.schema.registry.url`
+*   Rename Redis `connect.redis.connection.password` to `connect.redis.password` 
+*   Rename Redis `connect.redis.sink.kcql` to `connect.redis.kcql`
+*   Rename Redis `connect.redis.connection.host` to `connect.redis.host`
+*   Rename Redis `connect.redis.connection.port` to `connect.redis.port` 
+*   Rename ReThink `connect.rethink.source.host` to `connect.rethink.host`
+*   Rename ReThink `connect.rethink.source.port` to `connect.rethink.port`
+*   Rename ReThink `connect.rethink.source.db` to `connect.rethink.db`
+*   Rename ReThink `connect.rethink.source.kcql` to `connect.rethink.kcql`
+*   Rename ReThink Sink `connect.rethink.sink.host` to `connect.rethink.host`
+*   Rename ReThink Sink `connect.rethink.sink.port` to `connect.rethink.port`
+*   Rename ReThink Sink `connect.rethink.sink.db` to `connect.rethink.db`
+*   Rename ReThink Sink `connect.rethink.sink.kcql` to `connect.rethink.kcql`
+*   Rename JMS `connect.jms.user` to `connect.jms.username`
+*   Rename JMS `connect.jms.source.converters` to `connect.jms.converters`
+*   Rename Mqtt `connect.mqtt.source.kcql` to `connect.mqtt.kcql`
+*   Rename Mqtt `connect.mqtt.source.converters` to `connect.mqtt.converters`
+*   Rename Mqtt `connect.mqtt.user` to `connect.mqtt.username`
+*   Rename Mqtt `connect.mqtt.hosts` to `connect.mqtt.connection.hosts`
+*   Rename Hazelcast `connect.hazelcast.sink.kcql` to `connect.hazelcast.kcql`
+*   Rename Hazelcast `connect.hazelcast.sink.group.name` to `connect.hazelcast.group.name`
+*   Rename Hazelcast `connect.hazelcast.sink.group.password` to `connect.hazelcast.group.password`
+*   Rename Hazelcast `connect.hazelcast.sink.cluster.members` tp `connect.hazelcast.cluster.members`
+*   Rename Hazelcast `connect.hazelcast.sink.batch.size` to `connect.hazelcast.batch.size`
+*   Rename Hazelcast `connect.hazelcast.sink.error.policy` to `connect.hazelcast.error.policy`
+*   Rename Hazelcast `connect.hazelcast.sink.max.retries` to `connect.hazelcast.max.retries`
+*   Rename Hazelcast `connect.hazelcast.sink.retry.interval` to `connect.hazelcast.retry.interval`
+*   Rename VoltDB `connect.volt.sink.kcql` to `connect.volt.kcql`
+*   Rename VoltDB `connect.volt.sink.connection.servers` to `connect.volt.servers`
+*   Rename VoltDB `connect.volt.sink.connection.user` to `connect.volt.username`
+*   Rename VoltDB `connect.volt.sink.connection.password` to `connect.volt.password`
+*   Rename VoltDB `connect.volt.sink.error.policy` to `connect.volt.error.policy`
+*   Rename VoltDB `connect.volt.sink.max.retries` to `connect.volt.max.retries`
+*   Rename VoltDB `connect.volt.sink.retry.interval` to `connect.volt.retry.interval`
 
 0.2.5
 ~~~~~

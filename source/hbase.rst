@@ -381,7 +381,7 @@ More information can be found `here <http://docs.confluent.io/3.0.1/schema-regis
 The HBase Sink will automatically write and update the HBase table if new fields are added to the Source topic,
 if fields are removed the Kafka Connect framework will return the default value for this field, dependent of the
 compatibility settings of the Schema registry. This value will be put into the HBase column family cell based on the
-``connect.hbase.sink.fields`` mappings.
+``connect.hbase.fields`` mappings.
 
 Deployment Guidelines
 ---------------------
@@ -391,5 +391,4 @@ TODO
 TroubleShooting
 ---------------
 
-TODO
-
+Please review the :ref:`FAQs <faq>` and join our `slack channel <https://slackpass.io/datamountaineers>`_.
