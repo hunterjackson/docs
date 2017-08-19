@@ -8,7 +8,6 @@ optionally the Schema Registry provided by this distribution.
 
 The following releases are available:
 
--  `0.3.0 <https://github.com/datamountaineer/stream-reactor/releases/tag/v0.3.0>`__
 -  `0.2.6 <https://github.com/datamountaineer/stream-reactor/releases/tag/v0.2.6>`__
 -  `0.2.5 <https://github.com/datamountaineer/stream-reactor/releases/tag/v0.2.5>`__
 -  `0.2.4 <https://github.com/datamountaineer/stream-reactor/releases/tag/v0.2.4>`__
@@ -18,8 +17,6 @@ The following releases are available:
 +------------------------+------------------------+------------------------+
 | Kafka Version          | Confluent Version      | Stream reactor version |
 +========================+========================+========================+
-| 0.11.0.0               | 3.3                    | 0.3.0                  |
-+------------------------+------------------------+------------------------+
 | 0.10.2.0               | 3.2.2                  | 0.2.6                  |
 +------------------------+------------------------+------------------------+
 | 0.10.2.0               | 3.2                    | 0.2.5                  |
@@ -42,13 +39,13 @@ Confluent can be downloaded for `here <http://www.confluent.io/download/>`__
     ➜  mkdir confluent
 
     #download confluent
-    ➜  wget http://packages.confluent.io/archive/3.3/confluent-3.3.0-2.11.tar.gz
+    ➜  wget http://packages.confluent.io/archive/3.2/confluent-3.2.2-2.11.tar.gz 
 
     #extract archive to confluent folder
-    ➜  tar -xvf confluent-3.3.0-2.11.tar.gz -C confluent
+    ➜  tar -xvf confluent-3.2.2-2.11.tar.gz -C confluent
 
     #setup variables
-    ➜  export CONFLUENT_HOME=~/confluent/confluent-3.3.0
+    ➜  export CONFLUENT_HOME=~/confluent/confluent-3.2.2
 
 Start the Confluent platform.
 
@@ -76,7 +73,63 @@ Within the unpacked directory you will find the following structure:
 
 .. sourcecode:: bash
 
-ADDDDDDDDDDDDDD
+.
+|-- LICENSE
+|-- README.md
+|-- bin
+|   |-- connect-cli
+|   |-- sr-cli-linux
+|   |-- sr-cli-osx
+|   `-- start-connect
+|-- conf
+|   |-- azure-docdb-sink.properties
+|   |-- blockchain-source.properties
+|   |-- bloomberg-source.properties
+|   |-- cassandra-sink.properties
+|   |-- cassandra-source-incr.properties
+|   |-- cassandra-source.properties
+|   |-- coap-hazelcast-sink.properties
+|   |-- coap-hazelcast-source.properties
+|   |-- coap-sink.properties
+|   |-- coap-source.properties
+|   |-- druid-sink.properties
+|   |-- elastic-sink.properties
+|   |-- elastic5-sink.properties
+|   |-- ftp-source.properties
+|   |-- hazelcast-sink.properties
+|   |-- hbase-sink.properties
+|   |-- influxdb-sink.properties
+|   |-- jms-sink.properties
+|   |-- jms-source.properties
+|   |-- kudu-sink.properties
+|   |-- mongodb-sink.properties
+|   |-- mqtt-source.properties
+|   |-- redis-sink.properties
+|   |-- rethink-sink.properties
+|   |-- rethink-source.properties
+|   |-- voltdb-sink.properties
+|   `-- yahoo-source.properties
+`-- libs
+    |-- kafka-connect-azure-documentdb-0.2.6-3.2.0-all.jar
+    |-- kafka-connect-blockchain-0.2.6-3.2.0-all.jar
+    |-- kafka-connect-bloomberg-0.2.6-3.2.0-all.jar
+    |-- kafka-connect-cassandra-0.2.6-3.2.0-all.jar
+    |-- kafka-connect-coap-0.2.6-3.2.0-all.jar
+    |-- kafka-connect-druid-0.2.6-3.2.0-all.jar
+    |-- kafka-connect-elastic-0.2.6-3.2.0-all.jar
+    |-- kafka-connect-elastic5-0.2.6-3.2.0-all.jar
+    |-- kafka-connect-ftp-0.2.6-3.2.0-all.jar
+    |-- kafka-connect-hazelcast-0.2.6-3.2.0-all.jar
+    |-- kafka-connect-hbase-0.2.6-3.2.0-all.jar
+    |-- kafka-connect-influxdb-0.2.6-3.2.0-all.jar
+    |-- kafka-connect-jms-0.2.6-3.2.0-all.jar
+    |-- kafka-connect-kudu-0.2.6-3.2.0-all.jar
+    |-- kafka-connect-mongodb-0.2.6-3.2.0-all.jar
+    |-- kafka-connect-mqtt-0.2.6-3.2.0-all.jar
+    |-- kafka-connect-redis-0.2.6-3.2.0-all.jar
+    |-- kafka-connect-rethink-0.2.6-3.2.0-all.jar
+    |-- kafka-connect-voltdb-0.2.6-3.2.0-all.jar
+    `-- kafka-connect-yahoo-0.2.6-3.2.0-all.jar
 
 
 The ``libs`` folder contains all the Stream Reactor Connector jars.
@@ -131,6 +184,7 @@ Feature
 Feature
 ^^^^^^^
 
+*   Upgrade to Confluent 3.2.2
 *   Upgrade to KCQL 2x
 *   Add CQL generator to Cassandra source
 *   Add KCQL INCREMENTALMODE support to the Cassandra source, bulk mode and the timestamp column type is now take from KCQL
