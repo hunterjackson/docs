@@ -52,7 +52,7 @@ Once the connector has started we can now use the kafka-connect-tools cli to pos
 
 .. sourcecode:: bash
 
-    ➜  bin/cli.sh create blockchain-source < conf/blockchain-source.properties
+    ➜  bin/connect-cli create blockchain-source < conf/blockchain-source.properties
 
     #Connector `blockchain-source`:
     name=blockchain-source
@@ -77,7 +77,7 @@ We can use the CLI to check if the connector is up but you should be able to see
 .. sourcecode:: bash
 
     #check for running connectors with the CLI
-    ➜ bin/cli.sh ps
+    ➜ bin/connect-cli ps
     blockchain-source
 
 .. sourcecode:: bash

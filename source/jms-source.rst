@@ -60,7 +60,7 @@ connect to the Rest API of Kafka Connect of your container.
 
 .. sourcecode:: bash
 
-    ➜  bin/cli.sh create jms-sink < conf/jms-source.properties
+    ➜  bin/connect-cli create jms-sink < conf/jms-source.properties
 
 
 The ``jms-source.properties`` file defines:
@@ -92,7 +92,7 @@ We can use the CLI to check if the connector is up but you should be able to see
 .. sourcecode:: bash
 
     #check for running connectors with the CLI
-    ➜ bin/cli.sh ps
+    ➜ bin/connect-cli ps
     jms-source
 
     #Connector `jms-source`:

@@ -120,7 +120,7 @@ connect to the Rest API of Kafka Connect of your container.
 
 .. sourcecode:: bash
 
-    ➜  bin/cli.sh create hbase-sink < conf/hbase-sink.properties
+    ➜  bin/connect-cli create hbase-sink < conf/hbase-sink.properties
 
     #Connector name=`hbase-sink`
     name=person-hbase-test
@@ -149,7 +149,7 @@ We can use the CLI to check if the connector is up but you should be able to see
 .. sourcecode:: bash
 
     #check for running connectors with the CLI
-    ➜ bin/cli.sh ps
+    ➜ bin/connect-cli ps
     hbase-sink
 
 .. sourcecode:: bash

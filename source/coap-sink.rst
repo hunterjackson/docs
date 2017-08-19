@@ -108,7 +108,7 @@ connect to the Rest API of Kafka Connect of your container.
 
 .. sourcecode:: bash
 
-    ➜  bin/cli.sh create coap-source < conf/coap-source.properties
+    ➜  bin/connect-cli create coap-source < conf/coap-source.properties
 
     #Connector name=`coap-sink`
     name = coap-sink
@@ -136,7 +136,7 @@ We can use the CLI to check if the connector is up but you should be able to see
 .. sourcecode:: bash
 
     #check for running connectors with the CLI
-    ➜ bin/cli.sh ps
+    ➜ bin/connect-cli ps
     coap-sink
 
 .. sourcecode:: bash

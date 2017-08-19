@@ -203,6 +203,7 @@ Feature
 *   Upgrade Kudu Client to 1.4.0
 *   Support for dates in Elastic Indexes and custom document types
 *   Upgrade CoAP to 2.0.0-M4
+*   Upgrade Connect CLI to 1.0.2 (Renamed to connect-cli)
 
 Bug Fixes
 ^^^^^^^^^

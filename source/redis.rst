@@ -86,7 +86,7 @@ connect to the Rest API of Kafka Connect of your container.
 
 .. sourcecode:: bash
 
-    ➜  bin/cli.sh create redis-sink < conf/redis-sink.properties
+    ➜  bin/connect-cli create redis-sink < conf/redis-sink.properties
     #Connector name=`redis-sink`
     connect.redis.host=localhost
     connect.redis.port=6379
@@ -126,7 +126,7 @@ We can use the CLI to check if the connector is up but you should be able to see
 .. sourcecode:: bash
 
     #check for running connectors with the CLI
-    ➜ bin/cli.sh ps
+    ➜ bin/connect-cli ps
     redis-sink
 
 .. sourcecode:: bash

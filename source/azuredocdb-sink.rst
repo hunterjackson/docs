@@ -118,7 +118,7 @@ connect to the Rest API of Kafka Connect of your container.
 
 .. sourcecode:: bash
 
-     ➜  bin/cli.sh create azure-docdb-sink < conf/source.kcql/azure-docdb-sink.properties
+     ➜  bin/connect-cli create azure-docdb-sink < conf/source.kcql/azure-docdb-sink.properties
 
     #Connector `azure-docdb-sink`:
     name=azure-docdb-sink
@@ -142,7 +142,7 @@ We can use the CLI to check if the connector is up but you should be able to see
 .. sourcecode:: bash
 
     #check for running connectors with the CLI
-    ➜ bin/cli.sh ps
+    ➜ bin/connect-cli ps
     azure-docdb-sink
 
 
@@ -300,7 +300,7 @@ Use the ``CLI`` to remove the old DocumentDb Sink:
 
 .. sourcecode:: bash
 
-    ➜ bin/cli.sh rm  azure-docdb-sink
+    ➜ bin/connect-cli rm  azure-docdb-sink
 
 and start the new sink with the json properties files to read from the a different topic with json as the payload.
 
@@ -320,7 +320,7 @@ and start the new sink with the json properties files to read from the a differe
 .. sourcecode:: bash
 
     #start the connector for DocumentDb
-    ➜   bin/cli.sh create azure-docdb-sink-json < azure-docdb-sink-json.properties
+    ➜   bin/connect-cli create azure-docdb-sink-json < azure-docdb-sink-json.properties
 
 You should see in the terminal where you started Kafka Connect the following entries in the log:
 

@@ -135,7 +135,7 @@ connect to the Rest API of Kafka Connect of your container.
 
 .. sourcecode:: bash
 
-    ➜  bin/cli.sh create influx-sink < conf/influxdb-sink.properties
+    ➜  bin/connect-cli create influx-sink < conf/influxdb-sink.properties
 
     #Connector name=`influx-sink`
     name=influxdb-sink
@@ -165,7 +165,7 @@ We can use the CLI to check if the connector is up but you should be able to see
 .. sourcecode:: bash
 
     #check for running connectors with the CLI
-    ➜ bin/cli.sh ps
+    ➜ bin/connect-cli ps
     influxdb-sink
 
 .. sourcecode:: bash

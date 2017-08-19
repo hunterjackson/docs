@@ -151,7 +151,7 @@ connect to the Rest API of Kafka Connect of your container.
 
 .. sourcecode:: bash
 
-     ➜  bin/cli.sh create mongo-sink < conf/source.kcql/mongo-sink.properties
+     ➜  bin/connect-cli create mongo-sink < conf/source.kcql/mongo-sink.properties
 
     #Connector `mongo-sink-orders`:
     name=mongo-sink-orders
@@ -173,7 +173,7 @@ We can use the CLI to check if the connector is up but you should be able to see
 .. sourcecode:: bash
 
     #check for running connectors with the CLI
-    ➜ bin/cli.sh ps
+    ➜ bin/connect-cli ps
     mongo-sink
 
 
@@ -306,14 +306,14 @@ Use the ``CLI`` to remove the old MongoDB Sink:
 
 .. sourcecode:: bash
 
-    ➜ bin/cli.sh rm  mongo-sink
+    ➜ bin/connect-cli rm  mongo-sink
 
 and start the new Sink with the json properties files to read from the a different topic with json as the payload.
 
 .. sourcecode:: bash
 
      #start the connector for mongo
-    ➜   bin/cli.sh create mongo-sink-orders-json < mongo-sink-orders-json.properties
+    ➜   bin/connect-cli create mongo-sink-orders-json < mongo-sink-orders-json.properties
 
 You should see in the terminal where you started Kafka Connect the following entries in the log:
 

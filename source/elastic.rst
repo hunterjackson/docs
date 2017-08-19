@@ -72,7 +72,7 @@ connect to the Rest API of Kafka Connect of your container.
 
 .. sourcecode:: bash
 
-    ➜  bin/cli.sh create elastic-sink < conf/elastic-sink.properties
+    ➜  bin/connect-cli create elastic-sink < conf/elastic-sink.properties
 
     #Connector name=`elastic-sink`
     name=elastic-sink
@@ -101,7 +101,7 @@ We can use the CLI to check if the connector is up but you should be able to see
 .. sourcecode:: bash
 
     #check for running connectors with the CLI
-    ➜ bin/cli.sh ps
+    ➜ bin/connect-cli ps
     elastic-sink
 
 .. sourcecode:: bash

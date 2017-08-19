@@ -49,7 +49,7 @@ You can ask a running instance of Kafka Connect what Connector classes are on th
 
 .. sourcecode:: bash
 
-    bin/cli.sh loaded
+    bin/connect-cli loaded
 
 
 **Guava version**

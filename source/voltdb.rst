@@ -110,7 +110,7 @@ connect to the Rest API of Kafka Connect of your container.
 
 .. sourcecode:: bash
 
-    ➜  bin/cli.sh create voltdb-sink < conf/voltdb-sink.properties
+    ➜  bin/connect-cli create voltdb-sink < conf/voltdb-sink.properties
 
     #Connector `voltdb-sink`:
     name=voltdb-sink
@@ -142,7 +142,7 @@ We can use the CLI to check if the connector is up but you should be able to see
 .. sourcecode:: bash
 
     #check for running connectors with the CLI
-    ➜ bin/cli.sh ps
+    ➜ bin/connect-cli ps
     voltdb-sink
 
 .. sourcecode:: bash
