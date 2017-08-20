@@ -47,7 +47,7 @@ Confluent can be downloaded for `here <http://www.confluent.io/download/>`__
     #setup variables
     ➜  export CONFLUENT_HOME=~/confluent/confluent-3.2.2
 
-Start the Confluent platform.
+Start the Confluent platform. 
 
 .. sourcecode:: bash
 
