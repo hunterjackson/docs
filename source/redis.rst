@@ -93,7 +93,7 @@ connect to the Rest API of Kafka Connect of your container.
     connector.class=com.datamountaineer.streamreactor.connect.redis.sink.RedisSinkConnector
     tasks.max=1
     topics=redis-topic
-    connect.redis.sink.kcql=INSERT INTO TABLE1 SELECT * FROM redis-topic
+    connect.redis.kcql=INSERT INTO TABLE1 SELECT * FROM redis-topic
     #task ids: 0
 
 The ``redis-sink.properties`` file defines:
@@ -114,7 +114,7 @@ The ``redis-sink.properties`` file defines:
 
     .. sourcecode:: bash
 
-        connect.redis.sink.connection.password=$REDIS_PASSWORD
+        connect.redis.connection.password=$REDIS_PASSWORD
 
     Don't set the value to empty if no password is required.
 
@@ -292,7 +292,7 @@ Examples:
 
     INSERT INTO TABLE1 SELECT * FROM TOPIC1;INSERT INTO TABLE2 SELECT * FROM TOPIC2 PK field1, field2
 
-``connect.redis.sink.host``
+``connect.redis.host``
 
 Specifies the Redis server.
 
@@ -384,7 +384,7 @@ More information can be found `here <http://docs.confluent.io/3.0.1/schema-regis
 The Redis Sink will automatically write and update the Redis table if new fields are added to the Source topic,
 if fields are removed the Kafka Connect framework will return the default value for this field, dependent of the
 compatibility settings of the Schema registry. This value will be put into the Redis column family cell based on the
-``connect.redis.sink.kcql`` mappings.
+``connect.redis.kcql`` mappings.
 
 Deployment Guidelines
 ---------------------

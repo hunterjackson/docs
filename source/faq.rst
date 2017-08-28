@@ -75,7 +75,7 @@ If your redis server is requiring the connection to be authenticated you will ne
 
     .. sourcecode:: bash
 
-        connect.redis.sink.connection.password=$REDIS_PASSWORD
+        connect.redis.connection.password=$REDIS_PASSWORD
 
 Don't set the value to empty if no password is required.
 

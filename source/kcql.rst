@@ -23,7 +23,7 @@ column names and the complex configuration involved ...or you can just write thi
 Kafka Connect Query Language
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-There are two paths supported by this DSL. One is the INSERT and take the following form:
+There are two paths supported by this DSL. One is the INSERT that takes the following form (not all grammar is shown):
 
 .. code-block:: bash
 
@@ -43,11 +43,7 @@ There are two paths supported by this DSL. One is the INSERT and take the follow
            [WITHFORMAT TEXT|JSON|AVRO|BINARY|OBJECT|MAP]
            [STOREAS $YOUR_TYPE([key=value, .....])]
 
-If you follow our connectors @Datamountaineer you will find depending on the Connect Sink only some of the the options
-are used. You will find all our documentation here
-
-The second path is SELECT only. We have the Socket Streamer</> which allows you to peek into KAFKA via websocket and
-receive the payloads in real time!
+and a `select` only:
 
 .. sourcecode:: bash
 

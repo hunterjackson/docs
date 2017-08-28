@@ -83,7 +83,6 @@ connect.jms.connection.factory=ConnectionFactory
 7.  The url of the JMS broker.
 8.  The JMS connection factory.
 
-
 If you switch back to the terminal you started the Connector in you should see the JMS Source being accepted and the
 task starting.
 
@@ -134,7 +133,7 @@ We can use the CLI to check if the connector is up but you should be able to see
         connect.jms.password = null
         connect.jms.queues = [jms-queue]
         connect.jms.retry.interval = 60000
-        connect.jms.converters =
+        connect.jms.default.converters =
         connect.jms.topics = []
         connect.jms.url = tcp://localhost:61616
         connect.jms.username = null
@@ -187,14 +186,15 @@ The Source supports:
 1.  KCQL routing of JMS destination messages to Kafka topics.
 2.  Pluggable converters.
 3.  Default conversion of JMS Messages to Avro with the payload as a Byte array.
-4.   Extra connection properties for specialized connections such as SOLACE_VPN.
+4.  Extra connection properties for specialized connections such as SOLACE_VPN.
 
 .. _jms_converters:
 
 Converters
 ~~~~~~~~~~
 
-We provide four converters out of the box but you can plug your own. See an example :ref:`here. <jms_converter_example>`
+We provide four converters out of the box but you can plug your own. See an example :ref:`here. <jms_converter_example>` which 
+and be set in ``connect.jms.kcql`` statement.
 
 **AvroConverter**
 
@@ -234,14 +234,17 @@ The JMS Source supports the following:
 
 .. sourcecode:: bash
 
-    INSERT INTO <kafka target> SELECT * FROM <jms destination>
+    INSERT INTO <kafka target> SELECT * FROM <jms destination> WITHTYPE <TOPIC|QUEUE> [WITHCONVERTER=myclass]
 
 Example:
 
 .. sourcecode:: sql
 
     #select from a JMS queue and write to a kafka topic
-    INSERT INTO topicA SELECT * FROM jms_queue
+    INSERT INTO topicA SELECT * FROM jms_queue WITHTYPE QUEUE
+
+    #select from a JMS topic and write to a kafka topic
+    INSERT INTO topicA SELECT * FROM jms_queue WITHTYPE TOPIC
 
 Configurations
 --------------
@@ -305,43 +308,13 @@ List (comma separated) of extra properties as key/value pairs with a colon delim
 
 ``connect.jms.kcql``
 
-KCQL expression describing field selection and routes.
+KCQL expression describing field selection and routes. The kcql expression also handles setting the JMS destination type, i.e. TOPIC or
+QUEUE via the ``withtype`` keyword and additionally the converter via the ``withconverter`` keyword. If no converter is specified the sink
+will default to the BytesConverter. This will send an avro message over Kafka using Schema.BYTES
 
 * Data Type: string
 * Importance: high
 * Optional : no
-
-``connect.jms.topics``
-
-Comma separated list of all the jms target topics.
-
-* Data Type: list
-* Importance: medium
-* Optional : yes
-
-``connect.jms.queues``
-
-Comma separated list of all the jms target queues.
-
-* Data Type: list
-* Importance: medium
-* Optional : yes
-
-
-``connect.jms.converters``
-
-Contains a tuple (jms source topic and the canonical class name for the converter to convert the JMS message to a SourceRecord).
-If the source topic is not matched it will default to the BytesConverter. This will send an avro message over Kafka using Schema.BYTES
-
-* Data type:  string
-* Importance: medium
-* Optional:   yes
-* Default:    null
-
-.. sourcecode:: bash
-
-  jms_source1=com.datamountaineer.streamreactor.connect.source.converters.AvroConverter;jms_source2=com.datamountaineer.streamreactor.connect.source.converters.JsonSimpleConverter
-
 
 ``connect.converter.avro.schemas``
 

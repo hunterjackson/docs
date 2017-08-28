@@ -149,7 +149,7 @@ connect to the Rest API of Kafka Connect of your container.
     connector.class=com.datamountaineer.streamreactor.connect.cassandra.sink.CassandraSinkConnector
     tasks.max=1
     topics=orders-topic
-    connect.cassandra.sink.kcql=INSERT INTO orders SELECT * FROM orders-topic
+    connect.cassandra.kcql=INSERT INTO orders SELECT * FROM orders-topic
     connect.cassandra.port=9042
     connect.cassandra.key.space=demo
     connect.cassandra.contact.points=localhost

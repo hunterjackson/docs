@@ -75,13 +75,14 @@ connect to the Rest API of Kafka Connect of your container.
     ➜  bin/connect-cli create elastic-sink < conf/elastic-sink.properties
 
     #Connector name=`elastic-sink`
+    connect.progress.enabled=true
     name=elastic-sink
     connector.class=com.datamountaineer.streamreactor.connect.elastic5.ElasticSinkConnector
     connect.elastic.url=localhost:9300
     connect.elastic.cluster.name=elasticsearch
     tasks.max=1
-    topics=TOPIC1
-    connect.elastic.kcql=INSERT INTO INDEX_1 SELECT field1, field2 FROM TOPIC1
+    topics=orders-topic
+    connect.elastic.kcql=INSERT INTO index_1 SELECT * FROM orders-topic
     #task ids: 0
 
 The ``elastic-sink.properties`` file defines:
@@ -139,7 +140,7 @@ and a ``random_field`` of type string.
 .. sourcecode:: bash
 
     ${CONFLUENT_HOME}/bin/kafka-avro-console-producer \
-     --broker-list localhost:9092 --topic TOPIC1 \
+     --broker-list localhost:9092 --topic orders-topic \
      --property value.schema='{"type":"record","name":"myrecord","fields":[{"name":"id","type":"int"},
     {"name":"random_field", "type": "string"}]}'
 
@@ -182,8 +183,8 @@ If we query Elastic Search for ``id`` 999:
             "total": 1,
             "max_score": 1.2231436,
             "hits": [{
-                "_index": "test_table",
-                "_type": "test_table",
+                "_index": "INDEX_1",
+                "_type": "INDEX_1",
                 "_id": "AVMY4eZXFguf2uMZyxjU",
                 "_score": 1.2231436,
                 "_source": {
@@ -227,7 +228,7 @@ Example:
     #Insert mode, select 3 fields and rename from topicB and write to indexB
     INSERT INTO indexB SELECT x AS a, y AS b and z AS c FROM topicB PK y
 
-This is set in the ``connect.elastic.sink.kcql`` option.
+This is set in the ``connect.elastic.kcql`` option.
 
 Auto Index Creation
 ~~~~~~~~~~~~~~~~~~~
@@ -246,7 +247,6 @@ Url of the Elastic cluster.
 * Importance: high
 * Optional  : no
 
-
 ``connect.elastic.kcql``
 
 Kafka connect query language expression. Allows for expressive table to topic routing, field selection and renaming.
@@ -260,7 +260,6 @@ Examples:
 * Data type : string
 * Importance: high
 * Optional  : no
-
 
 ``connect.elastic.error.policy``
 
@@ -305,12 +304,10 @@ Example:
 Provides the list of plugins to enable.
 The entry is a `;` separated list of full class path (The classes need to derive from `org.elasticsearch.plugins.Plugin`)
 
-
 * Type: string
 * Importance: medium
 * Default: null
 * Optional: yes
-
 
 ``connect.elastic.write.timeout``
 

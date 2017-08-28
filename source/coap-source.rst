@@ -173,8 +173,8 @@ The CoAP Source supports the following:
 No selection of fields on the CoAP message is support. All the message attributes are mapped to predefined ``Struct`` representing
 the CoAP response message.
 
-DTLS Client
-~~~~~~~~~~~
+DTLS Secure connections
+^^^^^^^^^^^^^^^^^^^^^^^
 
 The Connector use the  `Californium <https://github.com/eclipse/californium>`__ Java API and for secure connections use the
 Scandium security module provided by Californium. Scandium (Sc) is an implementation of Datagram Transport Layer Security 1.2,
@@ -183,17 +183,25 @@ also known as `RFC 6347 <https://tools.ietf.org/html/rfc6347>`__.
 Please refer to the Californium `certification <https://github.com/eclipse/californium/tree/master/demo-certs>`__ repo page for
 more information.
 
-DTLS Client connections can be enabled by setting the ``connect.coap.keystore.pass`` property. If set you must provide the following
-or the Connector will not start and throw a configuration exception:
+The connector supports:
 
-*   ``connect.coap.keystore.pass``
-*   ``connect.coap.keystore.path``
-*   ``connect.coap.truststore.pass``
-*   ``connect.coap.truststore.path``
+1.  SSL trust and key stores
+2.  Public/Private PEM keys and PSK client/identity
+3.  PSK Client Identity
+
+The Sink will attempt secure connections in the following order if the URI schema of ``connect.coap.uri`` set to secure, i.e.``coaps``.
+If ``connect.coap.username`` is set PSK client identity authentication is used, if additional ``connect.coap.private.key.path``
+Public/Private keys authentication will also be attempt. Otherwise SSL trust and key store.
+
+.. sourcecode:: bash
+
+     `openssl pkcs8 -in privatekey.pem -topk8 -nocrypt -out privatekey-pkcs8.pem`
+
+ Only cipher suites TLS_PSK_WITH_AES_128_CCM_8 and TLS_PSK_WITH_AES_128_CBC_SHA256 are currently supported.
 
 .. warning::
 
-    The key and truststore must be available on the local disk of the worker task.
+    The keystore, truststore, public and private files must be available on the local disk of the worker task.
 
 Loading specific certificates can be achieved by providing a comma separated list for the ``connect.coap.certs`` configuration option.
 The certificate chain can be set by the ``connect.coap.cert.chain.key`` configuration option.
@@ -234,6 +242,45 @@ The hostname the DTLS connector will bind to on the Connector host.
 * Importance: medium
 * Optional  : yes
 * Default   : localhost
+
+``connect.coap.username``
+
+CoAP PSK identity.
+
+* Data Type : string
+* Importance: medium
+* Optional  : yes
+
+``connect.coap.password``
+
+CoAP PSK secret.
+
+* Data Type : password
+* Importance: medium
+* Optional  : yes
+
+``connect.coap.public.key.file``
+
+Path to the public key file for use in with PSK credentials.
+
+* Data Type : string
+* Importance: medium
+* Optional  : yes
+
+``connect.coap.private.key.file``
+
+ Path to the private key file for use in with PSK credentials in PKCS8 rather than PKCS1
+ Use open SSL to convert.
+
+.. sourcecode:: bash
+
+     `openssl pkcs8 -in privatekey.pem -topk8 -nocrypt -out privatekey-pkcs8.pem`
+
+ Only cipher suites TLS_PSK_WITH_AES_128_CCM_8 and TLS_PSK_WITH_AES_128_CBC_SHA256 are currently supported.
+
+* Data Type : string
+* Importance: medium
+* Optional  : yes
 
 ``connect.coap.keystore.pass``
 

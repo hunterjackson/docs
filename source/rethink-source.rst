@@ -82,7 +82,7 @@ The ``rethink-source.properties`` file defines:
 2.  The name of the rethink host to connect to.
 3.  The rethink port to connect to.
 4.  The Source class.
-5.  The max number of tasks the connector is allowed to created. The connector splits and groups the `connect.rethink.source.kcql`
+5.  The max number of tasks the connector is allowed to created. The connector splits and groups the `connect.rethink.kcql`
     by the number of tasks to ensure a distribution based on allowed number of tasks and Source tables.
 6.  The ReThinkDB database to connect to.
 7.  :ref:`The KCQL routing querying. <kcql>`

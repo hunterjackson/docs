@@ -88,13 +88,13 @@ connect to the Rest API of Kafka Connect of your container.
     ➜  bin/connect-cli create rethink-sink < rethink-sink.properties
     #Connector name=`rethink-sink`
     name=rethink-sink
-    connect.rethink.sink.db=dbname
-    connect.rethink.sink.host=localhost
-    connect.rethink.sink.port=28015
+    connect.rethink.db=dbname
+    connect.rethink.host=localhost
+    connect.rethink.port=28015
     connector.class=com.datamountaineer.streamreactor.connect.rethink.sink.ReThinkSinkConnector
     tasks.max=1
     topics=rethink-topic
-    connect.rethink.sink.kcql=INSERT INTO TABLE1 SELECT * FROM rethink_topic
+    connect.rethink.kcql=INSERT INTO TABLE1 SELECT * FROM rethink_topic
     #task ids: 0
 
 The ``rethink-sink.properties`` file defines:
@@ -246,14 +246,14 @@ Kafka connect framework to pause and replay the message. Offsets are not committ
 it will cause a write failure, the message can be replayed. With the Retry policy the issue can be fixed without stopping
 the sink.
 
-The length of time the Sink will retry can be controlled by using the ``connect.rethink.sink.max.retries`` and the
-``connect.rethink.sink.retry.interval``.
+The length of time the Sink will retry can be controlled by using the ``connect.rethink.max.retries`` and the
+``connect.rethink.retry.interval``.
 
 Topic Routing
 ~~~~~~~~~~~~~
 
 The Sink supports topic routing that allows mapping the messages from topics to a specific table. For example, map a
-topic called "bloomberg_prices" to a table called "prices". This mapping is set in the ``connect.rethink.sink.kcql``
+topic called "bloomberg_prices" to a table called "prices". This mapping is set in the ``connect.rethink.kcql``
 option.
 
 Example:
@@ -266,7 +266,7 @@ Example:
 Field Selection
 ~~~~~~~~~~~~~~~
 
-The ReThink Sink supports field selection and mapping. This mapping is set in the ``connect.rethink.sink.kcql`` option.
+The ReThink Sink supports field selection and mapping. This mapping is set in the ``connect.rethink.kcql`` option.
 
 
 Examples:
@@ -284,9 +284,9 @@ Examples:
 Auto Create Tables
 ~~~~~~~~~~~~~~~~~~
 
-The Sink supports auto creation of tables for each topic. This mapping is set in the ``connect.rethink.sink.kcql`` option.
+The Sink supports auto creation of tables for each topic. This mapping is set in the ``connect.rethink.kcql`` option.
 
-A user specified primary can be set in the ``PK`` clause for the ``connect.rethink.sink.kcql`` option. Only one
+A user specified primary can be set in the ``PK`` clause for the ``connect.rethink.kcql`` option. Only one
 key is supported. If more than one is set only the first is used. If no primary keys are set the default primary key
 called ``id`` is used. The value for the default key is the topic name, partition and offset of the records.
 

@@ -73,63 +73,64 @@ Within the unpacked directory you will find the following structure:
 
 .. sourcecode:: bash
 
-.
-|-- LICENSE
-|-- README.md
-|-- bin
-|   |-- connect-cli
-|   |-- sr-cli-linux
-|   |-- sr-cli-osx
-|   `-- start-connect
-|-- conf
-|   |-- azure-docdb-sink.properties
-|   |-- blockchain-source.properties
-|   |-- bloomberg-source.properties
-|   |-- cassandra-sink.properties
-|   |-- cassandra-source-incr.properties
-|   |-- cassandra-source.properties
-|   |-- coap-hazelcast-sink.properties
-|   |-- coap-hazelcast-source.properties
-|   |-- coap-sink.properties
-|   |-- coap-source.properties
-|   |-- druid-sink.properties
-|   |-- elastic-sink.properties
-|   |-- elastic5-sink.properties
-|   |-- ftp-source.properties
-|   |-- hazelcast-sink.properties
-|   |-- hbase-sink.properties
-|   |-- influxdb-sink.properties
-|   |-- jms-sink.properties
-|   |-- jms-source.properties
-|   |-- kudu-sink.properties
-|   |-- mongodb-sink.properties
-|   |-- mqtt-source.properties
-|   |-- redis-sink.properties
-|   |-- rethink-sink.properties
-|   |-- rethink-source.properties
-|   |-- voltdb-sink.properties
-|   `-- yahoo-source.properties
-`-- libs
-    |-- kafka-connect-azure-documentdb-0.2.6-3.2.0-all.jar
-    |-- kafka-connect-blockchain-0.2.6-3.2.0-all.jar
-    |-- kafka-connect-bloomberg-0.2.6-3.2.0-all.jar
-    |-- kafka-connect-cassandra-0.2.6-3.2.0-all.jar
-    |-- kafka-connect-coap-0.2.6-3.2.0-all.jar
-    |-- kafka-connect-druid-0.2.6-3.2.0-all.jar
-    |-- kafka-connect-elastic-0.2.6-3.2.0-all.jar
-    |-- kafka-connect-elastic5-0.2.6-3.2.0-all.jar
-    |-- kafka-connect-ftp-0.2.6-3.2.0-all.jar
-    |-- kafka-connect-hazelcast-0.2.6-3.2.0-all.jar
-    |-- kafka-connect-hbase-0.2.6-3.2.0-all.jar
-    |-- kafka-connect-influxdb-0.2.6-3.2.0-all.jar
-    |-- kafka-connect-jms-0.2.6-3.2.0-all.jar
-    |-- kafka-connect-kudu-0.2.6-3.2.0-all.jar
-    |-- kafka-connect-mongodb-0.2.6-3.2.0-all.jar
-    |-- kafka-connect-mqtt-0.2.6-3.2.0-all.jar
-    |-- kafka-connect-redis-0.2.6-3.2.0-all.jar
-    |-- kafka-connect-rethink-0.2.6-3.2.0-all.jar
-    |-- kafka-connect-voltdb-0.2.6-3.2.0-all.jar
-    `-- kafka-connect-yahoo-0.2.6-3.2.0-all.jar
+    .
+    |-- LICENSE
+    |-- README.md
+    |-- bin
+    |   |-- connect-cli
+    |   |-- sr-cli-linux
+    |   |-- sr-cli-osx
+    |   `-- start-connect
+    |-- conf
+    |   |-- azure-docdb-sink.properties
+    |   |-- blockchain-source.properties
+    |   |-- bloomberg-source.properties
+    |   |-- cassandra-sink.properties
+    |   |-- cassandra-source-incr.properties
+    |   |-- cassandra-source.properties
+    |   |-- coap-hazelcast-sink.properties
+    |   |-- coap-hazelcast-source.properties
+    |   |-- coap-sink.properties
+    |   |-- coap-source.properties
+    |   |-- druid-sink.properties
+    |   |-- elastic-sink.properties
+    |   |-- elastic5-sink.properties
+    |   |-- ftp-source.properties
+    |   |-- hazelcast-sink.properties
+    |   |-- hbase-sink.properties
+    |   |-- influxdb-sink.properties
+    |   |-- jms-sink.properties
+    |   |-- jms-source.properties
+    |   |-- kudu-sink.properties
+    |   |-- mongodb-sink.properties
+    |   |-- mqtt-source.properties
+    |   |-- mqtt-sink.properties
+    |   |-- redis-sink.properties
+    |   |-- rethink-sink.properties
+    |   |-- rethink-source.properties
+    |   |-- voltdb-sink.properties
+    |   `-- yahoo-source.properties
+    `-- libs
+        |-- kafka-connect-azure-documentdb-0.2.6-3.2.0-all.jar
+        |-- kafka-connect-blockchain-0.2.6-3.2.0-all.jar
+        |-- kafka-connect-bloomberg-0.2.6-3.2.0-all.jar
+        |-- kafka-connect-cassandra-0.2.6-3.2.0-all.jar
+        |-- kafka-connect-coap-0.2.6-3.2.0-all.jar
+        |-- kafka-connect-druid-0.2.6-3.2.0-all.jar
+        |-- kafka-connect-elastic-0.2.6-3.2.0-all.jar
+        |-- kafka-connect-elastic5-0.2.6-3.2.0-all.jar
+        |-- kafka-connect-ftp-0.2.6-3.2.0-all.jar
+        |-- kafka-connect-hazelcast-0.2.6-3.2.0-all.jar
+        |-- kafka-connect-hbase-0.2.6-3.2.0-all.jar
+        |-- kafka-connect-influxdb-0.2.6-3.2.0-all.jar
+        |-- kafka-connect-jms-0.2.6-3.2.0-all.jar
+        |-- kafka-connect-kudu-0.2.6-3.2.0-all.jar
+        |-- kafka-connect-mongodb-0.2.6-3.2.0-all.jar
+        |-- kafka-connect-mqtt-0.2.6-3.2.0-all.jar
+        |-- kafka-connect-redis-0.2.6-3.2.0-all.jar
+        |-- kafka-connect-rethink-0.2.6-3.2.0-all.jar
+        |-- kafka-connect-voltdb-0.2.6-3.2.0-all.jar
+        `-- kafka-connect-yahoo-0.2.6-3.2.0-all.jar
 
 
 The ``libs`` folder contains all the Stream Reactor Connector jars.
@@ -173,17 +174,16 @@ Release Notes
 0.3.0
 ~~~~~
 
-Feature
-^^^^^^^
+**Features**
 
 *   Upgrade to Confluent 3.3 and Kafka 0.11.0.0
 
 0.2.6
 ~~~~~
 
-Feature
-^^^^^^^
+**Features**
 
+*   Added MQTT Sink
 *   Upgrade to Confluent 3.2.2
 *   Upgrade to KCQL 2x
 *   Add CQL generator to Cassandra source
@@ -204,17 +204,16 @@ Feature
 *   Support for dates in Elastic Indexes and custom document types
 *   Upgrade CoAP to 2.0.0-M4
 *   Upgrade Connect CLI to 1.0.2 (Renamed to connect-cli)
+*   Add MQTT wildcard support.
 
-Bug Fixes
-^^^^^^^^^
+**Bug Fixes**
 
 *   Fixes for high CPU on CoAP source
 *   Fixes for high CPU on Cassandra source
 *   Fixed Avro double fields mapping to Kudu columns
 *   Fixes on JMS properties converter, Invalid schema when extracting properties
 
-Misc
-^^^^
+**Misc**
 
 *   Refactored Cassandra Tests to use only one embedded instance
 *   Removed unused batch size and bucket size options from Kudu, they are taken from KCQL
@@ -270,10 +269,15 @@ Misc
 *   Rename ReThink Sink `connect.rethink.sink.kcql` to `connect.rethink.kcql`
 *   Rename JMS `connect.jms.user` to `connect.jms.username`
 *   Rename JMS `connect.jms.source.converters` to `connect.jms.converters`
+*   Remove JMS `connect.jms.converters` and replace my kcql `withConverters`
+*   Remove JMS `connect.jms.queues` and replace my kcql `withType=QUEUE`
+*   Remove JMS `connect.jms.topics` and replace my kcql `withType=TOPIC`
 *   Rename Mqtt `connect.mqtt.source.kcql` to `connect.mqtt.kcql`
-*   Rename Mqtt `connect.mqtt.source.converters` to `connect.mqtt.converters`
 *   Rename Mqtt `connect.mqtt.user` to `connect.mqtt.username`
 *   Rename Mqtt `connect.mqtt.hosts` to `connect.mqtt.connection.hosts`
+*   Remove Mqtt `connect.mqtt.converters` and replace my kcql `withConverters`
+*   Remove Mqtt `connect.mqtt.queues` and replace my kcql `withType=QUEUE`
+*   Remove Mqtt `connect.mqtt.topics` and replace my kcql `withType=TOPIC`
 *   Rename Hazelcast `connect.hazelcast.sink.kcql` to `connect.hazelcast.kcql`
 *   Rename Hazelcast `connect.hazelcast.sink.group.name` to `connect.hazelcast.group.name`
 *   Rename Hazelcast `connect.hazelcast.sink.group.password` to `connect.hazelcast.group.password`

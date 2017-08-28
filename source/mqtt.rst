@@ -139,7 +139,7 @@ We can use the CLI to check if the connector is up but you should be able to see
                |_|
      (com.datamountaineer.streamreactor.connect.mqtt.source.MqttSourceTask:37)
     [2016-12-20 16:51:08,090] INFO MqttSourceConfig values:
-        connect.mqtt.source.kcql = INSERT INTO kjson SELECT * FROM /mjson;INSERT INTO kavro SELECT * FROM /mavro
+        connect.mqtt.kcql = INSERT INTO kjson SELECT * FROM /mjson;INSERT INTO kavro SELECT * FROM /mavro
         connect.mqtt.service.quality = 1
         connect.mqtt.connection.ssl.cert = null
         connect.mqtt.converters = /mjson=com.datamountaineer.streamreactor.connect.converters.source.JsonSimpleConverter;/mavro=com.datamountaineer.streamreactor.connect.converters.source.AvroConverter
@@ -227,7 +227,7 @@ Features
 --------
 
 The Mqtt source allows you to plugin your own converter. Say you receive protobuf data, all you have to do is to write your own
-very specific converter that knows how to convert from protobuf to SourceRecord. All you have to do is set the ``connect.mqtt.source.converters``
+very specific converter that knows how to convert from protobuf to SourceRecord. All you have to do is set the ``connect.mqtt.converters``
 for the topic containing the protobuf data.
 
 .. _mqtt_converters:

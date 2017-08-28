@@ -161,7 +161,7 @@ connect to the Rest API of Kafka Connect of your container.
     connect.mongo.kcql=INSERT INTO orders SELECT * FROM orders-topic
     connect.mongo.database=connect
     connect.mongo.connection=mongodb://localhost:27017
-    connect.mongo.sink.batch.size=10
+    connect.mongo.batch.size=10
 
     #task ids: 0
 
@@ -400,7 +400,7 @@ The sink supports:
 
 .. sourcecode:: bash
 
-    connect.mongo.sink.kcql = INSERT INTO orders SELECT * FROM orders-topic; UPSERT INTO customers SELECT * FROM customer-topic PK customer_id; UPSERT INTO invoiceid as invoice_id, customerid as customer_id, value a SELECT invoice_id, FROM invoice-topic
+    connect.mongo.kcql = INSERT INTO orders SELECT * FROM orders-topic; UPSERT INTO customers SELECT * FROM customer-topic PK customer_id; UPSERT INTO invoiceid as invoice_id, customerid as customer_id, value a SELECT invoice_id, FROM invoice-topic
 
 3. Error policies for handling failures.
 
@@ -470,7 +470,7 @@ For example your configuration in this case:
 
 .. sourcecode:: bash
 
-    connect.mongo.sink.kcql = INSERT INTO orders SELECT * FROM orders-topic; UPSERT INTO customers SELECT * FROM customer-topic PK customer_id; UPSERT INTO invoiceid as invoice_id, customerid as customer_id, value a SELECT invoice_id, FROM invoice-topic
+    connect.mongo.kcql = INSERT INTO orders SELECT * FROM orders-topic; UPSERT INTO customers SELECT * FROM customer-topic PK customer_id; UPSERT INTO invoiceid as invoice_id, customerid as customer_id, value a SELECT invoice_id, FROM invoice-topic
 
 Field Selection
 ^^^^^^^^^^^^^^^

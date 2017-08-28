@@ -162,7 +162,7 @@ We can use the CLI to check if the connector is up but you should be able to see
         connect.hazelcast.group.password = [hidden]
         connect.hazelcast.connection.retries = 2
         connect.hazelcast.connection.linger.seconds = 3
-        connect.hazelcast.sink.retry.interval = 60000
+        connect.hazelcast.retry.interval = 60000
         connect.hazelcast.max.retires = 20
         connect.hazelcast.batch.size = 1000
         connect.hazelcast.connection.reuse.address = true

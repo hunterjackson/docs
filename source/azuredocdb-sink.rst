@@ -92,7 +92,7 @@ All you have to do in this case is to set the following in the configuration
 
 .. sourcecode:: bash
 
-    connect.documentdb.sink.database.create=true
+    connect.documentdb.database.create=true
 
 
 
@@ -125,12 +125,12 @@ connect to the Rest API of Kafka Connect of your container.
     connector.class=com.datamountaineer.streamreactor.connect.azure.documentdb.sink.DocumentDbSinkConnector
     tasks.max=1
     topics=orders-avro
-    connect.documentdb.sink.kcql=INSERT INTO orders SELECT * FROM orders-avro
+    connect.documentdb.kcql=INSERT INTO orders SELECT * FROM orders-avro
     connect.documentdb.database.name=dm
     connect.documentdb.endpoint=[YOUR_AZURE_ENDPOINT]
-    connect.documentdb.sink.database.create=true
+    connect.documentdb.database.create=true
     connect.documentdb.master.key=[YOUR_MASTER_KEY]
-    connect.documentdb.sink.batch.size=10
+    connect.documentdb.batch.size=10
 
     #task ids: 0
 
@@ -314,7 +314,7 @@ and start the new sink with the json properties files to read from the a differe
 
     #edit  azure-docdb-sink-json.properties replace the following keys
     topics=orders-topic-json
-    connect.documentdb.sink.kcql=INSERT INTO orders_j SELECT * FROM orders-topic-json
+    connect.documentdb.kcql=INSERT INTO orders_j SELECT * FROM orders-topic-json
 
 
 .. sourcecode:: bash
@@ -432,7 +432,7 @@ The sink supports:
 
 .. sourcecode:: bash
 
-    connect.documentdb.sink.kcql = INSERT INTO orders SELECT * FROM orders-topic; UPSERT INTO customers SELECT * FROM customer-topic PK customer_id; UPSERT INTO invoiceid as invoice_id, customerid as customer_id, value a SELECT invoice_id, FROM invoice-topic
+    connect.documentdb.kcql = INSERT INTO orders SELECT * FROM orders-topic; UPSERT INTO customers SELECT * FROM customer-topic PK customer_id; UPSERT INTO invoiceid as invoice_id, customerid as customer_id, value a SELECT invoice_id, FROM invoice-topic
 
 3. Error policies for handling failures.
 
@@ -502,7 +502,7 @@ For example your configuration in this case:
 
 .. sourcecode:: bash
 
-    connect.documentdb.sink.kcql = INSERT INTO orders SELECT * FROM orders-topic; UPSERT INTO customers SELECT * FROM customer-topic PK customer_id; UPSERT INTO invoiceid as invoice_id, customerid as customer_id, value a SELECT invoice_id, FROM invoice-topic
+    connect.documentdb.kcql = INSERT INTO orders SELECT * FROM orders-topic; UPSERT INTO customers SELECT * FROM customer-topic PK customer_id; UPSERT INTO invoiceid as invoice_id, customerid as customer_id, value a SELECT invoice_id, FROM invoice-topic
 
 Field Selection
 ^^^^^^^^^^^^^^^
@@ -561,7 +561,7 @@ The connection master key
 * Data type: string
 * Optional : no
 
-``connect.documentdb.sink.consistency.level``
+``connect.documentdb.consistency.level``
 
 Determines the write visibility. There are four possible values: Strong,BoundedStaleness,Session  nbyor Eventual
 
