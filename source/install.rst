@@ -169,21 +169,26 @@ Set the `CONNECT_` and `CONNECTOR_` environment variables accordingly when runni
     We strongly recommend using Landoop's Fast Data Dev dockers. The stream reactor is prepackaged and UI's are included.
 
 Release Notes
--------------
+~~~~~~~~~~~~~
 
-0.3.0
-~~~~~
+3.0.0 (Pending)
+^^^^^^^^^^^^^^^
 
 **Features**
 
-*   Upgrade to Confluent 3.3 and Kafka 0.11.0.0
+*   Upgrade CoAP to 2.0.0-M4
+*   Upgrade to Confluent 3.3 and Kafka 0.11.0.0.
+*   Added MQTT Sink.
+*   Add MQTT wildcard support.
+*   Upgrade CoAP to 2.0.0-M4.
+*   Added WITHCONVERTERS and WITHTYPE to JMS and MQTT connectors in KCQL to simplify configuration.
+*   Add flush mode to Kudu sink with a PR from @patsak. Thanks
 
 0.2.6
-~~~~~
+^^^^^
 
 **Features**
 
-*   Added MQTT Sink
 *   Upgrade to Confluent 3.2.2
 *   Upgrade to KCQL 2x
 *   Add CQL generator to Cassandra source
@@ -202,9 +207,7 @@ Release Notes
 *   Added TLS support for ReThinkDB, add batch size option to source for draining the internal queues.
 *   Upgrade Kudu Client to 1.4.0
 *   Support for dates in Elastic Indexes and custom document types
-*   Upgrade CoAP to 2.0.0-M4
 *   Upgrade Connect CLI to 1.0.2 (Renamed to connect-cli)
-*   Add MQTT wildcard support.
 
 **Bug Fixes**
 
@@ -295,7 +298,7 @@ Release Notes
 *   Rename VoltDB `connect.volt.sink.retry.interval` to `connect.volt.retry.interval`
 
 0.2.5
-~~~~~
+^^^^^
 
 *   Adding Azure DocumentDb Sink
 *   Adding UPSERT to Elastic Search
@@ -310,7 +313,7 @@ Release Notes
 *   Support for Cassandra data type of ``timestamp`` in the Cassandra Source for timestamp tracking.
 
 0.2.4 (26 Jan 2017)
-~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^
 
 *   Added FTP and HTTP Source.
 *   Added InfluxDB tag support. KCQL: INSERT INTO target dimension SELECT * FROM influx-topic WITHTIMESTAMP sys_time() WITHTAG(field1, CONSTANT_KEY1=CONSTANT_VALUE1, field2,CONSTANT_KEY2=CONSTANT_VALUE1)
@@ -319,7 +322,7 @@ Release Notes
 *   Added support for multiple contact points in Cassandra.
 
 0.2.3 (5 Jan 2017)
-~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^
 
 *   Added CoAP Source and Sink.
 *   Added MongoDB Sink.

@@ -13,7 +13,9 @@ CLI
 
 To install the CLI, assuming a properly setup Go installation, do:
 
-`go get github.com/datamountaineer/schema-registry/schema-registry-cli`
+.. sourcecode:: bash
+
+  go get github.com/datamountaineer/schema-registry/schema-registry-cli
 
 After that, the CLI is found in `$GOPATH/bin/schema-registry-cli`. Running `schema-registry-cli` without arguments gives:
 
@@ -38,10 +40,6 @@ After that, the CLI is found in `$GOPATH/bin/schema-registry-cli`. Running `sche
 
     Use "schema-registry-cli [command] --help" for more information about a command.
 
-
-Client
-------
-
-The documentation of the package can be found [here](https://godoc.org/github.com/datamountaineer/schema-registry).
+The documentation of the package can be found `here <https://godoc.org/github.com/datamountaineer/schema-registry)>`__.
 
 

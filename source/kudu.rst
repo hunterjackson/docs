@@ -488,10 +488,23 @@ Examples:
 
     INSERT INTO TABLE1 SELECT * FROM TOPIC1;INSERT INTO TABLE2 SELECT field1, field2, field3 as renamedField FROM TOPIC2
 
-
 * Data Type: string
 * Importance: high
 * Optional : no
+
+``connect.kudu.write.flush.mode``
+
+Flush mode on write.
+
+1.  SYNC - flush each sink record. Batching is disabled.
+2.  BATCH_BACKGROUND - flush batch of sink records in background thread.
+3.  BATCH_SYNC - flush batch of sink records.
+
+* Data Type: string
+* Importance: medium
+* Optional : yes
+* Default: SYNC
+
 
 ``connect.kudu.error.policy``
 

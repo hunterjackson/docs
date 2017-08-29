@@ -29,10 +29,10 @@ Follow the instructions :ref:`here <install>`.
 Mqtt Setup
 ~~~~~~~~~~
 
-For testing we will use a simple application spinning up an mqtt server using Moquette. Download and unzip `this <https://github.com/datamountaineer/mqtt-server/releases/download/v.0.1/mqtt-server-0.1.tgz>`__
-Also download the `schema <https://github.com/datamountaineer/mqtt-server/releases/download/v.0.1/temperaturemeasure.avro>`__ required to read the avro records
+For testing we will use a simple application spinning up an mqtt server using Moquette. Download and unzip `this <https://github.com/datamountaineer/mqtt-server/releases/download/v.0.1/mqtt-server-0.1.tgz>`__.
 
-Once you have unpacked the archiver you should start the server
+Once you have unpacked the archiver you should start the server.
+
 .. sourcecode:: bash
 
     ➜  bin/mqtt-server
@@ -45,10 +45,11 @@ You should see the following outcome:
     log4j:WARN Please initialize the log4j system properly.
     log4j:WARN See http://logging.apache.org/log4j/1.2/faq.html#noconfig for more info.
     Starting mqtt service on port 11883
-    Hit Enter to start publishing messages on topic: /mjson and /mavro
-
+    Hit Enter to start publishing messages on topic: /mjson and /mavro.
 
 The server has started but no records have been published yet. More on this later once we start the source.
+
+
 
 Source Connector QuickStart
 ---------------------------
@@ -87,9 +88,8 @@ connect to the Rest API of Kafka Connect of your container.
     tasks.max=1
     connect.mqtt.connection.clean=true
     connect.mqtt.connection.timeout=1000
-    connect.mqtt.kcql=INSERT INTO kjson SELECT * FROM /mjson;INSERT INTO kavro SELECT * FROM /mavro
+    connect.mqtt.kcql=INSERT INTO kjson SELECT * FROM /mjson WITHCONVERTER=myclass;INSERT INTO kavro SELECT * FROM /mavro
     connect.mqtt.connection.keep.alive=1000
-    connect.mqtt.converters=/mjson=com.datamountaineer.streamreactor.connect.converters.source.JsonSimpleConverter;/mavro=com.datamountaineer.streamreactor.connect.converters.source.AvroConverter
     connect.converter.avro.schemas=/mavro=$PATH_TO/temperaturemeasure.avro
     connect.mqtt.client.id=dm_source_id,
     connect.mqtt.converter.throw.on.error=true
@@ -239,7 +239,6 @@ We provide four converters out of the box but you can plug your own. See an exam
 
 **AvroConverter**
 
-
 ``com.datamountaineer.streamreactor.connect.source.converters.AvroConverter``
 
 The payload for the Mqtt message is an Avro message. In this case you need to provide a path for the Avro schema file to
@@ -274,15 +273,21 @@ The Mqtt Source supports the following:
 
 .. sourcecode:: bash
 
-    INSERT INTO <target topic> SELECT * FROM <mqtt source topic>
+    INSERT INTO <target topic> SELECT * FROM <mqtt source topic> [WITHCONVERTER=myclass]
 
 Example:
 
 .. sourcecode:: sql
 
-    #Insert mode, select all fields from topicA and write to tableA
-    INSERT INTO kafkaTopic1 SELECT * FROM mqttTopicA
+    #Insert mode, select all fields from topicA and write to topic kafkaTopic1 with converter myclass
+    INSERT INTO kafkaTopic1 SELECT * FROM mqttTopicA [WITHCONVERTER=myclass]
 
+    #wildcard
+    INSERT INTO kafkaTopic1 SELECT * FROM mqttTopicA/+/sensors [WITHCONVERTER=myclass]
+
+.. note::
+
+    Wildcard MQTT subscriptions are supported but require the same converter to be used for all.
 
 Configurations
 --------------
@@ -296,12 +301,6 @@ for filtering the fields from the incoming payload.
 * Importance: high
 * Optional  : no
 
-Examples:
-
-.. sourcecode:: sql
-
-    INSERT INTO KAFKA_TOPIC1 SELECT * FROM MQTT_TOPIC1;INSERT INTO KAFKA_TOPIC2 SELECT * FROM MQTT_TOPIC2
-
 ``connect.mqtt.hosts``
 
 Specifies the mqtt connection endpoints.
@@ -309,7 +308,6 @@ Specifies the mqtt connection endpoints.
 * Data type : string
 * Importance: high
 * Optional  : no
-
 
 Example:
 
@@ -345,7 +343,6 @@ Contains the Mqtt connection password
 * Optional  : yes
 * Default:     null
 
-
 ``connect.mqtt.client.id``
 
 Provides the client connection identifier. If is not provided the framework will generate one.
@@ -354,7 +351,6 @@ Provides the client connection identifier. If is not provided the framework will
 * Importance: medium
 * Optional:   yes
 * Default:    generated
-
 
 ``connect.mqtt.connection.timeout``
 
@@ -382,7 +378,7 @@ also purge all information from a previous persistent session.
 
 The keep alive functionality assures that the connection is still open and both broker and client are connected to one another.
 Therefore the client specifies a time interval in seconds and communicates it to the broker during the establishment of the connection.
-The interval is the longest possible period of time, which broker and client can endure without sending a message."
+The interval is the longest possible period of time, which broker and client can endure without sending a message.
 
 * Data type:  int
 * Importance: medium
@@ -391,7 +387,7 @@ The interval is the longest possible period of time, which broker and client can
 
 ``connect.mqtt.connection.ssl.ca.cert``
 
-Provides the path to the CA certificate file to use with the Mqtt connection"
+Provides the path to the CA certificate file to use with the Mqtt connection
 
 * Data type:  string
 * Importance: medium
@@ -467,9 +463,8 @@ Example
     tasks.max=1
     connect.mqtt.connection.clean=true
     connect.mqtt.connection.timeout=1000
-    connect.mqtt.kcql=INSERT INTO kjson SELECT * FROM /mjson;INSERT INTO kavro SELECT * FROM /mavro
+    connect.mqtt.kcql=INSERT INTO kjson SELECT * FROM /mjson WITHCONVERTER=myclass;INSERT INTO kavro SELECT * FROM /mavro WITHCONVERTER=myclass
     connect.mqtt.connection.keep.alive=1000
-    connect.mqtt.converters=/mjson=com.datamountaineer.streamreactor.connect.converters.source.JsonSimpleConverter;/mavro=com.datamountaineer.streamreactor.connect.converters.source.AvroConverter
     connect.converter.avro.schemas=/mavro=$PATH_TO/temperaturemeasure.avro
     connect.mqtt.client.id=dm_source_id,
     connect.mqtt.converter.throw.on.error=true

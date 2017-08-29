@@ -397,7 +397,7 @@ Example
 .. sourcecode:: bash
 
     name=elastic-sink
-    connector.class=com.datamountaineer.streamreactor.connect.elastic.ElasticSinkConnector
+    connector.class=com.datamountaineer.streamreactor.connect.elastic5.ElasticSinkConnector
     connect.elastic.url=localhost:9300
     connect.elastic.cluster.name=elasticsearch
     tasks.max=1

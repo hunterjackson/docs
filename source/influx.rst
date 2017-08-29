@@ -207,7 +207,8 @@ string a ``address`` field of type string, an ``latitude`` field of type int and
 
     ${CONFLUENT_HOME}/bin/kafka-avro-console-producer \
       --broker-list localhost:9092 --topic influx-topic \
-      --property value.schema='{"type":"record","name":"User","namespace":"com.datamountaineer.streamreactor.connect.influx","fields":[{"name":"company","type":"string"},{"name":"address","type":"string"},{"name":"latitude","type":"float"},{"name":"longitude","type":"float"}]}'
+      --property value.schema='{"type":"record","name":"User",
+      "fields":[{"name":"company","type":"string"},{"name":"address","type":"string"},{"name":"latitude","type":"float"},{"name":"longitude","type":"float"}]}'
 
 Now the producer is waiting for input. Paste in the following:
 

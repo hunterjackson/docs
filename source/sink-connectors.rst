@@ -18,6 +18,7 @@ Sink connectors stream data from Kafka into external systems.
    jms
    kudu
    mongo-sink
+   mqtt-sink
    redis
    rethink
    voltdb

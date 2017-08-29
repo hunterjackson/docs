@@ -48,6 +48,9 @@ the best practice and use schema registry is quite an ask. So we offer support f
 *   InfluxDB
 *   DSE Cassandra Sink
 *   JMS - TextMessages only
+*   CoAP Sink
+*   MQTT Sink
+*   Elastic2x and 5x Sinks
 
 We are upgrading the remaining Connectors. This allows plain text payloads with a json string.
 
