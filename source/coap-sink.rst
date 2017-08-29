@@ -1,4 +1,3 @@
-
 Kafka Connect CoAP Sink
 =======================
 
@@ -78,8 +77,8 @@ You will see the server start listening on port ``5864`` for secure DTLS connect
     UnSecure CoAP server powered by Scandium (Sc) is listening on port 5633
 
 
-Sink Connector QuickStart
--------------------------
+Source Connector QuickStart
+---------------------------
 
 We will start the connector in distributed mode. Each connector exposes a rest endpoint for stopping, starting and updating the configuration. We have developed
 a Command Line Interface to make interacting with the Connect Rest API easier. The CLI can be found in the Stream Reactor download under
@@ -212,97 +211,8 @@ Hit the get button and the records will be displayed in the bottom panel.
 .. figure:: ../images/coap-copper-sink.png
     :alt:
 
-Features
---------
 
-Kafka Connect Query Language
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**K** afka **C** onnect **Q** uery **L** anguage found here `GitHub repo <https://github.com/datamountaineer/kafka-connector-query-language>`__
-allows for routing and mapping using a SQL like syntax, consolidating typically features in to one configuration option.
-
-The CoAP Sink supports the following:
-
-.. sourcecode:: bash
-
-    INSERT INTO <resource> SELECT <fields> FROM <source topic>
-
-Example:
-
-.. sourcecode:: sql
-
-    #Insert mode, select all fields from topicA and write to resourceA
-    INSERT INTO resourceA SELECT * FROM topicA
-
-    #Insert mode, select 3 fields and rename from topicB and write to resourceA
-    INSERT INTO resourceA SELECT x AS a, y AS b and z AS c FROM topicB
-
-This is set in the ``connect.coap.kcql`` option.
-
-Error Polices
-~~~~~~~~~~~~~
-
-The Sink has three error policies that determine how failed writes to the target database are handled. The error policies
-affect the behaviour of the schema evolution characteristics of the sink. See the schema evolution section for more
-information.
-
-**Throw**
-
-Any error on write to the target database will be propagated up and processing is stopped. This is the default
-behaviour.
-
-**Noop**
-
-Any error on write to the target database is ignored and processing continues.
-
-.. warning::
-
-    This can lead to missed errors if you don't have adequate monitoring. Data is not lost as it's still in Kafka
-    subject to Kafka's retention policy. The Sink currently does **not** distinguish between integrity constraint
-    violations and or other expections thrown by drivers.
-
-**Retry**
-
-Any error on write to the target database causes the RetryIterable exception to be thrown. This causes the
-Kafka connect framework to pause and replay the message. Offsets are not committed. For example, if the table is offline
-it will cause a write failure, the message can be replayed. With the Retry policy the issue can be fixed without stopping
-the sink.
-
-The length of time the Sink will retry can be controlled by using the ``connect.influx.max.retries`` and the
-``connect.coap.retry.interval``.
-
-DTLS Secure connections
-^^^^^^^^^^^^^^^^^^^^^^^
-
-The Connector use the  `Californium <https://github.com/eclipse/californium>`__ Java API and for secure connections use the
-Scandium security module provided by Californium. Scandium (Sc) is an implementation of Datagram Transport Layer Security 1.2,
-also known as `RFC 6347 <https://tools.ietf.org/html/rfc6347>`__.
-
-Please refer to the Californium `certification <https://github.com/eclipse/californium/tree/master/demo-certs>`__ repo page for
-more information.
-
-The connector supports:
-
-1.  SSL trust and key stores
-2.  Public/Private PEM keys and PSK client/identity
-3.  PSK Client Identity
-
-The Sink will attempt secure connections in the following order if the URI schema of ``connect.coap.uri`` set to secure, i.e.``coaps``.
-If ``connect.coap.username`` is set PSK client identity authentication is used, if additional ``connect.coap.private.key.path``
-Public/Private keys authentication will also be attempt. Otherwise SSL trust and key store.
-
-.. sourcecode:: bash
-
-     `openssl pkcs8 -in privatekey.pem -topk8 -nocrypt -out privatekey-pkcs8.pem`
-
- Only cipher suites TLS_PSK_WITH_AES_128_CCM_8 and TLS_PSK_WITH_AES_128_CBC_SHA256 are currently supported.
-
-.. warning::
-
-    The keystore, truststore, public and private files must be available on the local disk of the worker task.
-
-Loading specific certificates can be achieved by providing a comma separated list for the ``connect.coap.certs`` configuration option.
-The certificate chain can be set by the ``connect.coap.cert.chain.key`` configuration option.
 
 Configurations
 --------------
@@ -341,50 +251,11 @@ The hostname the DTLS connector will bind to on the Connector host.
 * Optional  : yes
 * Default   : localhost
 
-``connect.coap.username``
-
-CoAP PSK identity.
-
-* Data Type : string
-* Importance: medium
-* Optional  : yes
-
-``connect.coap.password``
-
-CoAP PSK secret.
-
-* Data Type : password
-* Importance: medium
-* Optional  : yes
-
-``connect.coap.public.key.file``
-
-Path to the public key file for use in with PSK credentials.
-
-* Data Type : string
-* Importance: medium
-* Optional  : yes
-
-``connect.coap.private.key.file``
-
- Path to the private key file for use in with PSK credentials in PKCS8 rather than PKCS1
- Use open SSL to convert.
-
-.. sourcecode:: bash
-
-     `openssl pkcs8 -in privatekey.pem -topk8 -nocrypt -out privatekey-pkcs8.pem`
-
- Only cipher suites TLS_PSK_WITH_AES_128_CCM_8 and TLS_PSK_WITH_AES_128_CBC_SHA256 are currently supported.
-
-* Data Type : string
-* Importance: medium
-* Optional  : yes
-
 ``connect.coap.keystore.pass``
 
 The password of the key store
 
-* Data Type : password
+* Data Type : string
 * Importance: medium
 * Optional  : yes
 * Default   : rootPass
@@ -403,7 +274,7 @@ The path to the keystore.
 
 The password of the trust store
 
-* Data Type : password
+* Data Type : string
 * Importance: medium
 * Optional  : yes
 * Default   : rootPass

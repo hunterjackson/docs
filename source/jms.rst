@@ -133,6 +133,7 @@ Now check for records in ActiveMQ.
 
 Now stop the connector.
 
+
 Features
 --------
 
@@ -154,17 +155,17 @@ The JMS Sink supports the following:
 
 .. sourcecode:: bash
 
-    INSERT INTO <jms target> SELECT <fields> FROM <source topic> STOREAS <AVRO|JSON|MAP|OBJECT> WITHTYPE <TOPIC|QUEUE>
+    INSERT INTO <jms target> SELECT <fields> FROM <source topic> STOREAS <AVRO|JSON|MAP|OBJECT>
 
 Example:
 
 .. sourcecode:: sql
 
-    #select all fields from topicA and write to jmsA queue
-    INSERT INTO jmsA SELECT * FROM topicA WITHTYPE QUEUE
+    #select all fields from topicA and write to jmsA
+    INSERT INTO jmsA SELECT * FROM topicA
 
-    #select 3 fields and rename from topicB and write to jmsB topic as JSON in a TextMessage
-    INSERT INTO jmsB SELECT x AS a, y AS b and z AS c FROM topicB STOREAS JSON WITHTYPE TOPIC
+    #select 3 fields and rename from topicB and write to jmsB as JSON in a TextMessage
+    INSERT INTO jmsB SELECT x AS a, y AS b and z AS c FROM topicB STOREAS JSON
 
 
 JMS Payload
@@ -253,12 +254,27 @@ List (comma separated) of extra properties as key/value pairs with a colon delim
 
 ``connect.jms.kcql``
 
-KCQL expression describing field selection and routes. The kcql expression also handles setting the JMS destination type, i.e. TOPIC or
-QUEUE via the ``withtype`` keyword.
+KCQL expression describing field selection and routes.
 
 * Data Type: string
 * Importance: high
 * Optional : no
+
+``connect.jms.topics``
+
+Comma separated list of all the jms target topics.
+
+* Data Type: list
+* Importance: medium
+* Optional : yes
+
+``connect.jms.queues``
+
+Comma separated list of all the jms target queues.
+
+* Data Type: list
+* Importance: medium
+* Optional : yes
 
 ``connect.jms.error.policy``
 
@@ -316,5 +332,4 @@ TroubleShooting
 ---------------
 
 Please review the :ref:`FAQs <faq>` and join our `slack channel <https://slackpass.io/datamountaineers>`_.
-
 

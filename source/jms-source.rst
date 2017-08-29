@@ -83,6 +83,7 @@ connect.jms.connection.factory=ConnectionFactory
 7.  The url of the JMS broker.
 8.  The JMS connection factory.
 
+
 If you switch back to the terminal you started the Connector in you should see the JMS Source being accepted and the
 task starting.
 
@@ -133,7 +134,7 @@ We can use the CLI to check if the connector is up but you should be able to see
         connect.jms.password = null
         connect.jms.queues = [jms-queue]
         connect.jms.retry.interval = 60000
-        connect.jms.default.converters =
+        connect.jms.converters =
         connect.jms.topics = []
         connect.jms.url = tcp://localhost:61616
         connect.jms.username = null
@@ -186,27 +187,26 @@ The Source supports:
 1.  KCQL routing of JMS destination messages to Kafka topics.
 2.  Pluggable converters.
 3.  Default conversion of JMS Messages to Avro with the payload as a Byte array.
-4.  Extra connection properties for specialized connections such as SOLACE_VPN.
+4.   Extra connection properties for specialized connections such as SOLACE_VPN.
 
 .. _jms_converters:
 
 Converters
 ~~~~~~~~~~
 
-We provide four converters out of the box but you can plug your own. See an example :ref:`here. <jms_converter_example>` which 
-and be set in ``connect.jms.kcql`` statement.
+We provide four converters out of the box but you can plug your own. See an example :ref:`here. <jms_converter_example>`
 
 **AvroConverter**
 
 
-``com.datamountaineer.streamreactor.connect.source.converters.AvroConverter``
+``com.datamountaineer.streamreactor.connect.converters.AvroConverter``
 
 The payload of the JMS message is an Avro message. In this case you need to provide a path for the Avro schema file to
 be able to decode it.
 
 **JsonSimpleConverter**
 
-``com.datamountaineer.streamreactor.connect.source.converters.JsonSimpleConverter``
+``com.datamountaineer.streamreactor.connect.converters.JsonSimpleConverter``
 
 The payload for the JMS message is a Json message. This converter will parse the json and create an Avro record for it which
 will be sent over to Kafka.
@@ -218,7 +218,7 @@ added as the JMS json payload evolves.
 
 **BytesConverter**
 
-``com.datamountaineer.streamreactor.connect.source.converters.BytesConverter``
+``com.datamountaineer.streamreactor.connect.converters.BytesConverter``
 
 This is the default implementation. The JMS payload is taken as is: an array of bytes and sent over Kafka as an avro
 record with ``Schema.BYTES``. You don't have to provide a mapping for the source to get this converter!!
@@ -234,17 +234,14 @@ The JMS Source supports the following:
 
 .. sourcecode:: bash
 
-    INSERT INTO <kafka target> SELECT * FROM <jms destination> WITHTYPE <TOPIC|QUEUE> [WITHCONVERTER=myclass]
+    INSERT INTO <kafka target> SELECT * FROM <jms destination>
 
 Example:
 
 .. sourcecode:: sql
 
     #select from a JMS queue and write to a kafka topic
-    INSERT INTO topicA SELECT * FROM jms_queue WITHTYPE QUEUE
-
-    #select from a JMS topic and write to a kafka topic
-    INSERT INTO topicA SELECT * FROM jms_queue WITHTYPE TOPIC
+    INSERT INTO topicA SELECT * FROM jms_queue
 
 Configurations
 --------------
@@ -308,13 +305,43 @@ List (comma separated) of extra properties as key/value pairs with a colon delim
 
 ``connect.jms.kcql``
 
-KCQL expression describing field selection and routes. The kcql expression also handles setting the JMS destination type, i.e. TOPIC or
-QUEUE via the ``withtype`` keyword and additionally the converter via the ``withconverter`` keyword. If no converter is specified the sink
-will default to the BytesConverter. This will send an avro message over Kafka using Schema.BYTES
+KCQL expression describing field selection and routes.
 
 * Data Type: string
 * Importance: high
 * Optional : no
+
+``connect.jms.topics``
+
+Comma separated list of all the jms target topics.
+
+* Data Type: list
+* Importance: medium
+* Optional : yes
+
+``connect.jms.queues``
+
+Comma separated list of all the jms target queues.
+
+* Data Type: list
+* Importance: medium
+* Optional : yes
+
+
+``connect.jms.source.converters``
+
+Contains a tuple (jms source topic and the canonical class name for the converter to convert the JMS message to a SourceRecord).
+If the source topic is not matched it will default to the BytesConverter. This will send an avro message over Kafka using Schema.BYTES
+
+* Data type:  string
+* Importance: medium
+* Optional:   yes
+* Default:    null
+
+.. sourcecode:: bash
+
+  jms_source1=com.datamountaineer.streamreactor.connect.converters.AvroConverter;jms_source2=com.datamountaineer.streamreactor.connect.source.converters.JsonSimpleConverter
+
 
 ``connect.converter.avro.schemas``
 
@@ -402,4 +429,3 @@ TroubleShooting
 ---------------
 
 Please review the :ref:`FAQs <faq>` and join our `slack channel <https://slackpass.io/datamountaineers>`_.
-
