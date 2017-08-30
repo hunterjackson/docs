@@ -1,12 +1,12 @@
-.. _cli:
+.. _kafka-connect-cli:
+
+Kafka Connect CLI
+=================
 
 .. image:: https://img.shields.io/badge/latest%20release-1.0.1-blue.svg?label=maven%20latest%20release
     :target: http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22kafka-connect-cli%22
 .. image:: ../images/git.png
-    :target: https://github.com/datamountaineer/kafka-connect-tools/releases/tag/v0.5
-
-Kafka Connect CLI
-=================
+    :target: https://github.com/datamountaineer/kafka-connect-tools/releases/tag/v1.0.1
 
 This is a tiny command line interface (CLI) around the `Kafka Connect REST Interface
 <http://docs.confluent.io/3.0.1/connect/userguide.html#rest-interface>`__

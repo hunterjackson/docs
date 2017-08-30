@@ -84,8 +84,9 @@ follow the details https://docs.mongodb.com/v3.2/administration/install-communit
 Sink Connector QuickStart
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-We will start the connector in distributed mode. Each connector exposes a rest endpoint for stopping, starting and updating the configuration. We have developed
-a Command Line Interface to make interacting with the Connect Rest API easier. The CLI can be found in the Stream Reactor download under
+We you start the Confluent Platform, Kafka Connect is started in distributed mode (``confluent start``). 
+In this mode a Rest Endpoint on port ``8083`` is exposed to accept connector configurations. 
+We developed Command Line Interface to make interacting with the Connect Rest API easier. The CLI can be found in the Stream Reactor download under
 the ``bin`` folder. Alternatively the Jar can be pulled from our GitHub
 `releases <https://github.com/datamountaineer/kafka-connect-tools/releases>`__ page.
 
@@ -132,16 +133,10 @@ The Sink requires that a database be precreated in MongoDB.
 Starting the Connector
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Download, unpack and install the Stream Reactor. Follow the instructions :ref:`here <install>` if you haven't already done so.
+Download, unpack and install the Stream Reactor and Confluent. Follow the instructions :ref:`here <install>` if you haven't already done so.
 All paths in the quickstart are based in the location you installed the Stream Reactor.
 
-Start Kafka Connect in distributed more by running the ``start-connect.sh`` script in the ``bin`` folder.
-
-.. sourcecode:: bash
-
-    ➜ bin/start-connect.sh
-
-Once the connector has started we can now use the kafka-connect-tools cli to post in our distributed properties file for Kudu.
+Once the Connect has started we can now use the kafka-connect-tools :ref:`cli <kafka-connect-cli>` to post in our distributed properties file for Kudu.
 If you are using the :ref:`dockers <dockers>` you will have to set the following environment variable to for the CLI to
 connect to the Rest API of Kafka Connect of your container.
 
@@ -299,8 +294,8 @@ Now let's restart the connect instance:
 .. sourcecode:: bash
 
       #start a new instance of connect
-      ➜   $bin/start-connect.sh
-
+      ➜   $CONFLUENT_HOME/bin/confluent stop
+      ➜   $CONFLUENT_HOME/bin/confluent start
 
 Use the ``CLI`` to remove the old MongoDB Sink:
 
@@ -315,7 +310,15 @@ and start the new Sink with the json properties files to read from the a differe
      #start the connector for mongo
     ➜   bin/connect-cli create mongo-sink-orders-json < mongo-sink-orders-json.properties
 
-You should see in the terminal where you started Kafka Connect the following entries in the log:
+Use the Confluent CLI to view Connects logs.
+
+.. sourcecode:: bash
+
+    # Get the logs from Connect
+    confluent log connect
+
+    # Follow logs from Connect
+    confluent log connect -f
 
 .. sourcecode:: bash
 

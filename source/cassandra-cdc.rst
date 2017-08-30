@@ -550,7 +550,7 @@ Now let's create a keyspace and a users column family(table)
 Starting the Connector (Distributed)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Download, unpack and install the Stream Reactor. Follow the instructions :ref:`here <install>` if you haven't already done so.
+Download, unpack and install the Stream Reactor and Confluent. Follow the instructions :ref:`here <install>` if you haven't already done so.
 All paths in the quickstart are based in the location you installed the Stream Reactor.
 
 Start Kafka Connect in distributed more by running:

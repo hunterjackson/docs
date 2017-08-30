@@ -40,11 +40,11 @@ Follow the instructions :ref:`here <install>`.
 Sink Connector QuickStart
 -------------------------
 
-We will start the connector in distributed mode. Each connector exposes a rest endpoint for stopping, starting and updating the configuration. We have developed
-a Command Line Interface to make interacting with the Connect Rest API easier. The CLI can be found in the Stream Reactor download under
+We you start the Confluent Platform, Kafka Connect is started in distributed mode (``confluent start``). 
+In this mode a Rest Endpoint on port ``8083`` is exposed to accept connector configurations. 
+We developed Command Line Interface to make interacting with the Connect Rest API easier. The CLI can be found in the Stream Reactor download under
 the ``bin`` folder. Alternatively the Jar can be pulled from our GitHub
 `releases <https://github.com/datamountaineer/kafka-connect-tools/releases>`__ page.
-
 
 Kudu Table
 ~~~~~~~~~~
@@ -68,16 +68,10 @@ Lets create a table in Kudu via Impala. The Sink does support auto creation of t
 Starting the Connector (Distributed)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Download, unpack and install the Stream Reactor. Follow the instructions :ref:`here <install>` if you haven't already done so.
+Download, unpack and install the Stream Reactor and Confluent. Follow the instructions :ref:`here <install>` if you haven't already done so.
 All paths in the quickstart are based in the location you installed the Stream Reactor.
 
-Start Kafka Connect in distributed more by running the ``start-connect.sh`` script in the ``bin`` folder.
-
-.. sourcecode:: bash
-
-    ➜ bin/start-connect.sh
-
-Once the connector has started we can now use the kafka-connect-tools cli to post in our distributed properties file for Kudu.
+Once the Connect has started we can now use the kafka-connect-tools :ref:`cli <kafka-connect-cli>` to post in our distributed properties file for Kudu.
 If you are using the :ref:`dockers <dockers>` you will have to set the following environment variable to for the CLI to
 connect to the Rest API of Kafka Connect of your container.
 
@@ -107,8 +101,15 @@ The ``kudu-sink.properties`` file defines:
 5.  :ref:`The KCQL routing querying. <kcql>`
 6.  The Source kafka topics to take events from.
 
-If you switch back to the terminal you started the Connector in you should see the Kudu Sink being accepted and the
-task starting.
+Use the Confluent CLI to view Connects logs.
+
+.. sourcecode:: bash
+
+    # Get the logs from Connect
+    confluent log connect
+
+    # Follow logs from Connect
+    confluent log connect -f
 
 We can use the CLI to check if the connector is up but you should be able to see this in logs as-well.
 

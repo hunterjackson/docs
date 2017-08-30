@@ -30,33 +30,79 @@ The following releases are available:
 | 0.10.0.1               | 3.0.1                  | 0.2.2                  |
 +------------------------+------------------------+------------------------+
 
-Install Confluent
-~~~~~~~~~~~~~~~~~
+.. _dockers:
 
-Confluent can be downloaded for `here <http://www.confluent.io/download/>`__
+Docker Install
+~~~~~~~~~~~~~~
 
-.. sourcecode:: bash
+All the Stream Reactor Connectors, Confluent and UI's for Connect, Schema Registry and topic browsing are available in Dockers.
+The Docker images are available in `DockerHub <https://hub.docker.com/>`__ and maintained by our partner `Landoop <https://www.landoop.com/>`__
 
-    #make confluent home folder
-    ➜  mkdir confluent
-
-    #download confluent
-    ➜  wget http://packages.confluent.io/archive/3.3/confluent-3.3.0-2.11.tar.gz 
-
-    #extract archive to confluent folder
-    ➜  tar -xvf confluent-3.3.0-2.11.tar.gz -C confluent
-
-    #setup variables
-    ➜  export CONFLUENT_HOME=~/confluent/confluent-3.3.0
-
-Start the Confluent platform. 
+Pull the latest images:
 
 .. sourcecode:: bash
 
-    #Start the confluent platform, we need kafka, zookeeper and the schema registry
-    bin/zookeeper-server-start etc/kafka/zookeeper.properties &
-    sleep 10 && bin/kafka-server-start etc/kafka/server.properties &
-    sleep 10 && bin/schema-registry-start etc/schema-registry/schema-registry.properties &
+    docker pull landoop/fast-data-dev
+    docker pull landoop/fast-data-dev-connect-cluster
+
+    #UI's
+    docker pull landoop/kafka-topics-ui
+    docker pull landoop/schema-registry-ui
+
+Individual docker images are available at DataMountaineers `DockerHub <https://hub.docker.com/u/datamountaineer/dashboard/>`__.
+We base our Docker images of Confluents base connector image. This contains a script that uses the environment variables
+starting with `CONNECT_` to create the Kafka Connect Worker property files. A second script uses the
+environment variables starting with `CONNECTOR_` to create a properties files for the actual connector we want to start.
+
+Set the `CONNECT_` and `CONNECTOR_` environment variables accordingly when running the images. 
+
+On start, the Docker will launch Kafka Connect and the :ref:`Connect CLI <kafka-connect-cli>` will push the the Connector configuration, created from the environment variables to Kafka Connectors
+once the rest api is up.
+
+.. important::
+
+    We strongly recommend using Landoop's Fast Data Dev dockers. The stream reactor is prepackaged and UI's are included.
+
+Helm Charts
+^^^^^^^^^^^
+
+.. image:: ../images/helm.png 
+   :align: left
+
+Helm is a package manager for Kubernetes, Helm charts are available for Connectors here and target 
+toward use with the Landscaper.
+
+Microservice architectures are all the rage and for good reason. Small, lightweight, business focused and 
+independently deployable services provide scalability and isolation which it hard to achieve in monolithic systems.
+
+However, adding and scaling lots of tiny processes, either in containers or not can pose challenges even with Kafka 
+as a central data hub of your organisation. At DataMountaineer we are big fans of  KStreams and Kafka Connect but as 
+the numbers deployed grow;
+
+1.  How do you integrate with your CI/CD street?
+2.  How do you ensure your design time (provenance) topology is deployed and running?
+3.  How do you monitor and attach your lineage to this topology?
+4.  How do you attach different monitoring and alerting criteria?
+5.  How do you promote different flows to production independently?
+
+.. image:: ../images/k8.png
+   :align: left
+
+Even if you are cool and use Dockers your landscape can still be complex…handling multi tenancy, inspecting and 
+managing docker files, handling service discovery, environment variables and promotion to production.
+
+Kafka Connect and KStreams play well in containers, all state is stored or backed up in Kafka so Eneco 
+started moving off virtual machines onto Kubernetes. When doing this we set out with some goals in mind 
+about how to manage the dataflows that were to be deployed;
+
+1.  Have a blueprint of what the landscape (apps in the cluster) looks like
+2.  Keep track of changes: when, what, why and by who;
+3.  Allow others to review changes before applying them;
+4.  Let the changes be promoted to specific environments.
+
+This resulted in the Landscaper which takes a repository containing a desired state description of the landscape 
+and eliminates difference between desired and actual state of releases in a Kubernetes cluster.
+
 
 Stream Reactor Install
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -140,35 +186,51 @@ The ``libs`` folder contains all the Stream Reactor Connector jars.
 The ``bin`` folder contains the ``start-connect.sh`` script. This loads all the Stream Reactors jars onto the CLASSPATH and starts
 Kafka Connect in distributed mode. The Confluent Platform, Zookeeper, Kafka and the Schema Registry must be started first.
 
-.. _dockers:
+Install Confluent
+~~~~~~~~~~~~~~~~~
 
-Docker Install
-~~~~~~~~~~~~~~
-
-All the Stream Reactor Connectors, Confluent and UI's for Connect, Schema Registry and topic browsing are available in Dockers.
-The Docker images are available in `DockerHub <https://hub.docker.com/>`__ and maintained by our partner `Landoop <https://www.landoop.com/>`__
-
-Pull the latest images:
+Confluent can be downloaded for `here <http://www.confluent.io/download/>`__
 
 .. sourcecode:: bash
 
-    docker pull landoop/fast-data-dev
-    docker pull landoop/fast-data-dev-connect-cluster
+    #make confluent home folder
+    ➜  mkdir confluent
 
-    #UI's
-    docker pull landoop/kafka-topics-ui
-    docker pull landoop/schema-registry-ui
+    #download confluent
+    ➜  wget http://packages.confluent.io/archive/3.3/confluent-3.3.0-2.11.tar.gz 
 
-Individual docker images are available at DataMountaineers `DockerHub <https://hub.docker.com/u/datamountaineer/dashboard/>`__.
-We base our Docker images of Confluents base connector image. This contains a script that uses the environment variables
-starting with `CONNECT_` to create the Kafka Connect Worker property files. We added a second script that uses the
-environment variables starting with `CONNECTOR_` to create a properties files for the actual connector we want to start.
+    #extract archive to confluent folder
+    ➜  tar -xvf confluent-3.3.0-2.11.tar.gz -C confluent
 
-Set the `CONNECT_` and `CONNECTOR_` environment variables accordingly when running the images.
+    #setup variables
+    ➜  export CONFLUENT_HOME=~/confluent/confluent-3.3.0
 
-.. important::
+Start the Confluent platform. Confluent have introduced a new CLI to start the platform, in addtion a new ``plugins.path``
+has been add to Kafka Connect. This provides classloader isolation for all Connectors found under this location,
+improving many dependency issues that are seen at runtime.
 
-    We strongly recommend using Landoop's Fast Data Dev dockers. The stream reactor is prepackaged and UI's are included.
+Edit the ``$CONFLUENT_HOME/etc/schema-registry/connect-avro-distributed.properties`` and set the ``plugin.path`` to the
+location you unzipped the location of `$STREAMREACTOR_HOME` you set earlier.
+
+Now start the Confluent Platform
+
+.. sourcecode:: bash
+
+    #start the whole platform
+    $CONFLUENT_HOME/bin/confluent start
+   
+Examine the ``help`` menu of the `confluent` cli to see other options. For example:
+
+.. sourcecode:: bash
+ 
+ # Stop the platform
+ confluent stop
+
+ # Get the logs from Connect
+ confluent log connect
+
+ # Follow logs from Connect
+ confluent log connect -f
 
 Release Notes
 ~~~~~~~~~~~~~
@@ -186,8 +248,8 @@ Release Notes
 *   Added WITHCONVERTERS and WITHTYPE to JMS and MQTT connectors in KCQL to simplify configuration.
 *   Add flush mode to Kudu sink with a PR from @patsak. Thanks
 
-0.3.0
-^^^^^
+0.2.6 (Pending)
+^^^^^^^^^^^^^^
 
 **Features**
 
