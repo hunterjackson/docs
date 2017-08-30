@@ -3,10 +3,10 @@
 Kafka Connect CLI
 =================
 
-.. image:: https://img.shields.io/badge/latest%20release-1.0.1-blue.svg?label=maven%20latest%20release
+.. image:: https://img.shields.io/badge/latest%20release-1.0.2-blue.svg?label=maven%20latest%20release
     :target: http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22kafka-connect-cli%22
 .. image:: ../images/git.png
-    :target: https://github.com/datamountaineer/kafka-connect-tools/releases/tag/v1.0.1
+    :target: https://github.com/datamountaineer/kafka-connect-tools/releases/tag/v1.0.2
 
 This is a tiny command line interface (CLI) around the `Kafka Connect REST Interface
 <http://docs.confluent.io/3.0.1/connect/userguide.html#rest-interface>`__
@@ -19,7 +19,7 @@ status on error. Commands dealing with configuration expect or producedata in .p
 
 .. sourcecode:: bash
 
-    kafka-connect-cli 1.0.1
+    kafka-connect-cli 1.0.2
     Usage: kafka-connect-cli [ps|get|rm|create|run|status] [options] [<connector-name>]
 
       --help
