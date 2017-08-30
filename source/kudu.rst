@@ -506,6 +506,14 @@ Flush mode on write.
 * Optional : yes
 * Default: SYNC
 
+``connect.kudu.mutation.buffer.space``
+
+Kudu Session mutation buffer space.
+
+* Data Type: int
+* Importance: low
+* Optional : yes
+* Default: 10000
 
 ``connect.kudu.error.policy``
 
