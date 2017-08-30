@@ -66,7 +66,7 @@ once the rest api is up.
 Helm Charts
 ^^^^^^^^^^^
 
-.. image:: ../images/helm.png 
+.. images:: ../images/helm.png 
    :align: left
 
 Helm is a package manager for Kubernetes, Helm charts are available for Connectors here and target 
@@ -85,7 +85,7 @@ the numbers deployed grow;
 4.  How do you attach different monitoring and alerting criteria?
 5.  How do you promote different flows to production independently?
 
-.. image:: ../images/k8.png
+.. images:: ../images/k8.png
    :align: left
 
 Even if you are cool and use Dockers your landscape can still be complex…handling multi tenancy, inspecting and 
@@ -102,7 +102,6 @@ about how to manage the dataflows that were to be deployed;
 
 This resulted in the Landscaper which takes a repository containing a desired state description of the landscape 
 and eliminates difference between desired and actual state of releases in a Kubernetes cluster.
-
 
 Stream Reactor Install
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -182,9 +181,6 @@ Within the unpacked directory you will find the following structure:
 
 
 The ``libs`` folder contains all the Stream Reactor Connector jars.
-
-The ``bin`` folder contains the ``start-connect.sh`` script. This loads all the Stream Reactors jars onto the CLASSPATH and starts
-Kafka Connect in distributed mode. The Confluent Platform, Zookeeper, Kafka and the Schema Registry must be started first.
 
 Install Confluent
 ~~~~~~~~~~~~~~~~~
