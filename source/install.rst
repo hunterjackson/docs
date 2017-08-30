@@ -66,7 +66,7 @@ once the rest api is up.
 Helm Charts
 ^^^^^^^^^^^
 
-.. images:: ../images/helm.png 
+.. image:: ../images/helm.png 
    :align: left
 
 Helm is a package manager for Kubernetes, Helm charts are available for Connectors here and target 
@@ -85,7 +85,7 @@ the numbers deployed grow;
 4.  How do you attach different monitoring and alerting criteria?
 5.  How do you promote different flows to production independently?
 
-.. images:: ../images/k8.png
+.. image:: ../images/k8.png
    :align: left
 
 Even if you are cool and use Dockers your landscape can still be complex…handling multi tenancy, inspecting and 
