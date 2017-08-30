@@ -8,7 +8,7 @@ optionally the Schema Registry provided by this distribution.
 
 The following releases are available:
 
--  `0.2.6 <https://github.com/datamountaineer/stream-reactor/releases/tag/v0.2.6>`__
+-  `0.3.0 <https://github.com/datamountaineer/stream-reactor/releases/tag/v0.3.0>`__
 -  `0.2.5 <https://github.com/datamountaineer/stream-reactor/releases/tag/v0.2.5>`__
 -  `0.2.4 <https://github.com/datamountaineer/stream-reactor/releases/tag/v0.2.4>`__
 -  `0.2.3 <https://github.com/datamountaineer/stream-reactor/releases/tag/v0.2.3>`__
@@ -17,6 +17,8 @@ The following releases are available:
 +------------------------+------------------------+------------------------+
 | Kafka Version          | Confluent Version      | Stream reactor version |
 +========================+========================+========================+
+| 0.11.0.0               | 3.3                    | 0.3.0                  |
++------------------------+------------------------+------------------------+
 | 0.10.2.0               | 3.2.2                  | 0.2.6                  |
 +------------------------+------------------------+------------------------+
 | 0.10.2.0               | 3.2                    | 0.2.5                  |
@@ -39,13 +41,13 @@ Confluent can be downloaded for `here <http://www.confluent.io/download/>`__
     ➜  mkdir confluent
 
     #download confluent
-    ➜  wget http://packages.confluent.io/archive/3.2/confluent-3.2.2-2.11.tar.gz 
+    ➜  wget http://packages.confluent.io/archive/3.3/confluent-3.3.0-2.11.tar.gz 
 
     #extract archive to confluent folder
-    ➜  tar -xvf confluent-3.2.2-2.11.tar.gz -C confluent
+    ➜  tar -xvf confluent-3.3.0-2.11.tar.gz -C confluent
 
     #setup variables
-    ➜  export CONFLUENT_HOME=~/confluent/confluent-3.2.2
+    ➜  export CONFLUENT_HOME=~/confluent/confluent-3.3.0
 
 Start the Confluent platform. 
 
@@ -67,7 +69,7 @@ Unpack the archive:
 
     #Stream reactor release
     mkdir stream-reactor
-    tar xvf stream-reactor-0.2.5-3.2.0.tar.gz -C stream-reactor
+    tar xvf stream-reactor-0.3.0-3.3.0.tar.gz -C stream-reactor
 
 Within the unpacked directory you will find the following structure:
 
@@ -111,26 +113,26 @@ Within the unpacked directory you will find the following structure:
     |   |-- voltdb-sink.properties
     |   `-- yahoo-source.properties
     `-- libs
-        |-- kafka-connect-azure-documentdb-0.2.6-3.2.0-all.jar
-        |-- kafka-connect-blockchain-0.2.6-3.2.0-all.jar
-        |-- kafka-connect-bloomberg-0.2.6-3.2.0-all.jar
-        |-- kafka-connect-cassandra-0.2.6-3.2.0-all.jar
-        |-- kafka-connect-coap-0.2.6-3.2.0-all.jar
-        |-- kafka-connect-druid-0.2.6-3.2.0-all.jar
-        |-- kafka-connect-elastic-0.2.6-3.2.0-all.jar
-        |-- kafka-connect-elastic5-0.2.6-3.2.0-all.jar
-        |-- kafka-connect-ftp-0.2.6-3.2.0-all.jar
-        |-- kafka-connect-hazelcast-0.2.6-3.2.0-all.jar
-        |-- kafka-connect-hbase-0.2.6-3.2.0-all.jar
-        |-- kafka-connect-influxdb-0.2.6-3.2.0-all.jar
-        |-- kafka-connect-jms-0.2.6-3.2.0-all.jar
-        |-- kafka-connect-kudu-0.2.6-3.2.0-all.jar
-        |-- kafka-connect-mongodb-0.2.6-3.2.0-all.jar
-        |-- kafka-connect-mqtt-0.2.6-3.2.0-all.jar
-        |-- kafka-connect-redis-0.2.6-3.2.0-all.jar
-        |-- kafka-connect-rethink-0.2.6-3.2.0-all.jar
-        |-- kafka-connect-voltdb-0.2.6-3.2.0-all.jar
-        `-- kafka-connect-yahoo-0.2.6-3.2.0-all.jar
+        |-- kafka-connect-azure-documentdb-0.3.0-3.3.0-all.jar
+        |-- kafka-connect-blockchain-0.3.0-3.3.0-all.jar
+        |-- kafka-connect-bloomberg-0.3.0-3.3.0-all.jar
+        |-- kafka-connect-cassandra-0.3.0-3.3.0-all.jar
+        |-- kafka-connect-coap-0.3.0-3.3.0-all.jar
+        |-- kafka-connect-druid-0.3.0-3.3.0-all.jar
+        |-- kafka-connect-elastic-0.3.0-3.3.0-all.jar
+        |-- kafka-connect-elastic5-0.3.0-3.3.0-all.jar
+        |-- kafka-connect-ftp-0.3.0-3.3.0-all.jar
+        |-- kafka-connect-hazelcast-0.3.0-3.3.0-all.jar
+        |-- kafka-connect-hbase-0.3.0-3.3.0-all.jar
+        |-- kafka-connect-influxdb-0.3.0-3.3.0-all.jar
+        |-- kafka-connect-jms-0.3.0-3.3.0-all.jar
+        |-- kafka-connect-kudu-0.3.0-3.3.0-all.jar
+        |-- kafka-connect-mongodb-0.3.0-3.3.0-all.jar
+        |-- kafka-connect-mqtt-0.3.0-3.3.0-all.jar
+        |-- kafka-connect-redis-0.3.0-3.3.0-all.jar
+        |-- kafka-connect-rethink-0.3.0-3.3.0-all.jar
+        |-- kafka-connect-voltdb-0.3.0-3.3.0-all.jar
+        `-- kafka-connect-yahoo-0.3.0-3.3.0-all.jar
 
 
 The ``libs`` folder contains all the Stream Reactor Connector jars.
@@ -184,7 +186,7 @@ Release Notes
 *   Added WITHCONVERTERS and WITHTYPE to JMS and MQTT connectors in KCQL to simplify configuration.
 *   Add flush mode to Kudu sink with a PR from @patsak. Thanks
 
-0.2.6
+0.3.0
 ^^^^^
 
 **Features**
