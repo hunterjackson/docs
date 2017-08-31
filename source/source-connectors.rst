@@ -13,6 +13,7 @@ Source connectors load or stream data from external systems into Kafka.
    cassandra-source
    cassandra-cdc
    coap-source
+   ftp-source
    jms-source
    rethink-source
    yahoo
