@@ -281,7 +281,7 @@ The Redis Sink supports the following:
 
 .. sourcecode:: bash
 
-    INSERT INTO cache|sortedSet SELECT * FROM TOPIC [PK FIELD] [STOREDAS SortedSet(key=FIELD)]
+    INSERT INTO cache|sortedSet SELECT * FROM TOPIC [PK FIELD] [STOREAS SortedSet(key=FIELD)]
 
 .. sourcecode:: bash
 
