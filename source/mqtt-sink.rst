@@ -48,7 +48,7 @@ Follow the instructions :ref:`here <install>`.
 MQTT Setup
 ~~~~~~~~~~
 
-HiveMQ, who privode enterprize MQTT brokers have a webclient we'll use for the quickstart. Go to this `link <http://www.hivemq.com/demos/websocket-client/>__`, connect and set
+HiveMQ, who privode enterprize MQTT brokers have a webclient we'll use for the quickstart. Go to this `link <http://www.hivemq.com/demos/websocket-client/>`__, connect and set
 up a subscription to ```/datamountaineer/mqtt_sink_topic/+``` topic. You should see this.
 
 .. image:: ../images/hivemqtt_connection.png

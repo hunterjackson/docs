@@ -245,7 +245,7 @@ Release Notes
 *   Add flush mode to Kudu sink with a PR from @patsak. Thanks
 
 0.2.6 (Pending)
-^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^
 
 **Features**
 

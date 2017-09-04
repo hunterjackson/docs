@@ -49,8 +49,6 @@ You should see the following outcome:
 
 The server has started but no records have been published yet. More on this later once we start the source.
 
-
-
 Source Connector QuickStart
 ---------------------------
 
