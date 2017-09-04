@@ -231,8 +231,8 @@ Examine the ``help`` menu of the `confluent` cli to see other options. For examp
 Release Notes
 ~~~~~~~~~~~~~
 
-3.0.0 (Pending)
-^^^^^^^^^^^^^^^
+3.0.0
+^^^^^
 
 **Features**
 

@@ -11,6 +11,7 @@ The Sink supports:
 3. RowKey selection - Selection of fields to use as the row key, if none specified the topic name, partition and offset are
    used via KCQL.
 4. Error policies for handling failures.
+5. Storing as one or more Stored Sets.
 
 Prerequisites
 -------------
@@ -213,30 +214,83 @@ The Sink supports:
 3. RowKey selection - Selection of fields to use as the row key, if none specified the topic name, partition and offset are
    used.
 4. Error policies for handling failures.
+5. Sorted sets/Cache modes
+
+Cache Mode
+~~~~~~~~~~
+
+The purpose of this mode is to **cache** in Redis [*Key-Value*] pairs. Imagine a Kafka topic with currency foreign exchange rate messages:
+
+.. sourcecode:: bash
+
+    { "symbol": "USDGBP" , "price": 0.7943 }
+    { "symbol": "EURGBP" , "price": 0.8597 }
+
+You may want to store in Redis: the **symbol** as the `Key` and the **price** as the `Value`. This will effectively make Redis a **caching** system, 
+which multiple other application can access to get the *(latest)* value. To achieve that using this particular Kafka Redis Sink Connector, you need 
+to specify the **KCQL** as:
+
+.. sourcecode:: sql
+
+    SELECT price from yahoo-fx PK symbol
+
+This will update the keys `USDGBP` , `EURGBP` with the relevant price using the (default) Json format:
+
+.. sourcecode:: bash
+
+    Key=EURGBP  Value={ "price": 0.7943 }
+
+We can prefix the name of the `Key` using the INSERT statement:
+
+.. sourcecode:: sql
+
+    INSERT INTO FX- SELECT price from yahoo-fx PK symbol
+
+This will create key with names `FX-USDGBP` , `FX-EURGBP` etc.
+
+Sorted Sets
+~~~~~~~~~~~
+
+To **insert** messages from a Kafka topic into 1 Sorted Set (SS) use the following **KCQL** syntax:
+
+.. sourcecode:: sql
+
+    INSERT INTO cpu_stats SELECT * from cpuTopic STOREAS SortedSet(score=timestamp)
+
+This will create and add entries into the (sorted set) named **cpu_stats**. The entries will be ordered in the Redis set based on the `score` 
+that we define it to be the value of the `timestamp` field of the Avro message from Kafka. In the above example we are selecting and storing all 
+the fields of the Kafka message.
+
+Multiple Sorted Sets
+~~~~~~~~~~~~~~~~~~~~
+
+You can create multiple sorted sets by promoting each value of **one field** from the Kafka message into one Sorted Set (SS) and selecting 
+which values to store into the sorted-sets. You can achieve that by using the KCQL syntax and defining with the filed using **PK** (primary key)
+
+ .. sourcecode:: sql
+
+    SELECT temperature, humidity FROM sensorsTopic PK sensorID STOREAS SortedSet(score=timestamp)
 
 Kafka Connect Query Language
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **K** afka **C** onnect **Q** uery **L** anguage found here `GitHub repo <https://github.com/datamountaineer/kafka-connector-query-language>`_
-allows for routing and mapping using a SQL like syntax, consolidating typically features in to one configuration option.
+allows for routing and mapping using a SQL like syntax, consolidating typically features in to one configuration option. This is set in the ``connect.redis.kcql`` option.
 
 The Redis Sink supports the following:
 
 .. sourcecode:: bash
 
-    INSERT INTO <table> SELECT <fields> FROM <source topic> <PK> primary_key_cols
+    INSERT INTO cache|sortedSet SELECT * FROM TOPIC [PK FIELD] [STOREDAS SortedSet(key=FIELD)]
 
-Example:
+.. sourcecode:: bash
 
-.. sourcecode:: sql
+    #insert messages from a Kafka topic into 1 Sorted Set (SS) named cpuTopic and ordered by score with the value of the timestamp field in the message
+    INSERT INTO cpu_stats SELECT * from cpuTopic STOREAS SortedSet(score=timestamp)
 
-    #Insert mode, select all fields from topicA and write to tableA and use the default rowkey (topic name, partition, offset)
-    INSERT INTO tableA SELECT * FROM topicA
+    #insert into multiple sorted sets by setting the PK key word to select a field from the message as a primary key
+    INSERT INTO cpu_stats SELECT temperature, humidity FROM sensorsTopic PK sensorID STOREAS SortedSet(score=timestamp)
 
-    #Insert mode, select 3 fields and rename from topicB and write to tableB, use field y from the topic as the primary key
-    INSERT INTO tableB SELECT x AS a, y AS b and z AS c FROM topicB PK y
-
-This is set in the ``connect.redis.kcql`` option.
 
 Error Polices
 ~~~~~~~~~~~~~
