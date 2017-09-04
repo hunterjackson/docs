@@ -8,7 +8,7 @@ optionally the Schema Registry provided by this distribution.
 
 The following releases are available:
 
--  `0.3.0 <https://github.com/datamountaineer/stream-reactor/releases/tag/v0.3.0>`__
+-  `0.3.0 <https://github.com/datamountaineer/stream-reactor/releases/tag/0.3.0>`__
 -  `0.2.5 <https://github.com/datamountaineer/stream-reactor/releases/tag/v0.2.5>`__
 -  `0.2.4 <https://github.com/datamountaineer/stream-reactor/releases/tag/v0.2.4>`__
 -  `0.2.3 <https://github.com/datamountaineer/stream-reactor/releases/tag/v0.2.3>`__

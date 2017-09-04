@@ -414,20 +414,6 @@ Certificate private key file path.
 * Optional:   yes
 * Default:    null
 
-``connect.mqtt.converters``
-
-Contains a tuple (mqtt source topic and the canonical class name for the converter of a raw Mqtt message bytes to a SourceRecord).
-If the source topic is not matched it will default to the BytesConverter. This will send an avro message over Kafka using Schema.BYTES
-
-* Data type:  string
-* Importance: medium
-* Optional:   yes
-* Default:    null
-
-.. sourcecode:: bash
-
-  mqtt_source1=com.datamountaineer.streamreactor.connect.source.converters.AvroConverter;mqtt_source2=com.datamountaineer.streamreactor.connect.source.converters.JsonSimpleConverter
-
 ``connect.mqtt.converter.throw.on.error``
 
 If set to false the conversion exception will be swallowed and everything carries on BUT the message is lost!!; true will throw the exception.Default is false."
