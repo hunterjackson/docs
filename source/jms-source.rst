@@ -60,14 +60,16 @@ connect to the Rest API of Kafka Connect of your container.
 
 The ``jms-source.properties`` file defines:
 
-name=jms-source
-connector.class=com.datamountaineer.streamreactor.connect.jms.source.JMSSourceConnector
-tasks.max=1
-connect.jms.kcql=INSERT INTO topic SELECT * FROM jms-queue
-connect.jms.queues=jms-queue
-connect.jms.initial.context.factory=org.apache.activemq.jndi.ActiveMQInitialContextFactory
-connect.jms.url=tcp://localhost:61616
-connect.jms.connection.factory=ConnectionFactory
+.. sourcecode:: bash
+
+    name=jms-source
+    connector.class=com.datamountaineer.streamreactor.connect.jms.source.JMSSourceConnector
+    tasks.max=1
+    connect.jms.kcql=INSERT INTO topic SELECT * FROM jms-queue
+    connect.jms.queues=jms-queue
+    connect.jms.initial.context.factory=org.apache.activemq.jndi.ActiveMQInitialContextFactory
+    connect.jms.url=tcp://localhost:61616
+    connect.jms.connection.factory=ConnectionFactory
 
 1.  The source connector name.
 2.  The JMS Source Connector class name.
