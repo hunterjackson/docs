@@ -56,11 +56,13 @@ Lets create a table in Kudu via Impala. The Sink does support auto creation of t
     #demo/demo
     ssh demo@quickstart -t impala-shell
 
-    CREATE EXTERNAL TABLE default.kudu_test (id INT,random_field STRING, PRIMARY KEY(id)) 
+    CREATE TABLE default.kudu_test (id INT,random_field STRING, PRIMARY KEY(id)) 
     PARTITION BY HASH PARTITIONS 16 
     STORED AS KUDU
 
-.. note:: The Sink will fail to start if the tables matching the topics do not already exist and the Sink is not in auto create mode.
+.. note:: 
+
+    The Sink will fail to start if the tables matching the topics do not already exist and the KQL statement is not in auto create mode.
 
 When creating a new Kudu table using Impala, you can create the table as an internal table or an external table.
 
@@ -77,7 +79,13 @@ An external table (created by CREATE EXTERNAL TABLE) is not managed by Impala, a
 its source location (here, Kudu). Instead, it only removes the mapping between Impala and Kudu. This is the mode used in the syntax provided by 
 Kudu for mapping an existing table to Impala.
 
-See the Impala documentation for more information about internal and external tables.
+See the Impala documentation for more information about internal and external tables. Here's an example:
+
+.. sourcecode:: sql
+
+    CREATE EXTERNAL TABLE default.kudu_test
+    STORED AS KUDU
+    TBLPROPERTIES ('kudu.table_name'='kudu_test');
 
 Impala Databases and Kudu
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -120,7 +128,7 @@ connect to the Rest API of Kafka Connect of your container.
     connector.class=com.datamountaineer.streamreactor.connect.kudu.KuduSinkConnector
     tasks.max=1
     connect.kudu.master=quickstart
-    connect.kudu.kcql = INSERT INTO kudu_test SELECT * FROM kudu-test
+    connect.kudu.kcql = INSERT INTO impala::default.kudu_test SELECT * FROM kudu-test
     topics=kudu-test
     #task ids: 0
 
@@ -259,11 +267,12 @@ The Kudu Sink writes records from Kafka to Kudu.
 
 The Sink supports:
 
-1. Field selection - Kafka topic payload field selection is supported, allowing you to select fields written to Kudu.
-2. Topic to table routing.
-3. Auto table create with HASH partition strategy by using DISTRIBUTE BY with configurable buckets.
-4. Auto evolution of tables.
-5. Error policies for handling failures.
+1.  Field selection - Kafka topic payload field selection is supported, allowing you to select fields written to Kudu.
+2.  Topic to table routing.
+3.  Auto table create with HASH partition strategy by using DISTRIBUTE BY with configurable buckets. Tables that are autocreated 
+    are not immediately visible in Impala. You must map them in Impala.
+4.  Auto evolution of tables.
+5.  Error policies for handling failures.
 
 Kafka Connect Query Language
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -424,6 +433,10 @@ statement.
 
 The Sink will try and create the table at start up if a schema for the topic is found in the Schema Registry. If no
 schema is found the table is created when the first record is received for the topic.
+
+.. note::
+
+    Tables that are created are not visible to Impala. You must map them in Impala yourself.
 
 Auto Evolve Tables
 ~~~~~~~~~~~~~~~~~~
