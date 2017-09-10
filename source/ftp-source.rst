@@ -17,7 +17,7 @@ Data Types
 
 Each Kafka record represents a file, and has the following types.
 
-*   The format of the keys is configurable through `ftp.keystyle=string|struct`.
+*   The format of the keys is configurable through `connect.ftp.keystyle=string|struct`.
     It can be a `string` with the file name, or a `FileInfo` structure with `name: string` and `offset: long`.
     The offset is always `0` for files that are updated as a whole, and hence only relevant for tailed files.
 *   The values of the records contain the body of the file as `bytes`.
@@ -28,7 +28,7 @@ Configuration
 In addition to the general configuration for Kafka connectors (e.g. name, connector.class, etc.) the following options are available.
 
 
-``ftp.address``
+``connect.ftp.address``
 
 host\[:port\] of the ftp server.
 
@@ -36,7 +36,7 @@ host\[:port\] of the ftp server.
 * Importance: high
 * Optional: no
 
-``ftp.user``
+``connect.ftp.user``
 
 Username to connect with.
 
@@ -44,7 +44,7 @@ Username to connect with.
 * Importance: high
 * Optional: no
 
-``ftp.password``
+``connect.ftp.password``
 
 Password to connect with.
 
@@ -52,7 +52,7 @@ Password to connect with.
 * Importance: high
 * Optional: no           
 
-``ftp.refresh``
+``connect.ftp.refresh``
 
 iso8601 duration that the server is polled.
 
@@ -60,7 +60,7 @@ iso8601 duration that the server is polled.
 * Importance: high
 * Optional: no   
 
-``ftp.file.maxage``       
+``connect.ftp.file.maxage``       
 
 iso8601 duration for how old files can be.
 
@@ -68,7 +68,7 @@ iso8601 duration for how old files can be.
 * Importance: high
 * Optional: no   
 
-``ftp.keystyle``         
+``connect.ftp.keystyle``         
 
 SourceRecord keystyle, `string` or `struct`, see above.
 
@@ -76,7 +76,7 @@ SourceRecord keystyle, `string` or `struct`, see above.
 * Importance: high
 * Optional: no  
 
-``ftp.monitor.tail``          
+``connect.ftp.monitor.tail``          
 
 Comma separated list of path:destinationtopic to tail.
 
@@ -84,7 +84,7 @@ Comma separated list of path:destinationtopic to tail.
 * Importance: high
 * Optional: yes  
 
-``ftp.monitor.update``      
+``connect.ftp.monitor.update``      
 
 Comma separated list of path:destinationtopic to monitor for updates.
 
@@ -92,7 +92,7 @@ Comma separated list of path:destinationtopic to monitor for updates.
 * Importance: high
 * Optional: yes  
 
-``ftp.sourcerecordconverter``
+``connect.ftp.sourcerecordconverter``
 
 Source Record converter class name.
 
@@ -104,31 +104,31 @@ An example file:
 .. sourcecode:: bash
 
     name=ftp-source
-    connector.class=com.datamountaineer.streamreactor.connect.ftp.source.FtpSourceConnector
+    connector.class=com.datamountaineer.streamreactor.connect.connect.ftp.source.FtpSourceConnector
     tasks.max=1
 
     #server settings
-    ftp.address=localhost:21
-    ftp.user=ftp
-    ftp.password=ftp
+    connect.ftp.address=localhost:21
+    connect.ftp.user=ftp
+    connect.ftp.password=ftp
 
     #refresh rate, every minute
-    ftp.refresh=PT1M
+    connect.ftp.refresh=PT1M
 
     #ignore files older than 14 days.
-    ftp.file.maxage=P14D
+    connect.ftp.file.maxage=P14D
 
     #monitor /forecasts/weather/ and /logs/ for appends to files.
     #any updates go to the topics `weather` and `error-logs` respectively.
-    ftp.monitor.tail=/forecasts/weather/:weather,/logs/:error-logs
+    connect.ftp.monitor.tail=/forecasts/weather/:weather,/logs/:error-logs
 
     #keep an eye on /statuses/, files are retrieved as a whole and sent to topic `status`
-    ftp.monitor.update=/statuses/:status
+    connect.ftp.monitor.update=/statuses/:status
 
     #keystyle controls the format of the key and can be string or struct.
     #string only provides the file name
     #struct provides a structure with the filename and offset
-    ftp.keystyle=struct
+    connect.ftp.keystyle=struct
 
 Tailing Versus Update as a Whole
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -174,4 +174,4 @@ To override it, create your own implementation of `SourceRecordConverter`, put t
 
 .. sourcecode:: bash
     
-    ftp.sourcerecordconverter=your.name.space.YourConverter
+    connect.ftp.sourcerecordconverter=your.name.space.YourConverter
