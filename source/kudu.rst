@@ -26,7 +26,7 @@ Setup
 Kudu Setup
 ~~~~~~~~~~
 
-Download and check Kudu QuickStart VM starts up.
+Download and check Kudu QuickStart VM starts up (VM password is demo).
 
 .. sourcecode:: bash
 
@@ -56,11 +56,9 @@ Lets create a table in Kudu via Impala. The Sink does support auto creation of t
     #demo/demo
     ssh demo@quickstart -t impala-shell
 
-    CREATE TABLE default.kudu_test (id INT,random_field STRING  )
-    TBLPROPERTIES ('kudu.master_addresses'='127.0.0.1', 'kudu.key_columns'='id',
-    'kudu.table_name'='kudu_test', 'transient_lastDdlTime'='1456744118',
-    'storage_handler'='com.cloudera.kudu.hive.KuduStorageHandler')
-    exit;
+    CREATE EXTERNAL TABLE default.kudu_test (id INT,random_field STRING, PRIMARY KEY(id)) 
+    PARTITION BY HASH PARTITIONS 16 
+    STORED AS KUDU
 
 .. note:: The Sink will fail to start if the tables matching the topics do not already exist and the Sink is not in auto create mode.
 
@@ -76,7 +74,8 @@ External
 ~~~~~~~~
 
 An external table (created by CREATE EXTERNAL TABLE) is not managed by Impala, and dropping such a table does not drop the table from 
-its source location (here, Kudu). Instead, it only removes the mapping between Impala and Kudu. This is the mode used in the syntax provided by Kudu for mapping an existing table to Impala.
+its source location (here, Kudu). Instead, it only removes the mapping between Impala and Kudu. This is the mode used in the syntax provided by 
+Kudu for mapping an existing table to Impala.
 
 See the Impala documentation for more information about internal and external tables.
 
@@ -88,7 +87,17 @@ create and drop additional databases as desired.
 
 .. note::
 
-    When a managed Kudu table is created from within Impala, the corresponding Kudu table will be named ``my_database::table_name``
+    When a managed Kudu table is created from within Impala, the corresponding Kudu table will be named ``impala::my_database.table_name``
+
+Tables created by the sink are not automatically visible to Impala. You must map the table in Impala. 
+
+.. sourcecode:: sql
+
+    CREATE EXTERNAL TABLE my_mapping_table
+    STORED AS KUDU
+    TBLPROPERTIES (
+    'kudu.table_name' = 'my_kudu_table'
+    );    
 
 Starting the Connector (Distributed)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -112,7 +121,7 @@ connect to the Rest API of Kafka Connect of your container.
     tasks.max=1
     connect.kudu.master=quickstart
     connect.kudu.kcql = INSERT INTO kudu_test SELECT * FROM kudu-test
-    topics=kudu_test
+    topics=kudu-test
     #task ids: 0
 
 
@@ -252,7 +261,7 @@ The Sink supports:
 
 1. Field selection - Kafka topic payload field selection is supported, allowing you to select fields written to Kudu.
 2. Topic to table routing.
-3. Auto table create with DISTRIBUTE BY partition strategy.
+3. Auto table create with HASH partition strategy by using DISTRIBUTE BY with configurable buckets.
 4. Auto evolution of tables.
 5. Error policies for handling failures.
 
@@ -262,11 +271,15 @@ Kafka Connect Query Language
 **K** afka **C** onnect **Q** uery **L** anguage found here `GitHub repo <https://github.com/datamountaineer/kafka-connector-query-language>`_
 allows for routing and mapping using a SQL like syntax, consolidating typically features in to one configuration option.
 
+.. note::
+
+    If tables are created by Impala suffix ``impala::database_name`` to the target table.
+
 The Kudu Sink supports the following:
 
 .. sourcecode:: bash
 
-    <write mode> INTO <target table> SELECT <fields> FROM <source topic> <AUTOCREATE> <AUTOEVOLVE> <DISTRIBUTEBY> <PK_FIELDS> INTO <NBR_OF_BUCKETS> BUCKETS
+    <write mode> INTO [impala]:[database].<target table> SELECT <fields> FROM <source topic> <AUTOCREATE> <AUTOEVOLVE> <DISTRIBUTEBY> <PK_FIELDS> INTO <NBR_OF_BUCKETS> BUCKETS
 
 Example:
 
@@ -512,7 +525,7 @@ Examples:
 
 .. sourcecode:: sql
 
-    INSERT INTO TABLE1 SELECT * FROM TOPIC1;INSERT INTO TABLE2 SELECT field1, field2, field3 as renamedField FROM TOPIC2
+    INSERT INTO impala::default.TABLE1 SELECT * FROM TOPIC1;INSERT INTO TABLE2 SELECT field1, field2, field3 as renamedField FROM TOPIC2
 
 * Data Type: string
 * Importance: high
@@ -602,8 +615,8 @@ Example
     connector.class=com.datamountaineer.streamreactor.connect.kudu.KuduSinkConnector
     tasks.max=1
     connect.kudu.master=quickstart
-    connect.kudu.kcql=INSERT INTO kudu_test SELECT * FROM kudu_test AUTOCREATE DISTRIBUTEBY id INTO 5 BUCKETS
-    topics=kudu_test
+    connect.kudu.kcql=INSERT INTO impala::default.kudu_test SELECT * FROM kudu_test AUTOCREATE DISTRIBUTEBY id INTO 5 BUCKETS
+    topics=kudu-test
     connect.kudu.schema.registry.url=http://myhost:8081
 
 Deployment Guidelines
