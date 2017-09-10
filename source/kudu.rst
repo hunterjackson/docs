@@ -64,6 +64,31 @@ Lets create a table in Kudu via Impala. The Sink does support auto creation of t
 
 .. note:: The Sink will fail to start if the tables matching the topics do not already exist and the Sink is not in auto create mode.
 
+When creating a new Kudu table using Impala, you can create the table as an internal table or an external table.
+
+Internal
+~~~~~~~~
+
+An internal table is managed by Impala, and when you drop it from Impala, the data and the table truly are dropped. When you create a 
+new table using Impala, it is generally a internal table.
+
+External
+~~~~~~~~
+
+An external table (created by CREATE EXTERNAL TABLE) is not managed by Impala, and dropping such a table does not drop the table from 
+its source location (here, Kudu). Instead, it only removes the mapping between Impala and Kudu. This is the mode used in the syntax provided by Kudu for mapping an existing table to Impala.
+
+See the Impala documentation for more information about internal and external tables.
+
+Impala Databases and Kudu
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Every Impala table is contained within a namespace called a database. The default database is called default, and users may 
+create and drop additional databases as desired.
+
+.. note::
+
+    When a managed Kudu table is created from within Impala, the corresponding Kudu table will be named ``my_database::table_name``
 
 Starting the Connector (Distributed)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

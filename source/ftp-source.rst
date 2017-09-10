@@ -174,4 +174,4 @@ To override it, create your own implementation of `SourceRecordConverter`, put t
 
 .. sourcecode:: bash
     
-    connect.ftp.sourcerecordconverter=your.name.space.YourConverter
+    ftp.sourcerecordconverter=your.name.space.YourConverter
