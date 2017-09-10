@@ -13,6 +13,39 @@ The Connectors throw dependency issues such as Guava class not found. Update the
 ``connect-avro-distributed.properties`` to point to the directory containing the Connector jars files. Kafka Connect 0.11
 has introduced isolated classpath loaders.
 
+Connection Refused when posting Configs
+---------------------------------------
+
+If you see this
+
+.. sourcecode:: bash
+
+    confluent-3.3.0|⇒ bin/connect-cli ps
+    java.net.ConnectException: Connection refused (Connection refused)
+
+Kafka Connect is not up. Connect can be slow to start especially is loading a lot of plugins like the Stream Reactor. Confluents CLI will
+report Connect is up when running `confluent start` but Connect's api is not ready to recieve connectors yet. Wait until the Connect logs 
+had reported that all plugins have loaded an try again.
+
+Also the `connect-cli` assumes you are on the same host a Connect cluster worker that you are targeting, if not set the following environment
+variable:
+
+.. sourcecode:: bash
+
+    export KAFKA_CONNECT_REST="http://myserver:myport"
+
+Kudu - No records in Impala table
+---------------------------------
+
+If the KCQL statement is set to autocreate, tables that are created are not visible in Impala. You need to map them first.  Please refer to the 
+`Kudu Documentation <https://kudu.apache.org/docs/kudu_impala_integration.html#_impala_databases_and_kudu>`__. 
+
+If you have created your table in Impala as a managed table you need to fully qualify the table name in the KCQL statement with the
+impala namespace and database .i.e.
+
+.. sourcecode:: sql
+
+    INSERT INTO impala::default.my_table SELECT * FROM my_topic    
 
 I have JSON. Can I still use DataMountaineer Sink Connectors?
 -------------------------------------------------------------

@@ -28,7 +28,7 @@ Configuration
 In addition to the general configuration for Kafka connectors (e.g. name, connector.class, etc.) the following options are available.
 
 
-``connect.ftp.address``
+``ftp.address``
 
 host\[:port\] of the ftp server.
 
@@ -36,7 +36,7 @@ host\[:port\] of the ftp server.
 * Importance: high
 * Optional: no
 
-``connect.ftp.user``
+``ftp.user``
 
 Username to connect with.
 
@@ -44,7 +44,7 @@ Username to connect with.
 * Importance: high
 * Optional: no
 
-``connect.ftp.password``
+``ftp.password``
 
 Password to connect with.
 
@@ -52,7 +52,7 @@ Password to connect with.
 * Importance: high
 * Optional: no           
 
-``connect.ftp.refresh``
+``ftp.refresh``
 
 iso8601 duration that the server is polled.
 
@@ -60,7 +60,7 @@ iso8601 duration that the server is polled.
 * Importance: high
 * Optional: no   
 
-``connect.ftp.file.maxage``       
+``ftp.file.maxage``       
 
 iso8601 duration for how old files can be.
 
@@ -68,7 +68,7 @@ iso8601 duration for how old files can be.
 * Importance: high
 * Optional: no   
 
-``connect.ftp.keystyle``         
+``ftp.keystyle``         
 
 SourceRecord keystyle, `string` or `struct`, see above.
 
@@ -76,7 +76,7 @@ SourceRecord keystyle, `string` or `struct`, see above.
 * Importance: high
 * Optional: no  
 
-``connect.ftp.monitor.tail``          
+``ftp.monitor.tail``          
 
 Comma separated list of path:destinationtopic to tail.
 
@@ -84,7 +84,7 @@ Comma separated list of path:destinationtopic to tail.
 * Importance: high
 * Optional: yes  
 
-``connect.ftp.monitor.update``      
+``ftp.monitor.update``      
 
 Comma separated list of path:destinationtopic to monitor for updates.
 
@@ -92,14 +92,13 @@ Comma separated list of path:destinationtopic to monitor for updates.
 * Importance: high
 * Optional: yes  
 
-``connect.ftp.sourcerecordconverter``
+``ftp.sourcerecordconverter``
 
 Source Record converter class name.
 
 * Type: string
 * Importance: high
 * Optional: yes  
-
 An example file:
 
 .. sourcecode:: bash
@@ -175,4 +174,4 @@ To override it, create your own implementation of `SourceRecordConverter`, put t
 
 .. sourcecode:: bash
     
-    connect.ftp.sourcerecordconverter=your.name.space.YourConverter
+    ftp.sourcerecordconverter=your.name.space.YourConverter
