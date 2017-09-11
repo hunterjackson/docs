@@ -69,8 +69,8 @@ Helm Charts
 .. image:: ../images/helm.png 
    :align: left
 
-Helm is a package manager for Kubernetes, Helm charts are available for Connectors here and target 
-toward use with the Landscaper.
+Helm is a package manager for Kubernetes, Helm charts are available for Connectors `here <https://datamountaineer.github.io/helm-charts/>`__ 
+and targeted toward use with the `Landscaper <https://github.com/Eneco/landscaper>`__.
 
 Microservice architectures are all the rage and for good reason. Small, lightweight, business focused and 
 independently deployable services provide scalability and isolation which it hard to achieve in monolithic systems.
@@ -102,6 +102,12 @@ about how to manage the dataflows that were to be deployed;
 
 This resulted in the Landscaper which takes a repository containing a desired state description of the landscape 
 and eliminates difference between desired and actual state of releases in a Kubernetes cluster.
+
+Add the Helm charts to your Helm instance:
+
+.. sourcecode:: bash
+
+    helm repo add datamountaineer https://datamountaineer.github.io/helm-charts/
 
 Stream Reactor Install
 ~~~~~~~~~~~~~~~~~~~~~~

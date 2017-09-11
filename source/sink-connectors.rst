@@ -9,7 +9,6 @@ Sink connectors stream data from Kafka into external systems.
    azuredocdb-sink
    cassandra-sink
    coap-sink
-   druid
    elastic
    elastic5
    hazelcast
