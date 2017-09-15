@@ -10,13 +10,14 @@ tables in Cassandra.
 
 The Sink supports:
 
-1. :ref:`The KCQL routing querying <kcql>` - Kafka topic payload field selection is supported, allowing you to have choose selection of fields
-   or all fields written to Cassandra.
-2. Topic to table routing via KCQL.
-3. Error policies for handling failures.
-4. Payload support for Schema.Struct and payload Struct, Schema.String and Json payload and Json payload with no schema.
-5. Optional TTL, time to live on inserts. See Cassandras `documentation <https://docs.datastax.com/en/cql/3.3/cql/cql_using/useTTL.html>`__
-   for more information.
+1.  :ref:`The KCQL routing querying <kcql>` - Kafka topic payload field selection is supported, allowing you to have choose selection of fields
+    or all fields written to Cassandra.
+2.  Topic to table routing via KCQL.
+3.  Error policies for handling failures.
+4.  Payload support for Schema.Struct and payload Struct, Schema.String and Json payload and Json payload with no schema.
+5.  Optional TTL, time to live on inserts. See Cassandras `documentation <https://docs.datastax.com/en/cql/3.3/cql/cql_using/useTTL.html>`__
+    for more information.
+6.  Delete for records in Cassandra for null payloads.   
 
 The Sink supports three Kafka payloads type:
 
@@ -349,6 +350,46 @@ All fields can be selected by using "*" in the field part of ``connect.cassandra
 Leaving the column name empty means trying to map to a column in the target table with the same name as the field in the
 source topic.
 
+Deletion in Cassandra
+~~~~~~~~~~~~~~~~~~~~~
+
+Compacted topics in Kafka retain the last message per key. Deletion in Kafka occurs by tombestoning. If compaction is enabled on the topic 
+and a message is sent with a null payload, Kafka flags this record for delete and is compacted/removed from the topic. For more information
+on compaction see `this <http://cloudurable.com/blog/kafka-architecture-log-compaction/index.html>`__.
+
+The use case for this delete functionality would be, for example, when the source topic is a compacted topic, perhaps capturing data changes 
+from an upstream source such as a CDC connector. Let's say a record is deleted from the upstream source and that delete operation is propagated 
+to the kafka topic, with the key of the kafka message as the PK of the record in the targeted cassandra table - meaning the value of the kafka message 
+is now null. This feature allows you to delete these records in Cassandra.
+
+This functionality will be migrated to `KCQL <https://github.com/datamountaineer/kafka-connector-query-language>`__ in future releases.
+
+Deletion in Cassandra is supported based on fields in the ``key`` of messages with a empty/null payload. Deletion is enabled by settings 
+the ``connect.delete.enabled`` option. A Cassandra delete statement must be provided, ``connect.delete.statement`` which specifies the Cassandra 
+CQL delete statement with parameters to bind field values from the ``key`` to, for example, with the delete statement of:
+
+.. sourcecode:: bash
+
+    DELETE FROM orders WHERE id = ? and product = ?
+
+If a message was received with a empty/null value and key fields ``key.id`` and ``key.product`` the final bound Cassandra statement would be:
+
+.. sourcecode:: bash
+
+    # connect.delete.enabled=true
+    # connect.delete.statement=DELETE FROM orders WHERE id = ? and product = ?
+    # connect.delete.struct_flds=id,product   
+
+    # "{ "key": { "id" : 999, "product" : "DATAMOUNTAINEER" }, "value" : null }"
+    DELETE FROM orders WHERE id = 999 and product = "DATAMOUNTAINEER"
+
+.. note::
+
+    Deletion will only occur if a message with an empty payload is recieved from Kafka.
+
+.. important::
+
+    Ensure your ordinal position of the ``connect.delete.struct_flds`` matches the bind order in the Cassandra delete statement!  
 
 Legacy topics (plain text payload with a json string)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -518,6 +559,33 @@ Enables the output for how many records have been processed.
 * Importance: medium
 * Optional: yes
 * Default : false
+
+``connect.delete.enabled``
+
+Enables row deletion from cassandra.
+
+* Type: boolean
+* Importance: medium
+* Optional: yes
+* Default : false
+
+``connect.delete.statement``
+
+Delete statement for cassandra. Required if ``connect.delete.enabled`` is set. 
+
+* Type: string
+* Importance: medium
+* Optional: yes
+* Default : 
+  
+``connect.delete.struct_flds``
+
+Fields in the key struct data type used in there delete statement. Comma-separated in the order they are found in ``connect.delete.statement``
+
+* Type: string
+* Importance: medium
+* Optional: yes
+* Default : 
 
 Example
 ~~~~~~~
