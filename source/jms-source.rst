@@ -203,14 +203,14 @@ and be set in ``connect.jms.kcql`` statement.
 **AvroConverter**
 
 
-``com.datamountaineer.streamreactor.connect.source.converters.AvroConverter``
+``com.datamountaineer.streamreactor.connect.converters.source.AvroConverter``
 
 The payload of the JMS message is an Avro message. In this case you need to provide a path for the Avro schema file to
 be able to decode it.
 
 **JsonSimpleConverter**
 
-``com.datamountaineer.streamreactor.connect.source.converters.JsonSimpleConverter``
+``com.datamountaineer.streamreactor.connect.converters.source.JsonSimpleConverter``
 
 The payload for the JMS message is a Json message. This converter will parse the json and create an Avro record for it which
 will be sent over to Kafka.
@@ -222,7 +222,7 @@ added as the JMS json payload evolves.
 
 **BytesConverter**
 
-``com.datamountaineer.streamreactor.connect.source.converters.BytesConverter``
+``com.datamountaineer.streamreactor.connect.converters.source.BytesConverter``
 
 This is the default implementation. The JMS payload is taken as is: an array of bytes and sent over Kafka as an avro
 record with ``Schema.BYTES``. You don't have to provide a mapping for the source to get this converter!!

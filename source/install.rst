@@ -337,7 +337,7 @@ Release Notes
 *   Rename ReThink Sink `connect.rethink.sink.db` to `connect.rethink.db`
 *   Rename ReThink Sink `connect.rethink.sink.kcql` to `connect.rethink.kcql`
 *   Rename JMS `connect.jms.user` to `connect.jms.username`
-*   Rename JMS `connect.jms.source.converters` to `connect.jms.converters`
+*   Rename JMS `connect.jms.converters.source` to `connect.jms.converters`
 *   Remove JMS `connect.jms.converters` and replace my kcql `withConverters`
 *   Remove JMS `connect.jms.queues` and replace my kcql `withType=QUEUE`
 *   Remove JMS `connect.jms.topics` and replace my kcql `withType=TOPIC`
