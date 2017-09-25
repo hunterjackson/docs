@@ -13,7 +13,7 @@ The Source supports:
 Prerequisites
 -------------
 
-- Confluent 3.2
+- Confluent 3.3
 - Mqtt server
 - Java 1.8
 - Scala 2.11
@@ -81,9 +81,8 @@ connect to the Rest API of Kafka Connect of your container.
     tasks.max=1
     connect.mqtt.connection.clean=true
     connect.mqtt.connection.timeout=1000
-    connect.mqtt.kcql=INSERT INTO kjson SELECT * FROM /mjson WITHCONVERTER=myclass;INSERT INTO kavro SELECT * FROM /mavro
+    connect.mqtt.kcql=INSERT INTO kjson SELECT * FROM /mjson WITHCONVERTER=com.datamountaineer.streamreactor.connect.converters.source.JsonSimpleConverter
     connect.mqtt.connection.keep.alive=1000
-    connect.converter.avro.schemas=/mavro=$PATH_TO/temperaturemeasure.avro
     connect.mqtt.client.id=dm_source_id,
     connect.mqtt.converter.throw.on.error=true
     connect.mqtt.hosts=tcp://127.0.0.1:11883
@@ -98,13 +97,11 @@ The ``mqtt-source.properties`` file defines:
 3.  Clean the mqtt connection.
 4.  The Kafka Connect Query statements to read from json and avro topics and insert into Kafka kjson and kavro topics.
 5.  Setting the time window to emit keep alive pings
-6.  Set the converters for each of the Mqtt topics. If a source doesn't get a converter set it will default to BytesConverter
-7.  Set the avro schema for the 'avro' Mqtt topic.
-8.  The mqtt client identifier.
-9.  If a conversion can't happen it will throw an exception.
-10. The connection to the Mqtt server.
-11. The quality of service for the messages.
-12. Set the connector source class.
+6.  The mqtt client identifier.
+7.  If a conversion can't happen it will throw an exception.
+8.  The connection to the Mqtt server.
+9. The quality of service for the messages.
+10. Set the connector source class.
 
 Use the Confluent CLI to view Connects logs.
 
@@ -139,10 +136,9 @@ We can use the CLI to check if the connector is up but you should be able to see
                |_|
      (com.datamountaineer.streamreactor.connect.mqtt.source.MqttSourceTask:37)
     [2016-12-20 16:51:08,090] INFO MqttSourceConfig values:
-        connect.mqtt.kcql = INSERT INTO kjson SELECT * FROM /mjson;INSERT INTO kavro SELECT * FROM /mavro
+        connect.mqtt.kcql = INSERT INTO kjson SELECT * FROM /mjson WITHCONVERTER=com.datamountaineer.streamreactor.connect.converters.source.JsonSimpleConverter
         connect.mqtt.service.quality = 1
         connect.mqtt.connection.ssl.cert = null
-        connect.mqtt.converters = /mjson=com.datamountaineer.streamreactor.connect.converters.source.JsonSimpleConverter;/mavro=com.datamountaineer.streamreactor.connect.converters.source.AvroConverter
         connect.mqtt.connection.keep.alive = 1000
         connect.mqtt.hosts = tcp://127.0.0.1:11883
         connect.mqtt.converter.throw.on.error = true
@@ -165,7 +161,7 @@ Go to the mqtt-server application you downloaded and unzipped and execute:
 
     ./bin/mqtt-server
 
-This will put the following records into the avro and json Mqtt topic:
+This will put the following records into the json Mqtt topic:
 
 
 .. sourcecode:: scala

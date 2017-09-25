@@ -32,7 +32,7 @@ The payload of the MQTT message sent to the MQTT broker is sent as json.
 Prerequisites
 -------------
 
-- Confluent 3.2
+- Confluent 3.3
 - Java 1.8
 - Scala 2.11
 - Mqtt server

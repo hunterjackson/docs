@@ -17,7 +17,7 @@ The Sink supports:
 Prerequisites
 -------------
 
-- Confluent 3.2
+- Confluent 3.3
 - Hazelcast 3.6.4 or higher
 - Java 1.8
 - Scala 2.11

@@ -41,7 +41,7 @@ Prerequisites!!
 ---------------
 
 -  Cassandra **2.2.4+** if your are on version 2.* or **3.0.1+** if you are on version 3.*
-- Confluent 3.2
+- Confluent 3.3
 -  Java 1.8
 -  Scala 2.11
 

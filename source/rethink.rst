@@ -35,7 +35,7 @@ over Kafka and bringing them in line with best practices is quite a challenge. H
 Prerequisites
 -------------
 
-- Confluent 3.2
+- Confluent 3.3
 - RethinkDb 2.3.3
 - Java 1.8
 - Scala 2.11

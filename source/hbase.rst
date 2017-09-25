@@ -15,7 +15,7 @@ The Sink supports:
 Prerequisites
 -------------
 
-- Confluent 3.2
+- Confluent 3.3
 - HBase 1.2.0
 - Java 1.8
 - Scala 2.11

@@ -7,7 +7,7 @@ Prerequisites
 -------------
 
 -  Bloomberg subscription
-- Confluent 3.2
+- Confluent 3.3
 -  Java 1.8
 -  Scala 2.11
 
