@@ -223,8 +223,8 @@ Features
 --------
 
 The Mqtt source allows you to plugin your own converter. Say you receive protobuf data, all you have to do is to write your own
-very specific converter that knows how to convert from protobuf to SourceRecord. All you have to do is set the ``connect.mqtt.converters``
-for the topic containing the protobuf data.
+very specific converter that knows how to convert from protobuf to SourceRecord. All you have to do is set the ``WITHCONVERTER=`` 
+in the KCQL statement.
 
 .. _mqtt_converters:
 
