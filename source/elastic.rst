@@ -71,7 +71,7 @@ connect to the Rest API of Kafka Connect of your container.
     #Connector name=`elastic-sink`
     connect.progress.enabled=true
     name=elastic-sink
-    connector.class=com.datamountaineer.streamreactor.connect.elastic5.ElasticSinkConnector
+    connector.class=com.datamountaineer.streamreactor.connect.elastic.ElasticSinkConnector
     connect.elastic.url=localhost:9300
     connect.elastic.cluster.name=elasticsearch
     tasks.max=1
