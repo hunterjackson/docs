@@ -83,7 +83,7 @@ connect to the Rest API of Kafka Connect of your container.
     connect.mqtt.connection.timeout=1000
     connect.mqtt.kcql=INSERT INTO kjson SELECT * FROM /mjson WITHCONVERTER=com.datamountaineer.streamreactor.connect.converters.source.JsonSimpleConverter
     connect.mqtt.connection.keep.alive=1000
-    connect.mqtt.client.id=dm_source_id,
+    connect.mqtt.client.id=dm_source_id
     connect.mqtt.converter.throw.on.error=true
     connect.mqtt.hosts=tcp://127.0.0.1:11883
     connect.mqtt.service.quality=1
