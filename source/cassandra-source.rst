@@ -393,14 +393,14 @@ iteration (or in case of a crash). In this case the maximum value of the records
 and stored in Kafka by the framework. If no offset is found for the table at startup a default timestamp of 1900-01-01
 is used. This is then passed to a prepared statement containing a range query. 
 
-Specifiying TOKEN causes the connector to wrap the values in the `token` function. Your Cassandra cluster must use the 
-Byte Ordered partitioner but this it is generally not recommended due to the creation of hotspots in the cluster. However, 
-if Byte Ordered Partitioner is not used, the KC connector will miss all of the new rows whose token(PK column) falls "behind" 
+Specifiying TOKEN causes the connector to wrap the values in the `token` function. Only on PRIMARY KEY field of type token is supported.
+Your Cassandra cluster must use the Byte Ordered partitioner but this it is generally not recommended due to the creation of hotspots in 
+the cluster. However, if Byte Ordered Partitioner is not used, the KC connector will miss all of the new rows whose token(PK column) falls "behind" 
 the token recorded as the offset. This is because Cassandra's other partitioners don't order the tokens.
 
 .. warning:: 
 
-    You must use the Byte Order Partitioner for the TOKEN mode to work correctly
+    You must use the Byte Order Partitioner for the TOKEN mode to work correctly. Only one PRIMARY KEY field is supported for TOKENS.
 
 For example:
 
