@@ -11,6 +11,9 @@ The Sink supports:
 1. Auto index creation at start up.
 2. :ref:`The KCQL routing querying <kcql>` - Topic to index mapping and Field selection.
 3. Auto mapping of the Kafka topic schema to the index.
+4. Tagging indexes with a document type.
+5. Adding index name suffixes with a data pattern.
+6. Upsert and insert records.
 
 Prerequisites
 -------------
@@ -210,14 +213,18 @@ Kafka Connect Query Language
 **K** afka **C** onnect **Q** uery **L** anguage found here `GitHub repo <https://github.com/datamountaineer/kafka-connector-query-language>`__
 allows for routing and mapping using a SQL like syntax, consolidating typically features in to one configuration option.
 
-The Elastic Sink supports the following:
+The Elastic Sink supports insert/upsert, setting the document type and setting suffixes on the index with a data format:
 
 .. sourcecode:: bash
 
+    #INSERT
     INSERT INTO <index> SELECT <fields> FROM <source topic> 
     [WITHDOCTYPE=<your_document_type>] 
     [WITHINDEXSUFFIX=<your_suffix>]
     [PK field]
+
+    #UPSERT
+    UPSERT INTO <index> SELECT <fields> FROM <source topic> [PK field]
 
 `WITHDOCTYPE` allows you to associate a document type to the document inserted.
 `WITHINDEXSUFFIX` allows you to specify a suffix to your index and we support date format. All you have to say is '_suffix_{YYYY-MM-dd}'
@@ -231,6 +238,9 @@ Example:
 
     #Insert mode, select 3 fields and rename from topicB and write to indexB
     INSERT INTO indexB SELECT x AS a, y AS b and z AS c FROM topicB PK y
+
+    # UPSERT
+    UPSERT INTO indexC SELECT id, string_field FROM topicC PK id
 
 This is set in the ``connect.elastic.kcql`` option.
 
