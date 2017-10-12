@@ -214,7 +214,10 @@ The Elastic Sink supports the following:
 
 .. sourcecode:: bash
 
-    INSERT INTO <index> SELECT <fields> FROM <source topic> [WITHDOCTYPE=<your_document_type>] [WITHINDEXSUFFIX=<your_suffix>]
+    INSERT INTO <index> SELECT <fields> FROM <source topic> 
+    [WITHDOCTYPE=<your_document_type>] 
+    [WITHINDEXSUFFIX=<your_suffix>]
+    [PK field]
 
 `WITHDOCTYPE` allows you to associate a document type to the document inserted.
 `WITHINDEXSUFFIX` allows you to specify a suffix to your index and we support date format. All you have to say is '_suffix_{YYYY-MM-dd}'
