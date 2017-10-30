@@ -81,7 +81,7 @@ connect to the Rest API of Kafka Connect of your container.
     tasks.max=1
     connect.mqtt.connection.clean=true
     connect.mqtt.connection.timeout=1000
-    connect.mqtt.kcql=INSERT INTO kjson SELECT * FROM /mjson WITHCONVERTER=com.datamountaineer.streamreactor.connect.converters.source.JsonSimpleConverter
+    connect.mqtt.kcql=INSERT INTO kjson SELECT * FROM /mjson WITHCONVERTER=`com.datamountaineer.streamreactor.connect.converters.source.JsonSimpleConverter`
     connect.mqtt.connection.keep.alive=1000
     connect.mqtt.client.id=dm_source_id
     connect.mqtt.converter.throw.on.error=true
@@ -136,7 +136,7 @@ We can use the CLI to check if the connector is up but you should be able to see
                |_|
      (com.datamountaineer.streamreactor.connect.mqtt.source.MqttSourceTask:37)
     [2016-12-20 16:51:08,090] INFO MqttSourceConfig values:
-        connect.mqtt.kcql = INSERT INTO kjson SELECT * FROM /mjson WITHCONVERTER=com.datamountaineer.streamreactor.connect.converters.source.JsonSimpleConverter
+        connect.mqtt.kcql = INSERT INTO kjson SELECT * FROM /mjson WITHCONVERTER=`com.datamountaineer.streamreactor.connect.converters.source.JsonSimpleConverter`
         connect.mqtt.service.quality = 1
         connect.mqtt.connection.ssl.cert = null
         connect.mqtt.connection.keep.alive = 1000
@@ -269,7 +269,7 @@ The Mqtt Source supports the following:
 
 .. sourcecode:: bash
 
-    INSERT INTO <target topic> SELECT * FROM <mqtt source topic> [WITHCONVERTER=myclass]
+    INSERT INTO <target topic> SELECT * FROM <mqtt source topic> [WITHCONVERTER=`myclass`]
 
 Example:
 
@@ -279,7 +279,7 @@ Example:
     INSERT INTO kafkaTopic1 SELECT * FROM mqttTopicA [WITHCONVERTER=myclass]
 
     #wildcard
-    INSERT INTO kafkaTopic1 SELECT * FROM mqttTopicA/+/sensors [WITHCONVERTER=myclass]
+    INSERT INTO kafkaTopic1 SELECT * FROM mqttTopicA/+/sensors [WITHCONVERTER=`myclass`]
 
 .. note::
 
@@ -445,7 +445,7 @@ Example
     tasks.max=1
     connect.mqtt.connection.clean=true
     connect.mqtt.connection.timeout=1000
-    connect.mqtt.kcql=INSERT INTO kjson SELECT * FROM /mjson WITHCONVERTER=myclass;INSERT INTO kavro SELECT * FROM /mavro WITHCONVERTER=myclass
+    connect.mqtt.kcql=INSERT INTO kjson SELECT * FROM /mjson WITHCONVERTER=`myclass`;INSERT INTO kavro SELECT * FROM /mavro WITHCONVERTER=`myclass`
     connect.mqtt.connection.keep.alive=1000
     connect.converter.avro.schemas=/mavro=$PATH_TO/temperaturemeasure.avro
     connect.mqtt.client.id=dm_source_id,
