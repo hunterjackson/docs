@@ -86,7 +86,7 @@ The incremental mode is set in the via the ``connect.cassandra.kcql`` option. Al
 Source Connector QuickStart
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-We you start the Confluent Platform, Kafka Connect is started in distributed mode (``confluent start``). 
+When you start the Confluent Platform, Kafka Connect is started in distributed mode (``confluent start``). 
 In this mode a Rest Endpoint on port ``8083`` is exposed to accept connector configurations. 
 We developed Command Line Interface to make interacting with the Connect Rest API easier. The CLI can be found in the Stream Reactor download under
 the ``bin`` folder. Alternatively the Jar can be pulled from our GitHub
