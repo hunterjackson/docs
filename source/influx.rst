@@ -53,28 +53,31 @@ Once brew is installed, you can install InfluxDB by running:
 
     brew update
     brew install influxdb
+    # start influx
+    influxd
 
-.. note::
+Versions Prior to 1.3
+^^^^^^^^^^^^^^^^^^^^^
 
-    InfluxDB starts an Admin web server listening on port 8083 by default. For this quickstart this will collide with Kafka
-    Connects default port of 8083. Since we are running on a single node we will need to  edit the InfluxDB config.
+InfluxDB prior to version 1.3 starts an Admin web server listening on port 8083 by default. For this quickstart this will collide with Kafka
+Connects default port of 8083. Since we are running on a single node we will need to  edit the InfluxDB config.
 
-    .. sourcecode:: bash
+.. sourcecode:: bash
 
-        #create config dir
-        sudo mkdir /etc/influxdb
-        #dump the config
-        influxd config > /etc/influxdb/influxdb.generated.conf
+    #create config dir
+    sudo mkdir /etc/influxdb
+    #dump the config
+    influxd config > /etc/influxdb/influxdb.generated.conf
 
-    Now change the following section to a port 8087 or any other free port.
+Now change the following section to a port 8087 or any other free port.
 
-    .. sourcecode:: bash
+.. sourcecode:: bash
 
-        [admin]
-        enabled = true
-        bind-address = ":8087"
-        https-enabled = false
-        https-certificate = "/etc/ssl/influxdb.pem"
+    [admin]
+    enabled = true
+    bind-address = ":8087"
+    https-enabled = false
+    https-certificate = "/etc/ssl/influxdb.pem"
 
 Now start InfluxDB.
 
