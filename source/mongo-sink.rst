@@ -154,7 +154,7 @@ connect to the Rest API of Kafka Connect of your container.
     tasks.max=1
     topics=orders-topic
     connect.mongo.kcql=INSERT INTO orders SELECT * FROM orders-topic
-    connect.mongo.database=connect
+    connect.mongo.db=connect
     connect.mongo.connection=mongodb://localhost:27017
     connect.mongo.batch.size=10
 
@@ -179,7 +179,7 @@ We can use the CLI to check if the connector is up but you should be able to see
         connect.mongo.kcql = INSERT INTO orders SELECT * FROM orders-topic
         connect.mongo.connection = mongodb://localhost:27017
         connect.mongo.error.policy = THROW
-        connect.mongo.database = connect
+        connect.mongo.db = connect
         connect.mongo.sink.batch.size = 10
         connect.mongo.max.retires = 20
      (com.datamountaineer.streamreactor.connect.mongodb.config.MongoConfig:178)
@@ -417,7 +417,7 @@ MongoDb sink supports the following:
 
 .. sourcecode:: bash
 
-    INSERT INTO <database>.<target collection> SELECT <fields> FROM <source topic> <PK field name>
+    INSERT INTO <target collection> SELECT <fields> FROM <source topic> <PK field name>
 
 Example:
 
@@ -486,7 +486,6 @@ All of this can be easily expressed with KCQL:
  -  Select all fields from topic fx_prices and upsert into the fx collection, The assumption is there will be a ticker field in the incoming json:
     ``UPSERT INTO fx SELECT * FROM fx_prices PK ticker``.
 
-
  -  Select specific fields from the topic sample_topic and insert into the sample collection:
     ``INSERT INTO sample SELECT field1,field2,field3 FROM sample_topic``.
 
@@ -539,7 +538,6 @@ Authentication Mechanism
 
 All authentication methods are supported, X.509, LDAP Plain, Kerberos (GSSAPI), Mongodb-CR and SCRAM-SHA-1. The default as of
 MongoDB version 3.0 SCRAM-SHA-1. To set the authentication mechanism set the ``authMechanism`` in the ``connect.mongo.connection`` option.
-
 
 .. note::
 
