@@ -446,7 +446,7 @@ It is expected that Kafka Connect worker will run on the same node as the Apache
     There should be only one Connector Worker instance per machine. Any more won't have any effect
 
 Cassandra supports  a master-less "ring" architecture. Each of the node in the Cassandra ring cluster will be
-responsible for storing the table records. The partition key hash and number of rings in the cluster determines the where
+responsible for storing the table records. The partition key hash and number of rings in the cluster determines the node where
 each record is stored. (we leave aside replication from this discussion).
 
 Upon flushing the memtable to disk, all the commit log segments containing data for CDC-enabled tables are moved to the
@@ -553,7 +553,7 @@ Starting the Connector (Distributed)
 Download, unpack and install the Stream Reactor and Confluent. Follow the instructions :ref:`here <install>` if you haven't already done so.
 All paths in the quickstart are based in the location you installed the Stream Reactor.
 
-Start Kafka Connect in distributed more by running:
+Start Kafka Connect in distributed mode by running:
 
 .. sourcecode:: bash
 
