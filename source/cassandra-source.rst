@@ -636,6 +636,14 @@ The max number of rows the Cassandra driver will fetch at one time.
 * Importance: medium
 * Default : 5000
 
+``connect.cassandra.slice.duration``
+
+* Type: long
+* Importance: medium
+* Default : 10000
+
+Duration in milliseconds to query for in target Cassandra table. Used to restrict query timestamp span.
+
 ``connect.progress.enabled``
 
 Enables the output for how many records have been processed.
@@ -644,6 +652,7 @@ Enables the output for how many records have been processed.
 * Importance: medium
 * Optional: yes
 * Default : false
+
 
 Bulk Example
 ~~~~~~~~~~~~
