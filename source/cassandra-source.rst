@@ -644,6 +644,14 @@ The max number of rows the Cassandra driver will fetch at one time.
 
 Duration in milliseconds to query for in target Cassandra table. Used to restrict query timestamp span.
 
+``connect.cassandra.initial.offset``
+
+* Type: string
+* Importance: medium
+* Default : 1900-01-01 00:00:00.0000000Z
+
+The inital timestamp to start querying in Cassandra from (yyyy-MM-dd HH:mm:ss.SSS'Z')."
+
 ``connect.progress.enabled``
 
 Enables the output for how many records have been processed.
