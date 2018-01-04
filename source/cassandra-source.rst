@@ -551,7 +551,7 @@ Default is 1 minute.
 
 * Data type: int
 * Optional : yes
-* Default  : 1
+* Default  : 60000
 
 .. warning::
 
