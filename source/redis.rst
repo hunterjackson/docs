@@ -240,11 +240,11 @@ This will update the keys `USDGBP` , `EURGBP` with the relevant price using the 
 
     Key=EURGBP  Value={ "price": 0.7943 }
 
-We can prefix the name of the `Key` using the INSERT statement:
+We can prefix the name of the `Key` using the INSERT statement for Multiple SortedSets:
 
 .. sourcecode:: sql
 
-    INSERT INTO FX- SELECT price from yahoo-fx PK symbol
+    INSERT INTO FX- SELECT price from yahoo-fx PK symbol STOREAS SortedSet(score=timestamp)
 
 This will create key with names `FX-USDGBP` , `FX-EURGBP` etc.
 
@@ -269,7 +269,7 @@ which values to store into the sorted-sets. You can achieve that by using the KC
 
  .. sourcecode:: sql
 
-    SELECT temperature, humidity FROM sensorsTopic PK sensorID STOREAS SortedSet(score=timestamp)
+    INSERT INTO cpu_stats SELECT temperature, humidity FROM sensorsTopic PK sensorID STOREAS SortedSet(score=timestamp)
 
 Kafka Connect Query Language
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
